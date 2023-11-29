@@ -5,6 +5,7 @@ from kivymd.app import MDApp
 from login import LoginScreen
 from signin import SignInScreen
 from signup import SignUpScreen
+from edituser import EditUser
 from dashboard import DashBoardScreen
 from user import Profile
 from kivymd.uix.snackbar import Snackbar
@@ -31,7 +32,11 @@ Builder.load_string(
 
     Profile:
         name:'profile'
-        manage: root    
+        manager: root   
+
+    EditUser:
+        name: 'edituser'
+        manager: root     
     """
 )
 
@@ -226,7 +231,52 @@ class ScreenManagement(ScreenManager):
 
 class WalletApp(MDApp):
     def build(self):
-        return ScreenManagement()
+        self.scr_mgr = ScreenManagement()
+        return self.scr_mgr
+
+    # edit profile========================
+    def edit_profile(self):
+        edit_screen = self.scr_mgr.get_screen('edituser')
+        edit_screen.ids.username.text = ScreenManagement.current_user_data[1]
+        edit_screen.ids.email.text = ScreenManagement.current_user_data[0]
+        edit_screen.ids.phone.text = ScreenManagement.current_user_data[3]
+        edit_screen.ids.password.text = ScreenManagement.current_user_data[2]
+        edit_screen.ids.aadhaar.text = ScreenManagement.current_user_data[4]
+        edit_screen.ids.pan.text = ScreenManagement.current_user_data[5]
+        edit_screen.ids.address.text = ScreenManagement.current_user_data[6]
+        self.scr_mgr.current = 'edituser'
+
+        print(ScreenManagement.current_user_data)
+
+    def save_edit(self):
+        conn = sqlite3.connect('wallet_app.db')
+        cursor = conn.cursor()
+
+        edit_scr = self.scr_mgr.get_screen('edituser')
+        phone = edit_scr.ids.phone.text
+        username = edit_scr.ids.username.text
+        gmail = edit_scr.ids.email.text
+        password = edit_scr.ids.password.text
+        adhaar = edit_scr.ids.aadhaar.text
+        pan = edit_scr.ids.pan.text
+        address = edit_scr.ids.address.text
+
+        update_sql = ('''
+                UPDATE login
+                SET username = ?, gmail = ?, password = ?, adhaar = ?, pan = ?, address = ?
+                WHERE phone = ?;
+            ''')
+
+        # Execute the SQL statement with the updated values
+        cursor.execute(update_sql, (username, gmail, password, adhaar, pan, address, phone))
+
+        # Commit the changes
+        conn.commit()
+
+        # Close the connection (assuming 'conn' is the connection object)
+        conn.close()
+        self.scr_mgr.profile_view()
+        # self.scr_mgr.current = 'profile'
 
 
 if __name__ == '__main__':
