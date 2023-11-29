@@ -334,18 +334,19 @@ navigation_helper = """
 
                             MDCard:
                                 radius: [50, 50, 50, 50]
-                                size_hint: None, None
-                                size: "260dp", "120dp"
+                                size_hint: 1, 1  # Adjust the size_hint based on your preference
+                                height: self.minimum_height
                                 md_bg_color: 0.9, 0.9, 0.9, 1  # Slight grey background
 
                                 MDLabel:
                                     text: "Balance: 12345"
-                                    size_hint: 1, None
-                                    font_size:"28sp"
+                                    size_hint_y: 1
+                                    font_size: self.width / 8  # Adjust the font size based on the width of the card
                                     bold: True
-                                    height:"115dp"
+                                    height: self.texture_size[1]
                                     halign: "center"
                                     valign: "center"
+
 
 
                         BoxLayout: 
@@ -388,8 +389,11 @@ navigation_helper = """
 
 """
 Builder.load_string(navigation_helper)
+
+
 class BottomAppBar(FloatLayout):
     pass
+
 
 class ContentNavigationDrawer(MDBoxLayout):
     pass

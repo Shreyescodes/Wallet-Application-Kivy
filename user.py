@@ -17,12 +17,12 @@ KV = """
             BoxLayout:
                 orientation: 'vertical'
                 spacing: dp(16)
-                
+
                 MDLabel:
                     id: username_label
                     text: "Username: "
                     theme_text_color: "Secondary"
-                
+
                 MDLabel:
                     id: email_label
                     text: "Gmail: "
@@ -48,7 +48,7 @@ KV = """
                     id: address_label
                     text: "Address: "
                     theme_text_color: "Secondary"
-                    
+
                 MDRaisedButton:
                     text: "Edit Profile"
                     size_hint: None, None
@@ -60,18 +60,24 @@ KV = """
                     size_hint: None, None
                     size: dp(150), dp(50)
                     pos_hint: {'center_x': 0.5, 'center_y': 1}
-                    # on_release: root.edit_profile()
+                    on_release: root.go_back()
 """
 Builder.load_string(KV)
 
 
 class Profile(Screen):
-    pass
+    def edit_profile(self):
+        app = MDApp.get_running_app()
+        app.edit_profile()
+
+    def go_back(self):
+        self.manager.current = 'dashboard'
 
 
 class WalletApp(MDApp):
     def build(self):
         return Builder.load_string(KV)
+
 
 if __name__ == '__main__':
     WalletApp().run()
