@@ -369,11 +369,13 @@ navigation_helper = """
 
                                 OneLineIconListItem:
                                     text: "Transaction History"
+                                    on_release:root.manager.go_to_transaction()
                                     IconLeftWidget:
                                         icon: "history"
 
                                 OneLineIconListItem:
                                     text: "Add Bank Account"
+                                    on_release: root.manager.add_account()
                                     IconLeftWidget:
                                         icon: "bank"
 
@@ -384,6 +386,7 @@ navigation_helper = """
 
                                 OneLineIconListItem:
                                     text: "Log-out"
+                                    on_release: root.manager.logout()
                                     IconLeftWidget:
                                         icon: "logout"        
 
