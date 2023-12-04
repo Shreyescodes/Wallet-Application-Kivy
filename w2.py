@@ -82,9 +82,11 @@ Builder.load_string(KV)
 class WithdrawScreen(Screen):
     def go_back(self):
         self.manager.current = 'dashboard'
+
     def create_tables_if_not_exist(self):
         # Connect to the database
         pass
+
 
 
 
