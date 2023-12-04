@@ -2,7 +2,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.app import MDApp
-from kivymd.uix.button import MDRaisedButton, MDIconButton,MDRectangleFlatButton
+from kivymd.uix.button import MDRaisedButton, MDIconButton, MDRectangleFlatButton
 from kivymd.uix.label import MDLabel
 from kivy.core.window import Window
 from kivy.metrics import dp
@@ -83,14 +83,17 @@ Builder.load_string(
 
                 MDIconButton:
                     icon: 'shield'
+                    pos_hint:{'center_x': 0.5}
+                    valign:"center"
 
                 MDLabel:
                     text: 'Safe'
                     theme_text_color: 'Primary'
                     font_size: '16sp'
                     bold: True
-                    pos_hint:{'center_x': 0.6}
-                    
+                    pos_hint:{'center_x': 0.5}
+                    halign:"center"
+
 
             BoxLayout:
                 orientation: 'vertical'
@@ -100,40 +103,41 @@ Builder.load_string(
                 MDIconButton:
                     icon: 'lock'
                     pos_hint:{'center_x': 0.5}
+                    valign:"center"
 
                 MDLabel:
                     text: 'Secure'
                     theme_text_color: 'Primary'
                     font_size: '16sp'
                     bold: True
-                    pos_hint:{'center_x': 0.7}
-                    
+                    pos_hint:{'center_x': 0.5}
+                    halign:"center"
+
 
             BoxLayout:
                 orientation: 'vertical'
                 spacing: dp(5)
                 pos_hint: {'center_x': 0.7}
-                
+
 
                 MDIconButton:
                     icon: 'credit-card'
                     pos_hint:{'center_x': 0.55}
-                    
-                    
+                    valign:"center"
+
+
 
                 MDLabel:
                     text: 'Easy'
                     theme_text_color: 'Primary'
                     font_size: '16sp'
                     bold: True
-                    pos_hint:{'center_x': 0.85}
-                    
-                    
+                    pos_hint:{'center_x': 0.55}
+                    halign:"center"
+
+
 """
 )
-
-
-
 
 
 class LoginScreen(Screen):
