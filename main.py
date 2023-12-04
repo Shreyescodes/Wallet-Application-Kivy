@@ -24,6 +24,7 @@ from kivymd.uix.snackbar import Snackbar
 import sqlite3
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
+from Transfer_Page import TransferScreen
 
 Builder.load_string(
     """
@@ -60,7 +61,10 @@ Builder.load_string(
      
     WithdrawScreen:
         name: 'withdraw'
-        manager: root        
+        manager: root  
+    TransferScreen:
+        name:'transfer'
+        manager:root          
         
                      
     """
@@ -502,6 +506,9 @@ class ScreenManagement(ScreenManager):
             auto_dismiss=True
         )
         popup.open()
+
+    def nav_transfer(self):
+        self.current = 'transfer'
 class WalletApp(MDApp):
     def build(self):
         self.scr_mgr = ScreenManagement()

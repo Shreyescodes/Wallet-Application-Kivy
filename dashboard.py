@@ -37,7 +37,7 @@ navigation_helper = """
                                 text:'Transfer'
                                 text_size: dp(1)
                                 icon:'bank-transfer-in'
-                                on_tab_release:print("Transfer")
+                                on_tab_release:root.manager.nav_transfer()
                             MDBottomNavigationItem:
                                 name:"Withdraw"
                                 text:'Add Money'
