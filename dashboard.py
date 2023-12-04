@@ -31,7 +31,7 @@ navigation_helper = """
                                 text:'Withdraw'
                                 font_size: '20sp'
                                 icon:'bank-transfer-out'
-                                on_tab_release:print("Withdraw")
+                                on_tab_release:root.manager.nav_withdraw()
                             MDBottomNavigationItem:
                                 name:"Withdraw"
                                 text:'Transfer'
@@ -43,7 +43,7 @@ navigation_helper = """
                                 text:'Add Money'
                                 text_size:dp(8)
                                 icon:'wallet-plus'
-                                on_tab_release:print("Add money")
+                                on_tab_release: root.manager.nav_topup()
                     MDTopAppBar:
                         title: "G-Wallet"
                         elevation: 4
@@ -313,7 +313,7 @@ navigation_helper = """
 
                         MDLabel:
                             id: username_label
-                            text:'sachin'
+                            text:''
                             font_style:"Subtitle1"
                             size_hint_y:None
                             height: self.texture_size[1]
@@ -321,7 +321,7 @@ navigation_helper = """
 
                         MDLabel:
                             id: email_label
-                            text:'s@gmail.com'
+                            text:''
                             font_style:"Caption" 
                             size_hint_y:None
                             height: self.texture_size[1]
@@ -375,7 +375,7 @@ navigation_helper = """
 
                                 OneLineIconListItem:
                                     text: "Add Bank Account"
-                                    on_release: root.manager.add_account()
+                                    on_release: root.manager.nav_account()
                                     IconLeftWidget:
                                         icon: "bank"
 

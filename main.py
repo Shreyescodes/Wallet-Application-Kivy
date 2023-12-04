@@ -1,8 +1,14 @@
+import json
+
 from kivy.storage.jsonstore import JsonStore
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import ScreenManager
 from kivy.lang import Builder
 from kivy.core.window import Window
 from kivymd.app import MDApp
+from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineListItem
 from login import LoginScreen
 from signin import SignInScreen
@@ -12,6 +18,8 @@ from dashboard import DashBoardScreen
 from user import Profile
 from transaction import Transaction
 from addAccount import AddAccountScreen
+from topup import Topup
+from w2 import WithdrawScreen
 from kivymd.uix.snackbar import Snackbar
 import sqlite3
 from kivymd.uix.dialog import MDDialog
@@ -44,7 +52,17 @@ Builder.load_string(
 
     AddAccountScreen:
         name:'addaccount'
-        manager: root          
+        manager: root 
+        
+    Topup:
+        name:'topup'
+        manager: root 
+     
+    WithdrawScreen:
+        name: 'withdraw'
+        manager: root        
+        
+                     
     """
 )
 
@@ -189,16 +207,17 @@ class ScreenManagement(ScreenManager):
                 self.show_popup("Invalid User")
             else:
 
-                self.fetch_and_update_dashboard(row)
+                # self.fetch_and_update_dashboard(row)
                 # Show popup for successful login
                 self.show_popup("Login Successful")
                 self.current = 'dashboard'
             store = JsonStore('user_data.json')
             store.put('user', value=row)
+
             conn.commit()
             conn.close()
 
-    def fetch_and_update_dashboard(self, user_data):
+    def fetch_and_update_dashboard(self):
         if ScreenManagement.current_user_data:
             # Retrieve the current user data
             current_user_data = ScreenManagement.current_user_data
@@ -274,6 +293,7 @@ class ScreenManagement(ScreenManager):
         )
         dialog.open()
 
+    # transcation screen part
     def go_to_transaction(self):
         self.on_start()
         self.current = 'transaction'
@@ -300,13 +320,17 @@ class ScreenManagement(ScreenManager):
         # Display the transaction history
         for trans in transaction_history:
             transaction_item = f"paid     {trans[2]}₹\n          " \
-                               f" {trans[3]}\n" \
+                               f" {trans[3]}\n"
 
             trans_screen.ids.transaction_list.add_widget(OneLineListItem(text=transaction_item))
 
-    def add_account(self):
+    # add Account part
+    def nav_account(self):
         acc_scr = self.get_screen('addaccount')
         self.current = 'addaccount'
+
+    def add_account(self):
+        acc_scr = self.get_screen('addaccount')
         # Retrieve data from text fields
         account_holder_name = acc_scr.ids.account_holder_name.text
         account_number = acc_scr.ids.account_number.text
@@ -316,13 +340,173 @@ class ScreenManagement(ScreenManager):
         ifsc_code = acc_scr.ids.ifsc_code.text
         account_type = acc_scr.ids.account_type.text
 
-        # Process the data (you can store it or perform further actions)
+        # Check if the account numbers match
+        if account_number != confirm_account_number:
+            print("Error: Account numbers do not match.")
+            Snackbar(
+                text="Error: Account number didn't match.").open()
+            # You might want to handle this case in your UI, e.g., show an error message.
+            return
 
+        # Retrieve phone number from user_data.json
+        with open('user_data.json', 'r') as json_file:
+            user_data = json.load(json_file)
+            phone_number = user_data.get("user", {}).get("value", [])[3]
 
+        # Connect to the SQLite database
+        conn = sqlite3.connect("wallet_app.db")
+        cursor = conn.cursor()
+
+        try:
+            # Insert into account_details table
+            cursor.execute('''
+                       INSERT INTO account_details 
+                       (account_holder_name, account_number, bank_name, branch_name, ifsc_code, account_type, phone) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?)
+                   ''', (
+                account_holder_name, account_number, bank_name, branch_name, ifsc_code, account_type, phone_number))
+
+            # Commit the changes
+            conn.commit()
+            print("Account details added successfully.")
+            self.show_popup("Account added successfully.")
+            self.current = 'dashboard'
+        except sqlite3.IntegrityError:
+            conn.rollback()
+            print("Error: Account number already exists in the database.")
+            Snackbar(
+                text="Error: Account number already exists in the database.").open()
+
+        # Close the connection
+        conn.close()
+
+    # navigation ton top up screen
+    def nav_topup(self):
+        self.current = 'topup'
+
+    def nav_withdraw(self):
+        self.current = 'withdraw'
+
+    def select_currency(self, currency):
+        wdrw_scr = self.get_screen('withdraw')
+        wdrw_scr.ids.currency_spinner.text = currency
+
+    def withdraw(self):
+        wdrw_scr = self.get_screen('withdraw')
+        #self.create_tables_if_not_exist()
+        # Get the entered mobile number, amount, and selected currency from your UI components
+        entered_mobile = wdrw_scr.ids.mobile_textfield.text
+        amount = wdrw_scr.ids.amount_textfield.text
+        selected_currency = wdrw_scr.ids.currency_spinner.text
+
+        # Validate inputs
+        if not entered_mobile or not amount or not selected_currency:
+            self.show_error_popup("Please fill in all fields.")
+            return
+
+        # Check if the withdrawal amount is a valid number
+        try:
+            amount = float(amount)
+        except ValueError:
+            self.show_error_popup("Invalid amount. Please enter a valid number.")
+            return
+
+        # Check if the entered mobile number is present in the withdraw_transfer table
+        conn = sqlite3.connect('wallet_app.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT wallet_id, e_money, balance FROM add_money WHERE phone_no = ?', (entered_mobile,))
+        result = cursor.fetchone()
+
+        if result:
+            wallet_id, emoney_value, previous_amount = result
+
+            # Check if the wallet has sufficient funds
+            if amount > emoney_value:
+                self.show_error_popup("Insufficient funds.")
+                conn.close()
+                return
+
+            # Withdraw money (subtract the withdrawal amount from emoney)
+            new_emoney_value = emoney_value - amount
+            new_amount = previous_amount + amount  # Update the amount attribute
+
+            cursor.execute('UPDATE add_money SET e_money = ?, balance = ? WHERE wallet_id = ?',
+                           (new_emoney_value, new_amount, wallet_id))
+            conn.commit()
+
+            conn.close()
+
+            # Convert the withdrawn amount to the selected currency
+            converted_amount = self.convert_to_currency(amount, selected_currency)
+
+            wallet_label = wdrw_scr.ids.wallet_label
+            wallet_label.text = f"Wallet Money: ${new_emoney_value}"
+
+            # Show success message with the withdrawn amount in the selected currency
+            success_message = f"Withdrawal successful. New emoney value: {new_emoney_value}\nWithdrawn Amount: {converted_amount} {selected_currency}"
+            self.show_success_popup(success_message)
+        else:
+            self.show_error_popup("User not found.")
+            conn.close()
+
+        return
+
+    def convert_to_currency(self, amount, target_currency):
+        # Replace this with your actual currency conversion logic or API call
+        # This is a simplified example, assuming 1 USD = 75 INR for conversion
+        exchange_rate_inr_to_usd = 0.013  # Replace with actual exchange rates
+        exchange_rate_inr_to_pound = 0.0098  # Replace with actual exchange rates
+        exchange_rate_inr_to_euros = 0.0111  # Replace with actual exchange rates
+
+        if target_currency == 'USD':
+            return amount * exchange_rate_inr_to_usd
+        elif target_currency == 'GBP':
+            return amount * exchange_rate_inr_to_pound
+        elif target_currency == 'EUR':
+            return amount * exchange_rate_inr_to_euros
+        else:
+            return amount  # Default to the original amount if the target currency is not supported
+
+        # ... (other methods and class definitions)
+
+    def show_error_popup(self, message):
+        content = BoxLayout(orientation='vertical', spacing='10dp')
+        content.add_widget(MDLabel(text=message, halign='center'))
+
+        ok_button = Button(text='OK', size_hint=(None, None), size=('150dp', '50dp'))
+        ok_button.bind(on_press=lambda *args: popup.dismiss())
+        content.add_widget(ok_button)
+
+        popup = Popup(
+            title='Error',
+            content=content,
+            size_hint=(None, None),
+            size=('300dp', '200dp'),
+            auto_dismiss=True
+        )
+        popup.open()
+
+    def show_success_popup(self, message):
+        content = BoxLayout(orientation='vertical', spacing='10dp')
+        content.add_widget(MDLabel(text=message, halign='center'))
+
+        ok_button = Button(text='OK', size_hint=(None, None), size=('150dp', '50dp'))
+        ok_button.bind(on_press=lambda *args: popup.dismiss())
+        content.add_widget(ok_button)
+
+        popup = Popup(
+            title='Success',
+            content=content,
+            size_hint=(None, None),
+            size=('300dp', '200dp'),
+            auto_dismiss=True
+        )
+        popup.open()
 class WalletApp(MDApp):
     def build(self):
         self.scr_mgr = ScreenManagement()
         self.scr_mgr.check_login_status()
+        self.scr_mgr.fetch_and_update_dashboard()
         return self.scr_mgr
 
     # edit profile========================

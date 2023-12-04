@@ -75,7 +75,7 @@ KV_STRING = '''
     
                     MDRaisedButton:
                         text: "Add Account"
-                        on_release: app.add_account()
+                        on_release: root.manager.add_account()
                         elevation_normal: 0 
 '''
 Builder.load_string(KV_STRING)
