@@ -41,7 +41,7 @@ KV = """
         
     MDRaisedButton:
         text: "Add Money"
-        on_press: app.add_money
+        on_press: root.manager.add_money()
         size_hint: None, None
         size: dp(200), dp(48)
         pos_hint: {'center_x': 0.5, 'center_y': 0.3}

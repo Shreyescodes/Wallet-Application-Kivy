@@ -339,6 +339,7 @@ navigation_helper = """
                                 md_bg_color: 0.9, 0.9, 0.9, 1  # Slight grey background
 
                                 MDLabel:
+                                    id:balance_lbl
                                     text: "Balance: 12345"
                                     size_hint_y: 1
                                     font_size: self.width / 8  # Adjust the font size based on the width of the card

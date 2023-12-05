@@ -1,13 +1,15 @@
 import json
+from datetime import datetime
 
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
-from kivy.uix.screenmanager import ScreenManager
+from kivy.uix.screenmanager import ScreenManager, SlideTransition
 from kivy.lang import Builder
 from kivy.core.window import Window
 from kivymd.app import MDApp
+from kivymd.toast import toast
 from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineListItem
 from login import LoginScreen
@@ -62,6 +64,7 @@ Builder.load_string(
     WithdrawScreen:
         name: 'withdraw'
         manager: root  
+        
     TransferScreen:
         name:'transfer'
         manager:root          
@@ -72,6 +75,10 @@ Builder.load_string(
 
 
 class ScreenManagement(ScreenManager):
+    def __init__(self, **kwargs):
+        super(ScreenManagement, self).__init__(**kwargs)
+        self.transition = SlideTransition(duration=0.7)
+
     current_user_data = None  # Class attribute to store the current user data
 
     # checking users login status
@@ -104,10 +111,10 @@ class ScreenManagement(ScreenManager):
             conn = sqlite3.connect('wallet_app.db')
             cursor = conn.cursor()
             # Inserting data into DataSbase
-            sql = ('INSERT INTO login(gmail,username,password,phone,adhaar,pan,address) VALUES (?,?,?,?,?,?,?);')
+            sql = 'INSERT INTO login(gmail,username,password,phone,adhaar,pan,address) VALUES (?,?,?,?,?,?,?);'
             mydata = (gmail, username, password, phone_no, aadhar_card, pan_card, address)
             cursor.execute(sql, mydata)
-            # cheking for duplicate values
+            # checking for duplicate values
             # Check for duplicate usernames and phones
             cursor.execute('''
                 SELECT gmail, username, COUNT(*)
@@ -309,9 +316,10 @@ class ScreenManagement(ScreenManager):
         # Connect to the database
         conn = sqlite3.connect('wallet_app.db')
         cursor = conn.cursor()
-
+        store = JsonStore('user_data.json')
+        phone = store.get('user')['value'][3]
         # Execute the query
-        cursor.execute('SELECT * FROM transactions')
+        cursor.execute('SELECT * FROM transactions  WHERE phone = ?', (phone,))
 
         # Fetch all the results
         transaction_history = cursor.fetchall()
@@ -322,7 +330,7 @@ class ScreenManagement(ScreenManager):
         # Clear existing widgets in the MDList
         trans_screen.ids.transaction_list.clear_widgets()
         # Display the transaction history
-        for trans in transaction_history:
+        for trans in reversed(transaction_history):
             transaction_item = f"paid     {trans[2]}₹\n          " \
                                f" {trans[3]}\n"
 
@@ -388,6 +396,65 @@ class ScreenManagement(ScreenManager):
     def nav_topup(self):
         self.current = 'topup'
 
+    def add_money(self):
+        topup_scr = self.get_screen('topup')
+        amount = float(topup_scr.ids.amount_field.text)
+        bank_name = topup_scr.ids.bank_dropdown.text
+        store = JsonStore('user_data.json')
+        phone = store.get('user')['value'][3]
+
+        # Check if the amount is within the specified range
+        if 500 <= amount <= 100000:
+            # Connect to the SQLite database (replace 'wallet_app.db' with your actual database file)
+            connection = sqlite3.connect('wallet_app.db')
+            cursor = connection.cursor()
+
+            # Get the current date and time
+            current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # update add money table and update the balance
+            cursor.execute('SELECT * FROM add_money WHERE bank_name = ?', (bank_name,))
+            existing_record = cursor.fetchone()
+            if existing_record:
+                # Bank name exists, update the record
+                # current_currency = existing_record['currency_type']
+                currency = existing_record[1]
+                current_e_money = existing_record[3]
+                current_balance = existing_record[2]
+
+                # Calculate the new values
+                new_e_money = current_e_money + amount
+                new_balance = current_balance - amount
+                cursor.execute("""
+                        UPDATE add_money
+                        SET e_money = ?, balance = ?
+                        WHERE bank_name = ? AND phone_no = ?  
+                    """, (new_e_money, new_balance, bank_name, phone))
+            else:
+                # Bank name doesn't exist, insert a new record
+                cursor.execute("""
+                            INSERT INTO add_money (wallet_id, currency_type, balance, e_money, phone_no, bank_name)
+                            VALUES (?, ?, ?, ?, ?, ?)
+                        """, (2, 'INR', 10000 - amount, amount, phone, bank_name))
+            # Insert a new row into the transactions table
+            cursor.execute("""
+                       INSERT INTO transactions (wallet_id, description, money, date, phone)
+                       VALUES (?, ?, ?, ?, ?)
+                   """, (1, 'topup', amount, current_datetime, phone))
+
+            # Commit the changes and close the connection
+            connection.commit()
+            connection.close()
+
+            # Show a success toast
+            toast("Money added successfully.")
+            self.current = 'dashboard'
+            self.show_balance()
+
+            # You can also navigate to another screen or perform other actions if needed
+        else:
+            # Show an error toast
+            toast("Invalid amount. Please enter an amount between 500 and 100000.")
+
     def nav_withdraw(self):
         self.current = 'withdraw'
 
@@ -397,7 +464,7 @@ class ScreenManagement(ScreenManager):
 
     def withdraw(self):
         wdrw_scr = self.get_screen('withdraw')
-        #self.create_tables_if_not_exist()
+        # self.create_tables_if_not_exist()
         # Get the entered mobile number, amount, and selected currency from your UI components
         entered_mobile = wdrw_scr.ids.mobile_textfield.text
         amount = wdrw_scr.ids.amount_textfield.text
@@ -407,7 +474,16 @@ class ScreenManagement(ScreenManager):
         if not entered_mobile or not amount or not selected_currency:
             self.show_error_popup("Please fill in all fields.")
             return
-
+            # Load user data from the JSON file
+        with open("../../Wallet-Mobile-Application/user_data.json", "r") as file:
+            user_data = json.load(file)
+        # Get the signed-in number from user_data
+        # Assuming the mobile number is at index 3
+        signed_in_number = user_data.get("user", {}).get("value", [])[3]
+        # Check if the entered mobile number matches the signed-in number
+        if entered_mobile != signed_in_number:
+            self.show_error_popup("Invalid mobile number.")
+            return
         # Check if the withdrawal amount is a valid number
         try:
             amount = float(amount)
@@ -449,11 +525,43 @@ class ScreenManagement(ScreenManager):
             # Show success message with the withdrawn amount in the selected currency
             success_message = f"Withdrawal successful. New emoney value: {new_emoney_value}\nWithdrawn Amount: {converted_amount} {selected_currency}"
             self.show_success_popup(success_message)
+            self.show_balance()
         else:
             self.show_error_popup("User not found.")
             conn.close()
 
         return
+
+    # to update the balance chart
+    def show_balance(self):
+        balance_scr = self.get_screen('dashboard')
+        import sqlite3
+
+        # Assuming you have already connected to the database
+        connection = sqlite3.connect('wallet_app.db')
+        cursor = connection.cursor()
+
+        # Example: Fetch e_money for a specific phone_no and calculate total balance
+        store = JsonStore('user_data.json')
+        phone_no = store.get('user')['value'][3]
+
+        cursor.execute("""
+            SELECT e_money
+            FROM add_money
+            WHERE phone_no = ?
+        """, (phone_no,))
+
+        result = cursor.fetchall()
+
+        if result:
+            total_balance = sum(e_money for e_money, in result)
+            print(f"The total balance for {phone_no} is: {total_balance}")
+            balance_scr.ids.balance_lbl.text=f"Balance: {total_balance}"
+        else:
+            print(f"No records found for phone number: {phone_no}")
+
+        # Close the connection
+        connection.close()
 
     def convert_to_currency(self, amount, target_currency):
         # Replace this with your actual currency conversion logic or API call
@@ -509,11 +617,14 @@ class ScreenManagement(ScreenManager):
 
     def nav_transfer(self):
         self.current = 'transfer'
+
+
 class WalletApp(MDApp):
     def build(self):
         self.scr_mgr = ScreenManagement()
         self.scr_mgr.check_login_status()
         self.scr_mgr.fetch_and_update_dashboard()
+        self.scr_mgr.show_balance()
         return self.scr_mgr
 
     # edit profile========================
