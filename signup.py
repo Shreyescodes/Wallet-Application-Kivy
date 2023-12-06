@@ -12,6 +12,7 @@ KV = '''
         
     
         MDTopAppBar:
+            left_action_items: [["arrow-left", lambda x: root.go_back()]]
             title: 'Sign Up'
             elevation: 5
     

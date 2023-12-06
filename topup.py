@@ -1,6 +1,7 @@
 import sqlite3
 
 from kivy.core.window import Window
+from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.screen import Screen
 from kivy.lang import Builder
 from kivy.uix.floatlayout import FloatLayout
@@ -67,7 +68,8 @@ class Topup(Screen):
 
         try:
             # Replace 'your_phone_number' with the actual phone number you want to fetch accounts for
-            phone_number = '7019834252'
+            store = JsonStore('user_data.json')
+            phone_number = store.get('user')['value'][3]
 
             # Execute a query to fetch unique bank names for the given phone number
             cursor.execute("SELECT DISTINCT bank_name FROM account_details WHERE phone=?", (phone_number,))

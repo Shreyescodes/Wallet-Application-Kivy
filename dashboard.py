@@ -1,4 +1,5 @@
 from kivy.properties import ListProperty, StringProperty
+from kivy.storage.jsonstore import JsonStore
 from kivy.uix.floatlayout import FloatLayout
 from kivymd.app import MDApp
 from kivy.lang.builder import Builder
@@ -10,9 +11,11 @@ from kivymd.uix.button import MDIconButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.label import MDLabel
+from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.navigationdrawer import MDNavigationLayout
 from kivymd.uix.screen import Screen
-
+from kivy.metrics import dp
+from kivymd.uix.menu import MDDropdownMenu
 Window.size = (300, 500)
 
 navigation_helper = """
@@ -334,19 +337,47 @@ navigation_helper = """
 
                             MDCard:
                                 radius: [50, 50, 50, 50]
-                                size_hint: 1, 1  # Adjust the size_hint based on your preference
+                                orientation: 'vertical'
+                                size_hint: 1, 0.4
                                 height: self.minimum_height
-                                md_bg_color: 0.9, 0.9, 0.9, 1  # Slight grey background
+                                md_bg_color: 0.9, 0.9, 0.9, 1
+                        
+                                # BoxLayout:
+                                #     size_hint_y: None
+                                #     height: "40dp"
+                                #     padding: "8dp"
+                                # 
+                                #     MDLabel:
+                                #         text: 'e-wallet'
+                                #         theme_text_color: 'Primary'
+                                #         halign: 'left'
+                                #         valign: 'center'
+                        
+                                BoxLayout:
+                                    padding: "20dp"
+                                    orientation: 'horizontal'
+                                    spacing: "10dp"
+                                    
+                                    MDLabel:
+                                        id:balance_lbl
+                                        text: 'Balance'
+                                        theme_text_color: 'Secondary'
+                                        pos_hint: {'center_y':0.5}
+                                        font_size: self.width / 9  # Adjust the font size based on the width of the card
+                                        bold: True
+                                        halign: 'center'
+                        
+                                    MDIconButton:
+                                        id: options_button
+                                        icon: "currency-btc"
+                                        on_release: root.show_currency_options(self)
+                                        pos_hint: {'center_y':0.5}
+                                        md_bg_color: 0.7, 0.7, 0.7, 1  # Blue background color
+                                        theme_text_color: "Custom"
+                                        text_color: 0, 0, 0, 1  # White text color
+                                        
+                                        
 
-                                MDLabel:
-                                    id:balance_lbl
-                                    text: "Balance: 12345"
-                                    size_hint_y: 1
-                                    font_size: self.width / 8  # Adjust the font size based on the width of the card
-                                    bold: True
-                                    height: self.texture_size[1]
-                                    halign: "center"
-                                    valign: "center"
 
 
 
@@ -404,7 +435,47 @@ class ContentNavigationDrawer(MDBoxLayout):
 
 
 class DashBoardScreen(Screen):
-    pass
+    def show_currency_options(self, button):
+        currency_options = ["INR", "POUND", "USD", "EUROS"]
+        self.menu_list = [
+            {"viewclass": "OneLineListItem", "text": currency, "on_release": lambda x=currency: self.menu_callback(x)}
+            for currency in currency_options
+        ]
+
+        # Create and open the dropdown menu
+        self.menu = MDDropdownMenu(
+            caller=button,
+            items=self.menu_list,
+            width_mult=4
+        )
+        self.menu.open()
+
+    def menu_callback(self, instance_menu_item):
+        print(f"Selected currency: {instance_menu_item}")
+        store = JsonStore('user_data.json')
+        phone_no = store.get('user')['value'][3]
+        total_balance = self.manager.get_total_balance(phone_no)
+        # Convert the total balance to the selected currency
+        converted_balance = self.convert_currency(total_balance, instance_menu_item)
+
+        # Update the label with the selected currency and converted balance
+        self.ids.balance_lbl.text = f'{converted_balance} {instance_menu_item}'
+        self.menu.dismiss()
+
+    def convert_currency(self, amount, to_currency):
+        # Implement your currency conversion logic here
+        # You may use an external API or a predefined exchange rate table
+
+        # For simplicity, let's assume a basic conversion formula
+        exchange_rate = {
+            "USD": 0.014,  # Example exchange rates, replace with actual rates
+            "EUROS": 0.012,
+            "INR": 1.0,
+            "POUND": 0.011
+        }
+
+        converted_amount = amount * exchange_rate.get(to_currency, 1.0)
+        return round(converted_amount, 2)  # Round to two decimal places
 
 
 class WalletApp(MDApp):

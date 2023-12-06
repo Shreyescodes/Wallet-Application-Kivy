@@ -224,6 +224,7 @@ class ScreenManagement(ScreenManager):
                 self.current = 'dashboard'
             store = JsonStore('user_data.json')
             store.put('user', value=row)
+            self.show_balance()
 
             conn.commit()
             conn.close()
@@ -535,33 +536,38 @@ class ScreenManagement(ScreenManager):
     # to update the balance chart
     def show_balance(self):
         balance_scr = self.get_screen('dashboard')
-        import sqlite3
 
-        # Assuming you have already connected to the database
+        # Load user data from the JSON file
+        store = JsonStore('user_data.json')
+
+        if 'user' in store:
+            # 'user' key found, proceed with retrieving data
+            phone_no = store.get('user')['value'][3]
+            balance_scr.ids.balance_lbl.text = f"{self.get_total_balance(phone_no)} INR"
+        else:
+            # 'user' key not found, show an appropriate message
+            balance_scr.ids.balance_lbl.text = "User data not found. Please log in."
+
+    def get_total_balance(self, phone_no):
+        # Connect to the SQLite database
         connection = sqlite3.connect('wallet_app.db')
         cursor = connection.cursor()
 
-        # Example: Fetch e_money for a specific phone_no and calculate total balance
-        store = JsonStore('user_data.json')
-        phone_no = store.get('user')['value'][3]
+        try:
+            # Fetch e_money for a specific phone_no and calculate total balance
+            cursor.execute("SELECT e_money FROM add_money WHERE phone_no = ?", (phone_no,))
+            result = cursor.fetchall()
 
-        cursor.execute("""
-            SELECT e_money
-            FROM add_money
-            WHERE phone_no = ?
-        """, (phone_no,))
-
-        result = cursor.fetchall()
-
-        if result:
-            total_balance = sum(e_money for e_money, in result)
-            print(f"The total balance for {phone_no} is: {total_balance}")
-            balance_scr.ids.balance_lbl.text=f"Balance: {total_balance}"
-        else:
-            print(f"No records found for phone number: {phone_no}")
-
-        # Close the connection
-        connection.close()
+            if result:
+                total_balance = sum(e_money for e_money, in result)
+                print(f"The total balance for {phone_no} is: {total_balance}")
+                return total_balance
+            else:
+                print(f"No records found for phone number: {phone_no}")
+                return 0  # or handle it as needed
+        finally:
+            # Close the connection in the finally block to ensure it is always closed
+            connection.close()
 
     def convert_to_currency(self, amount, target_currency):
         # Replace this with your actual currency conversion logic or API call
