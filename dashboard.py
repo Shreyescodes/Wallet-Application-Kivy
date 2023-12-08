@@ -58,7 +58,7 @@ navigation_helper = """
                         left_action_items:
                             [['menu', lambda x: nav_drawer.set_state("open")]]
                         right_action_items:
-                            [['qrcode-scan', lambda x: root.generate_and_show_qr()]]
+                            [['qrcode-scan', lambda x: root.show_qr()]]
 
                     #Main page
 
@@ -488,26 +488,7 @@ class DashBoardScreen(Screen):
 
         converted_amount = amount * exchange_rate.get(to_currency, 1.0)
         return round(converted_amount, 2)  # Round to two decimal places
-    def generate_and_show_qr(self):
-        # Example stored phone number
-        store = JsonStore('user_data.json')
-        phone_number = store.get('user')['value'][3]
-
-        # Generate QR code
-        qr = qrcode.QRCode(
-            version=3,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=15,
-            border=4,
-        )
-        qr.add_data(f"Phone Number: {phone_number}")
-        qr.make(fit=True)
-
-        qr_img = qr.make_image(fill_color="black", back_color="white")
-
-        # Convert PIL Image to BytesIO
-        # img_buffer = BytesIO()
-        qr_img.save("qr_code.png", format="PNG", quality=95)
+    def show_qr(self):
         self.manager.current = 'qr_screen'
         # Load the image into the texture
 

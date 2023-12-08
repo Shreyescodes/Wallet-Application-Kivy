@@ -1,5 +1,11 @@
 import json
+import threading
 from datetime import datetime
+from io import BytesIO
+
+import qrcode
+from kivy.clock import Clock
+
 from qr_viwer import QRScreen
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.boxlayout import BoxLayout
@@ -223,11 +229,13 @@ class ScreenManagement(ScreenManager):
                 # self.fetch_and_update_dashboard(row)
                 # Show popup for successful login
                 self.show_popup("Login Successful")
+
                 self.current = 'dashboard'
             store = JsonStore('user_data.json')
             store.put('user', value=row)
+            phone_number = store.get('user')['value'][3]
             self.show_balance()
-
+            Clock.schedule_once(lambda dt: self.generate_qr(phone_number), 0)
             conn.commit()
             conn.close()
 
@@ -626,7 +634,31 @@ class ScreenManagement(ScreenManager):
     def nav_transfer(self):
         self.current = 'transfer'
 
+    def generate_qr(self,phone_number):
+        # Example stored phone number
 
+
+        # threading.Thread(target=self.generate_qr, args=(phone_number,)).start()
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=3,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=15,
+            border=4,
+        )
+        qr.add_data(f"Phone Number: {phone_number}")
+        qr.make(fit=True)
+
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+
+        # Convert PIL Image to BytesIO
+        # img_buffer = BytesIO()
+        img_buffer = BytesIO()
+        qr_img.save(img_buffer, format="PNG", quality=95)
+
+        img_buffer.seek(0)
+        with open("qr_code.png", "wb") as f:
+            f.write(img_buffer.read())
 class WalletApp(MDApp):
     def build(self):
         self.scr_mgr = ScreenManagement()
