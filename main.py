@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-
+from qr_viwer import QRScreen
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -69,7 +69,9 @@ Builder.load_string(
         name:'transfer'
         manager:root          
         
-                     
+    QRScreen:
+        name:'qr_screen'
+        manager: root                    
     """
 )
 

@@ -1,3 +1,4 @@
+import qrcode
 from kivy.properties import ListProperty, StringProperty
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.floatlayout import FloatLayout
@@ -16,6 +17,7 @@ from kivymd.uix.navigationdrawer import MDNavigationLayout
 from kivymd.uix.screen import Screen
 from kivy.metrics import dp
 from kivymd.uix.menu import MDDropdownMenu
+
 Window.size = (300, 500)
 
 navigation_helper = """
@@ -55,7 +57,8 @@ navigation_helper = """
                         specific_text_color: "F5F5F5"
                         left_action_items:
                             [['menu', lambda x: nav_drawer.set_state("open")]]
-
+                        right_action_items:
+                            [['qrcode-scan', lambda x: root.generate_and_show_qr()]]
 
                     #Main page
 
@@ -356,20 +359,20 @@ navigation_helper = """
                                 BoxLayout:
                                     padding: "20dp"
                                     orientation: 'horizontal'
-                                    spacing: "10dp"
+                                    spacing: "5dp"
                                     
                                     MDLabel:
                                         id:balance_lbl
                                         text: 'Balance'
                                         theme_text_color: 'Secondary'
                                         pos_hint: {'center_y':0.5}
-                                        font_size: self.width / 9  # Adjust the font size based on the width of the card
+                                        font_size: self.width / 8  # Adjust the font size based on the width of the card
                                         bold: True
                                         halign: 'center'
                         
                                     MDIconButton:
                                         id: options_button
-                                        icon: "currency-btc"
+                                        icon: "currency-inr"
                                         on_release: root.show_currency_options(self)
                                         pos_hint: {'center_y':0.5}
                                         md_bg_color: 0.7, 0.7, 0.7, 1  # Blue background color
@@ -435,6 +438,14 @@ class ContentNavigationDrawer(MDBoxLayout):
 
 
 class DashBoardScreen(Screen):
+    menu = None  # Add this line to declare the menu attribute
+    options_button_icon_mapping = {
+        "INR": "currency-inr",
+        "POUND": "currency-gbp",
+        "USD": "currency-usd",
+        "EUROS": "currency-eur"
+    }
+
     def show_currency_options(self, button):
         currency_options = ["INR", "POUND", "USD", "EUROS"]
         self.menu_list = [
@@ -460,6 +471,7 @@ class DashBoardScreen(Screen):
 
         # Update the label with the selected currency and converted balance
         self.ids.balance_lbl.text = f'{converted_balance} {instance_menu_item}'
+        self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
         self.menu.dismiss()
 
     def convert_currency(self, amount, to_currency):
@@ -476,7 +488,28 @@ class DashBoardScreen(Screen):
 
         converted_amount = amount * exchange_rate.get(to_currency, 1.0)
         return round(converted_amount, 2)  # Round to two decimal places
+    def generate_and_show_qr(self):
+        # Example stored phone number
+        store = JsonStore('user_data.json')
+        phone_number = store.get('user')['value'][3]
 
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=3,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=15,
+            border=4,
+        )
+        qr.add_data(f"Phone Number: {phone_number}")
+        qr.make(fit=True)
+
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+
+        # Convert PIL Image to BytesIO
+        # img_buffer = BytesIO()
+        qr_img.save("qr_code.png", format="PNG", quality=95)
+        self.manager.current = 'qr_screen'
+        # Load the image into the texture
 
 class WalletApp(MDApp):
     pass
