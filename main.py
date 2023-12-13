@@ -18,6 +18,7 @@ from kivymd.app import MDApp
 from kivymd.toast import toast
 from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineListItem
+import re
 from login import LoginScreen
 from signin import SignInScreen
 from signup import SignUpScreen
@@ -114,16 +115,20 @@ class ScreenManagement(ScreenManager):
         pan_card = current_screen.ids.pan_card.text
         address = current_screen.ids.address.text
 
+        # Validate input fields
+        if not self.is_valid_input(gmail, username, password, phone_no, aadhar_card, pan_card, address):
+            return
+
         try:
             # Database Connection
             conn = sqlite3.connect('wallet_app.db')
             cursor = conn.cursor()
-            # Inserting data into DataSbase
+            # Inserting data into Database
             sql = 'INSERT INTO login(gmail,username,password,phone,adhaar,pan,address) VALUES (?,?,?,?,?,?,?);'
             mydata = (gmail, username, password, phone_no, aadhar_card, pan_card, address)
             cursor.execute(sql, mydata)
-            # checking for duplicate values
-            # Check for duplicate usernames and phones
+
+            # Checking for duplicate values
             cursor.execute('''
                 SELECT gmail, username, COUNT(*)
                 FROM login
@@ -132,7 +137,8 @@ class ScreenManagement(ScreenManager):
             ''')
 
             duplicate_records = cursor.fetchall()
-            # navigating to the sign in screen if all requirements are correct=========================================
+
+            # Navigating to the sign-in screen if all requirements are correct
             if duplicate_records:
                 Snackbar(text="Username/Gmail Already exists").open()
                 for gmail, username, count in duplicate_records:
@@ -153,51 +159,73 @@ class ScreenManagement(ScreenManager):
                 dialog.open()
         except Exception as e:
             print(e)
-        conn.commit()
-        conn.close()
+        finally:
+            conn.commit()
+            conn.close()
 
-        if (not gmail or not username
-                or not password or not phone_no
+    def is_valid_input(self, gmail, username, password, phone_no, aadhar_card, pan_card, address):
+        if (not gmail or not username or not password or not phone_no
                 or not aadhar_card or not pan_card or not address):
             Snackbar(text="All fields are mandatory. Please fill in all the required fields.").open()
-            return
+            return False
+
+        if not self.is_valid_gmail(gmail):
+            Snackbar(text="Invalid Gmail address.").open()
+            return False
+
+        if not self.is_valid_username(username):
+            Snackbar(text="Invalid username. Username should have a minimum length of 3 characters.").open()
+            return False
+
+        if not self.is_valid_password(password):
+            Snackbar(text="Invalid password. Password should have a minimum length of 6 characters.").open()
+            return False
 
         if not self.is_valid_aadhar(aadhar_card):
-            Snackbar(
-                text="Invalid Aadhar card number. Aadhar card should be 12 digits long and contain only numeric characters.").open()
-            return
+            Snackbar(text="Invalid Aadhar card number. Aadhar card should be 12 digits long and contain only numeric characters.").open()
+            return False
 
         if not self.is_valid_phone(phone_no):
-            Snackbar(
-                text="Invalid phone number. Phone number should be 10 digits long and start with 6, 7, 8, or 9.").open()
-            return
+            Snackbar(text="Invalid phone number. Phone number should be 10 digits long and start with 6, 7, 8, or 9.").open()
+            return False
 
         if not self.is_valid_pan(pan_card):
-            Snackbar(
-                text="Invalid PAN card number. PAN card should start with 5 characters (A-Z), followed by 4 numbers, and ending with 1 character (A-Z).").open()
-            return
+            Snackbar(text="Invalid PAN card number. PAN card should start with 5 characters (A-Z), followed by 4 numbers, and ending with 1 character (A-Z).").open()
+            return False
 
-        # Add your sign-up logic here
-        print("Signing up...")
-        print(f"Gmail: {gmail}, Username: {username}, Password: {password}, "
-              f"Phone Number: {phone_no}, Aadhar Card: {aadhar_card}, PAN Card: {pan_card}, "
-              f"Address: {address}")
+        return True
+
+    def is_valid_gmail(self, gmail):
+        return re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', gmail) is not None
+
+    def is_valid_username(self, username):
+        return len(username) >= 3
+
+    def is_valid_password(self, password):
+        return len(password) >= 6
 
     def is_valid_phone(self, phone):
         if len(phone) == 10 and phone[0] in ['6', '7', '8', '9']:
             return True
+        Snackbar(
+            text="Invalid phone number. Phone number should be 10 digits long and start with 6, 7, 8, or 9.").open()
         return False
 
     def is_valid_aadhar(self, aadhar):
         if len(aadhar) == 12 and aadhar.isdigit():
             return True
+        Snackbar(
+            text="Invalid Aadhar card number. Aadhar card should be 12 digits long and contain only numeric characters.").open()
         return False
 
     def is_valid_pan(self, pan):
-        if len(pan) == 10 or len(pan) == 11 and pan[:5].isalpha() and pan[5:9].isdigit() and pan[9:10].isdigit() or pan[
-                                                                                                                    9:12].isalpha():
+        if (len(pan) == 10 or len(pan) == 11) and pan[:5].isalpha() and pan[5:9].isdigit() and (
+                pan[9:10].isdigit() or pan[9:12].isalpha()):
             return True
+        Snackbar(
+            text="Invalid PAN card number. PAN card should start with 5 characters (A-Z), followed by 4 numbers, and ending with 1 character (A-Z).").open()
         return False
+
 
     # ...
     # signin++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -411,6 +439,11 @@ class ScreenManagement(ScreenManager):
         topup_scr = self.get_screen('topup')
         amount = float(topup_scr.ids.amount_field.text)
         bank_name = topup_scr.ids.bank_dropdown.text
+        if not bank_name or bank_name == "change bank account":
+            # Bank is not selected, show a toast message or handle it as needed
+            toast("Please select a bank account.")
+            return
+
         store = JsonStore('user_data.json')
         phone = store.get('user')['value'][3]
 
@@ -443,14 +476,14 @@ class ScreenManagement(ScreenManager):
             else:
                 # Bank name doesn't exist, insert a new record
                 cursor.execute("""
-                            INSERT INTO add_money (wallet_id, currency_type, balance, e_money, phone_no, bank_name)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                        """, (2, 'INR', 10000 - amount, amount, phone, bank_name))
+                            INSERT INTO add_money (currency_type, balance, e_money, phone_no, bank_name)
+                            VALUES (?, ?, ?, ?, ?)
+                        """, ('INR', 10000 - amount, amount, phone, bank_name))
             # Insert a new row into the transactions table
             cursor.execute("""
-                       INSERT INTO transactions (wallet_id, description, money, date, phone)
-                       VALUES (?, ?, ?, ?, ?)
-                   """, (1, 'topup', amount, current_datetime, phone))
+                       INSERT INTO transactions (description, money, date, phone)
+                       VALUES (?, ?, ?, ?)
+                   """, ('topup', amount, current_datetime, phone))
 
             # Commit the changes and close the connection
             connection.commit()
