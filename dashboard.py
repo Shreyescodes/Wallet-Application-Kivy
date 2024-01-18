@@ -1,24 +1,23 @@
+import base64
+import io
+from kivy.uix.image import Image
 import qrcode
-from kivy.properties import ListProperty, StringProperty
+import requests
+from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.floatlayout import FloatLayout
-from kivymd.app import MDApp
-from kivy.lang.builder import Builder
-from kivymd.theming import ThemableBehavior
-from kivymd.uix.behaviors import HoverBehavior
+from kivy.uix.popup import Popup
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivy.core.window import Window
-from kivymd.uix.button import MDIconButton
-from kivymd.uix.card import MDCard
-from kivymd.uix.floatlayout import MDFloatLayout
-from kivymd.uix.label import MDLabel
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.list import OneLineListItem
 from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.navigationdrawer import MDNavigationLayout
 from kivymd.uix.screen import Screen
-from kivy.metrics import dp
-from kivymd.uix.menu import MDDropdownMenu
-
-Window.size = (300, 500)
+from kivy.uix.image import AsyncImage
+from kivymd.uix.button import MDIconButton
+from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.scrollview import ScrollView
 
 navigation_helper = """
 <DashBoardScreen>:
@@ -31,34 +30,53 @@ navigation_helper = """
                             spacing:dp(10)
                             panel_color:get_color_from_hex("#3489eb")
                             text_color_active:get_color_from_hex("F5F5F5")
-                            MDBottomNavigationItem:
-                                name:"Withdraw"
-                                text:'Withdraw'
-                                font_size: '20sp'
-                                icon:'bank-transfer-out'
-                                on_tab_release:root.manager.nav_withdraw()
-                            MDBottomNavigationItem:
-                                name:"Withdraw"
-                                text:'Transfer'
-                                text_size: dp(1)
-                                icon:'bank-transfer-in'
-                                on_tab_release:root.manager.nav_transfer()
-                            MDBottomNavigationItem:
-                                name:"Withdraw"
-                                text:'Add Money'
-                                text_size:dp(8)
-                                icon:'wallet-plus'
-                                on_tab_release: root.manager.nav_topup()
+                            # MDBottomNavigationItem:
+                            #     name:"Withdraw"
+                            #     text:'Withdraw'
+                            #     font_size: '20sp'
+                            #     icon:'bank-transfer-out'
+                            #     on_tab_release:root.nav_withdraw()
+                            # MDBottomNavigationItem:
+                            #     name:"Withdraw"
+                            #     text:'Transfer'
+                            #     text_size: dp(1)
+                            #     icon:'bank-transfer-in'
+                            #     on_tab_release:root.nav_transfer()
+                            # MDBottomNavigationItem:
+                            #     name:"Withdraw"
+                            #     text:'Add Money'
+                            #     text_size:dp(8)
+                            #     icon:'wallet-plus'
+                            #     on_tab_release: root.nav_topup()
                     MDTopAppBar:
-                        title: "G-Wallet"
-                        elevation: 4
+                        title: ""
+                        elevation: 1
                         pos_hint: {"top": 1}
-                        md_bg_color: "#3489eb"
-                        specific_text_color: "F5F5F5"
-                        left_action_items:
-                            [['menu', lambda x: nav_drawer.set_state("open")]]
-                        right_action_items:
-                            [['qrcode-scan', lambda x: root.show_qr()]]
+                        md_bg_color: "#ffffff"
+                        specific_text_color: "#000000"
+
+                        # Adding a logo to the left of the text
+                        BoxLayout:
+                            spacing: dp(10)
+                            MDIconButton:
+                                icon: 'menu'
+                                on_release: root.nav_navbar()
+                                pos_hint: {'center_y': 0.5}
+
+                            Image:
+                                source: 'images/2.png'  # Replace with the actual path to your logo
+                                size_hint: None, None
+                                size: dp(30), dp(28)
+                                pos_hint: {'center_y': 0.5}
+
+                            MDLabel:
+                                text: "G-wallet"
+                                font_size: '24sp'
+                                bold: True
+                                pos_hint: {'center_y': 0.5, 'center_x': 0.5}
+
+
+
 
                     #Main page
 
@@ -68,16 +86,24 @@ navigation_helper = """
                         padding: dp(10)
                         pos_hint:{'center_y':.37}
 
+                        Image:
+                            source: 'images/signin.jpg'  # Replace with the actual path to your image
+                            allow_stretch: True
+                            keep_ratio: False
+                            size_hint_y: None
+                            height: dp(200)
+
+
                         GridLayout:
                             #spacing:dp(100)
                             #padding:dp(5)
-                            cols: 3
+                            cols: 4
                             spacing:dp(20)
                             rows:4
 
 
 
-                            # Icon and label for recharge prepaid mobile
+                            # Icon and label for qrcode-scan
                             BoxLayout:
 
                                 spacing: dp(10)
@@ -87,17 +113,84 @@ navigation_helper = """
                                 width:20
 
                                 MDIconButton:
-                                    icon: 'cellphone-wireless'
+                                    icon: 'qrcode-scan'
+                                    on_release: root.generate_qr_code()# Replace with your actual function
                                     pos_hint: {'center_x': 0.5}
-                                    on_release: app.recharge_prepaid_mobile()  # Replace with your actual function
-                                    padding: dp(20)
+                                    theme_text_color: 'Custom'
+                                    text_color: 0.117, 0.459, 0.725, 1 
 
                                 MDLabel:
-                                    text: 'Recharge Prepaid Mobile'
+                                    text: 'Scan Any QR code'
+                                    bold: True
                                     halign: 'center'
-                                    font_size: '10sp'
+                                    font_size: '12sp'
 
-                            # Icon and label for pay electricity bill
+                            BoxLayout:
+                                spacing: dp(10)
+                                orientation: 'vertical'
+                                size_hint_y: None
+                                height: self.minimum_height
+                                width:20
+
+
+                                MDIconButton:
+                                    icon: 'bank-transfer-in' 
+                                    on_release: root.nav_transfer()
+                                    pos_hint: {'center_x': 0.5}
+                                    theme_text_color: 'Custom'
+                                    text_color: 0.117, 0.459, 0.725, 1 
+
+                                MDLabel:
+                                    text: 'Transfer'
+                                    bold: True
+                                    halign: 'center'
+                                    font_size: '12sp'
+
+                            BoxLayout:
+                                spacing: dp(10)
+                                orientation: 'vertical'
+                                size_hint_y: None
+                                height: self.minimum_height
+                                width:20
+
+                                MDIconButton:
+                                    icon: 'bank-transfer-out'
+                                    on_release: root.nav_withdraw()
+                                    pos_hint: {'center_x': 0.5}
+                                    theme_text_color: 'Custom'
+                                    text_color: 0.117, 0.459, 0.725, 1 
+
+                                MDLabel:
+                                    text: 'Withdraw'
+                                    bold: True
+                                    halign: 'center'
+                                    font_size: '12sp'
+
+                            # Icon and label for Transfer
+
+
+                            # Icon and label for Add Money
+                            BoxLayout:
+                                spacing: dp(10)
+                                orientation: 'vertical'
+                                size_hint_y: None
+                                height: self.minimum_height
+                                width:20
+
+                                MDIconButton:
+                                    icon: 'wallet-plus'
+                                    on_release: root.nav_topup()
+                                    pos_hint: {'center_x': 0.5}
+                                    theme_text_color: 'Custom'
+                                    text_color: 0.117, 0.459, 0.725, 1 
+
+                                MDLabel:
+                                    text: 'Add Money'
+                                    bold: True
+                                    halign: 'center'
+                                    font_size: '12sp'   
+
+                            # Icon and label for add contacts        
                             BoxLayout:
 
                                 spacing: dp(10)
@@ -106,94 +199,20 @@ navigation_helper = """
                                 height: self.minimum_height
 
                                 MDIconButton:
-                                    icon: 'flash'
+                                    icon: 'contacts'
                                     pos_hint: {'center_x': 0.5}
-                                    on_release: app.pay_electricity_bill()  # Replace with your actual function
+                                    on_release: root.nav_addContact()
                                     padding: dp(20)
+                                    theme_text_color: 'Custom'
+                                    text_color: 0.117, 0.459, 0.725, 1 
 
                                 MDLabel:
-                                    text: 'Pay Electricity Bill'
+                                    text: 'Add Contacts'
+                                    bold: True
                                     halign: 'center'
-                                    font_size: '10sp'
+                                    font_size: '12sp'
 
-                            # Icon and label for recharge DTH connection
-                            BoxLayout:
-
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                MDIconButton:
-                                    icon: 'satellite-variant'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release: app.recharge_dth_connection()  # Replace with your actual function
-                                    padding: dp(20)
-
-                                MDLabel:
-                                    text: 'Recharge DTH Connection'
-                                    halign: 'center'
-                                    font_size: '10sp'
-
-                            # Icon and label for book gas cylinder
-                            BoxLayout:
-
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                MDIconButton:
-                                    icon: 'gas-cylinder'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release: app.book_gas_cylinder()  # Replace with your actual function
-                                    padding: dp(20)
-
-                                MDLabel:
-                                    text: 'Book Gas Cylinder'
-                                    halign: 'center'
-                                    font_size: '10sp'
-
-                             # Icon and label for pay broadband & landline bill
-                            BoxLayout:
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                MDIconButton:
-                                    icon: 'router-wireless'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release: app.pay_broadband_landline_bill()  # Replace with your actual function
-                                    padding: dp(20)
-
-                                MDLabel:
-                                    text:  'Broadband & Landline Bill'
-                                    halign: 'center'
-                                    font_size: '10sp'
-
-                            # Icon and label for pay education fee
-                            BoxLayout:
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                MDIconButton:
-                                    icon: 'school'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release: app.pay_education_fee()  # Replace with your actual function
-                                    padding: dp(20)
-
-                                MDLabel:
-                                    text: 'Pay Education Fee'
-                                    halign: 'center'
-                                    font_size: '10sp'        
-
-
-
-
-                            # Icon and label for Movies Tickets
+                            # Icon and label for add phone number
                             BoxLayout:
                                 spacing: dp(10)
                                 orientation: 'vertical'
@@ -202,113 +221,93 @@ navigation_helper = """
                                 width: 20
 
                                 MDIconButton:
-                                    icon: 'movie'
+                                    icon: 'wallet'
+                                    on_release: root.Add_Money()
                                     pos_hint: {'center_x': 0.5}
-                                    on_release: app.book_movies_tickets()  # Replace with your actual function
-                                    padding: dp(20)
+                                    theme_text_color: 'Custom'
+                                    text_color: 0.117, 0.459, 0.725, 1 
 
                                 MDLabel:
-                                    text: 'Movies Tickets'
+                                    id: balance_lbl
+                                    text: 'Wallet Balance'
+                                    bold: True
                                     halign: 'center'
-                                    font_size: '10sp'
+                                    font_size: '12sp'        
 
-                            # Icon and label for Flight Tickets
+                            # Icon and label for transaction history        
                             BoxLayout:
+
                                 spacing: dp(10)
                                 orientation: 'vertical'
                                 size_hint_y: None
                                 height: self.minimum_height
 
                                 MDIconButton:
-                                    icon: 'airplane'
+                                    icon: 'history'
                                     pos_hint: {'center_x': 0.5}
-                                    on_release: app.book_flight_tickets()  # Replace with your actual function
+                                    on_release:root.go_to_transaction()
                                     padding: dp(20)
+                                    theme_text_color: 'Custom'
+                                    text_color: 0.117, 0.459, 0.725, 1 
 
                                 MDLabel:
-                                    text: 'Flight Tickets'
+                                    text: 'Transaction History'
+                                    bold: True
                                     halign: 'center'
-                                    font_size: '10sp'
+                                    font_size: '12sp'
 
-                            # Icon and label for Bus Tickets
+                            # Icon and label for check balance
                             BoxLayout:
+
                                 spacing: dp(10)
                                 orientation: 'vertical'
                                 size_hint_y: None
                                 height: self.minimum_height
 
-                                MDIconButton:
-                                    icon: 'bus'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release: app.book_bus_tickets()  # Replace with your actual function
-                                    padding: dp(20)
+                                BoxLayout:
+                                    orientation: "vertical"
+                                    padding: 5
+                                    pos_hint:{'center_x':0.44}
+
+                                MDCard:
+                                    radius: [1, 1, 1, 1]
+                                    orientation: 'vertical'
+                                    size_hint: 1, 0.4
+                                    height: self.minimum_height
+                                    md_bg_color: 0.9, 0.9, 0.9, 1
+
+                                    BoxLayout:
+                                        padding: "20dp"
+                                        orientation: 'horizontal'
+                                        spacing: "5dp"
+
+
+
+                                    MDIconButton:
+                                        id: options_button
+                                        icon: 'currency-inr'
+                                        pos_hint: {'center_x': 0.5}
+                                        on_release: root.show_currency_options(self)
+                                        padding: dp(20)
+                                        theme_text_color: 'Custom'
+                                        text_color: 0.117, 0.459, 0.725, 1 
+
+
+                                        #md_bg_color: 0.7, 0.7, 0.7, 1  # Blue background color
+                                        #text_color: 0, 0, 0, 1  # White text color    
 
                                 MDLabel:
-                                    text: 'Bus Tickets'
+                                    text: 'Check Balance'
+                                    bold: True
                                     halign: 'center'
-                                    font_size: '10sp'
-
-                            # Icon and label for Train Tickets
-                            BoxLayout:
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                MDIconButton:
-                                    icon: 'train'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release: app.book_train_tickets()  # Replace with your actual function
-                                    padding: dp(20)
-
-                                MDLabel:
-                                    text: 'Train Tickets'
-                                    halign: 'center'
-                                    font_size: '10sp'
-
-                            # Icon and label for Buy Insurance
-                            BoxLayout:
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                MDIconButton:
-                                    icon: 'shield-check'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release: app.buy_insurance()  # Replace with your actual function
-                                    padding: dp(20)
-
-                                MDLabel:
-                                    text: 'Buy Insurance'
-                                    halign: 'center'
-                                    font_size: '10sp'
-
-                            # Icon and label for International Flights
-                            BoxLayout:
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                MDIconButton:
-                                    icon: 'earth'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release: app.book_international_flights()  # Replace with your actual function
-                                    padding: dp(20)
-
-                                MDLabel:
-                                    text: 'International Flights'
-                                    halign: 'center'
-                                    font_size: '10sp'
-
-
+                                    font_size: '12sp'   #        
 
             MDNavigationDrawer:
                 id: nav_drawer
                 radius: (0, 10, 10, 0)
 
                 ContentNavigationDrawer:
+
 
                     BoxLayout:
                         size: root.width, root.height
@@ -332,98 +331,77 @@ navigation_helper = """
                             size_hint_y:None
                             height: self.texture_size[1]
 
-
-                        BoxLayout:
-                            orientation: "vertical"
-                            padding: 20
-                            pos_hint:{'center_x':0.44}
-
-                            MDCard:
-                                radius: [50, 50, 50, 50]
-                                orientation: 'vertical'
-                                size_hint: 1, 0.4
-                                height: self.minimum_height
-                                md_bg_color: 0.9, 0.9, 0.9, 1
-                        
-                                # BoxLayout:
-                                #     size_hint_y: None
-                                #     height: "40dp"
-                                #     padding: "8dp"
-                                # 
-                                #     MDLabel:
-                                #         text: 'e-wallet'
-                                #         theme_text_color: 'Primary'
-                                #         halign: 'left'
-                                #         valign: 'center'
-                        
-                                BoxLayout:
-                                    padding: "20dp"
-                                    orientation: 'horizontal'
-                                    spacing: "5dp"
-                                    
-                                    MDLabel:
-                                        id:balance_lbl
-                                        text: 'Balance'
-                                        theme_text_color: 'Secondary'
-                                        pos_hint: {'center_y':0.5}
-                                        font_size: self.width / 8  # Adjust the font size based on the width of the card
-                                        bold: True
-                                        halign: 'center'
-                        
-                                    MDIconButton:
-                                        id: options_button
-                                        icon: "currency-inr"
-                                        on_release: root.show_currency_options(self)
-                                        pos_hint: {'center_y':0.5}
-                                        md_bg_color: 0.7, 0.7, 0.7, 1  # Blue background color
-                                        theme_text_color: "Custom"
-                                        text_color: 0, 0, 0, 1  # White text color
-                                        
-                                        
-
-
+                        MDLabel:
+                            id: contact_label  
+                            text: ''
+                            font_style: "Caption" 
+                            size_hint_y: None
+                            height: self.texture_size[1]    
 
 
                         BoxLayout: 
                             size_hint_y: None
-                            height: dp(250)
-                            pos_hint: {'center_x': 0.45, 'y': 130}        
+                            height: dp(500)
+                            pos_hint: {'center_x': 0.45, 'y': 230}        
 
                             BoxLayout:
                                 orientation: "vertical"
                                 size_hint_y: None
                                 height: self.minimum_height
-                                spacing: '8dp'
+                                spacing: '4dp'
 
+                                OneLineIconListItem:
+                                    text: "Your QR Code"
+                                    on_release: root.generate_qr_code()
+                                    IconLeftWidget:
+                                        icon: "qrcode-scan"
+                                        theme_text_color: 'Custom'
+                                        text_color: get_color_from_hex("#3489eb")  
+                                OneLineIconListItem:
+                                    text: "Auto Topup"
+                                    IconLeftWidget:
+                                        icon: "autorenew" 
+                                        theme_text_color: 'Custom'
+                                        text_color: get_color_from_hex("#3489eb") 
+                                OneLineIconListItem:
+                                    text: "Settings"
+                                    IconLeftWidget:
+                                        icon: "cog-outline"
+                                        theme_text_color: 'Custom'
+                                        text_color: get_color_from_hex("#3489eb")                      
                                 OneLineIconListItem:
                                     text: "Profile"
-                                    on_release: root.manager.profile_view()
+                                    on_release: root.profile_view()
                                     IconLeftWidget:
                                         icon: "face-man-profile" 
-
-
-                                OneLineIconListItem:
-                                    text: "Transaction History"
-                                    on_release:root.manager.go_to_transaction()
-                                    IconLeftWidget:
-                                        icon: "history"
-
+                                        theme_text_color: 'Custom'
+                                        text_color: get_color_from_hex("#3489eb")
                                 OneLineIconListItem:
                                     text: "Add Bank Account"
                                     on_release: root.manager.nav_account()
                                     IconLeftWidget:
                                         icon: "bank"
-
+                                        theme_text_color: 'Custom'
+                                        text_color: get_color_from_hex("#3489eb")
                                 OneLineIconListItem:
-                                    text: "Business"
+                                    text: "Get Help"
                                     IconLeftWidget:
-                                        icon: "account"        
-
+                                        icon: "help-circle"
+                                        theme_text_color: 'Custom'
+                                        text_color: get_color_from_hex("#3489eb")
+                                OneLineIconListItem:
+                                    text: "Raise a Complaint"
+                                    IconLeftWidget:
+                                        icon: "alert"  
+                                        theme_text_color: 'Custom'
+                                        text_color: get_color_from_hex("#3489eb")        
                                 OneLineIconListItem:
                                     text: "Log-out"
                                     on_release: root.manager.logout()
                                     IconLeftWidget:
-                                        icon: "logout"        
+                                        icon: "logout"  
+                                        theme_text_color: 'Custom'
+                                        text_color: get_color_from_hex("#3489eb")   
 
 """
 Builder.load_string(navigation_helper)
@@ -438,6 +416,133 @@ class ContentNavigationDrawer(MDBoxLayout):
 
 
 class DashBoardScreen(Screen):
+    def profile_view(self):
+        store = JsonStore('user_data.json').get('user')['value']
+        username = store["username"]
+        gmail = store["gmail"]
+        phone = store["phone"]
+        aadhaar = store["Aadhaar"]
+        address = store["address"]
+        pan = store["pan"]
+        profile_screen = self.manager.get_screen('profile')
+        profile_screen.ids.username_label.text = f"Username:{username}"  # Assuming username is at index 1
+        profile_screen.ids.email_label.text = f"Email:{gmail}"  # Assuming email is at index 0
+        profile_screen.ids.contact_label.text = f"Mobile No:{phone}"
+        profile_screen.ids.aadhaar_label.text = f"Aadhar:{aadhaar}"
+        profile_screen.ids.pan_label.text = f"Pan no:{pan}"
+        profile_screen.ids.address_label.text = f"Address:{address}"
+        # Navigate to the 'Profile' screen
+        self.manager.current = 'profile'
+
+    def nav_topup(self):
+        phone = JsonStore('user_data.json').get('user')['value']["phone"]
+        account_details = self.account_details_exist(phone)
+        if account_details:
+            self.manager.current = 'topup'
+
+        else:
+            self.show_add_account_dialog()
+
+    def account_details_exist(self, phone_number):
+        try:
+            # Replace "your-project-id" with your actual Firebase project ID
+            database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app"
+
+            # Reference to the 'account_details' collection
+            account_details_endpoint = f"{database_url}/account_details/{phone_number}.json"
+
+            # Make a GET request to check if the user's account details exist
+            response = requests.get(account_details_endpoint)
+
+            # Check if the account details exist (status code 200)
+            if response.status_code == 200:
+                # Check if the 'accounts' subcollection exists within the document
+                account_details = response.json()
+                return 'accounts' in account_details
+            else:
+                return False
+
+        except Exception as e:
+            print(f"Error checking account details: {e}")
+            return False
+
+    def nav_withdraw(self):
+        phone = JsonStore('user_data.json').get('user')['value']["phone"]
+        account_details = self.account_details_exist(phone)
+        if account_details:
+            self.manager.current = 'withdraw'
+
+        else:
+            self.show_add_account_dialog()
+
+    def nav_transfer(self):
+        phone = JsonStore('user_data.json').get('user')['value']["phone"]
+        account_details = self.account_details_exist(phone)
+        if account_details:
+            self.manager.current = 'transfer'
+
+        else:
+            self.show_add_account_dialog()
+
+    def show_add_account_dialog(self):
+        dialog = MDDialog(
+            title="Bank Account Not Found",
+            text="You don't have a bank account associated with your phone number. "
+                 "Would you like to add a bank account?",
+            buttons=[
+                MDFlatButton(
+                    text="Cancel",
+                    on_release=lambda *args: (dialog.dismiss(), setattr(self.manager, 'current', 'dashboard'))),
+                MDFlatButton(
+                    text="OK",
+                    on_release=lambda *args:
+                    (dialog.dismiss(), setattr(self.manager, 'current', 'addaccount'))),
+            ],
+        )
+        dialog.open()
+
+    def go_to_transaction(self):
+        self.on_start()
+        self.manager.current = 'transaction'
+
+    def on_start(self):
+        self.get_transaction_history()
+
+    def get_transaction_history(self):
+        try:
+            # Replace "your-project-id" with your actual Firebase project ID
+            database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app/"
+
+            # Get the phone number from user data
+            phone = JsonStore('user_data.json').get('user')['value']["phone"]
+
+            # Reference to the 'transactions' collection
+            transactions_endpoint = f"{database_url}/transactions/{phone}/user_transactions.json"
+
+            # Make a GET request to fetch the transaction history
+            response = requests.get(transactions_endpoint)
+
+            if response.status_code == 200:
+                transaction_history = response.json()
+
+                trans_screen = self.manager.get_screen('transaction')
+                # Clear existing widgets in the MDList
+                trans_screen.ids.transaction_list.clear_widgets()
+
+                # Display the transaction history in LIFO order
+                for transaction_id, transaction_data in sorted(transaction_history.items(), key=lambda x: x[1]['date'],
+                                                               reverse=True):
+                    transaction_item = f"{transaction_data['amount']}₹\n" \
+                                       f"{transaction_data['description']}\n"
+
+                    trans_screen.ids.transaction_list.add_widget(OneLineListItem(text=transaction_item))
+
+            else:
+                print(f"Error getting transaction history. Status Code: {response.status_code}")
+
+        except Exception as e:
+            print(f"Error getting transaction history: {e}")
+
     menu = None  # Add this line to declare the menu attribute
     options_button_icon_mapping = {
         "INR": "currency-inr",
@@ -464,7 +569,7 @@ class DashBoardScreen(Screen):
     def menu_callback(self, instance_menu_item):
         print(f"Selected currency: {instance_menu_item}")
         store = JsonStore('user_data.json')
-        phone_no = store.get('user')['value'][3]
+        phone_no = store.get('user')['value']["phone"]
         total_balance = self.manager.get_total_balance(phone_no)
         # Convert the total balance to the selected currency
         converted_balance = self.convert_currency(total_balance, instance_menu_item)
@@ -488,13 +593,36 @@ class DashBoardScreen(Screen):
 
         converted_amount = amount * exchange_rate.get(to_currency, 1.0)
         return round(converted_amount, 2)  # Round to two decimal places
-    def show_qr(self):
-        self.manager.current = 'qr_screen'
-        # Load the image into the texture
 
-class WalletApp(MDApp):
-    pass
+    def generate_qr_code(self):
+        phone = JsonStore('user_data.json').get('user')['value']["phone"]
+        qr_code = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr_code.add_data(phone)
+        qr_code.make(fit=True)
 
+        img = qr_code.make_image(fill_color="black", back_color="white")
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        png_data = buffer.getvalue()
+        self.show_qr(png_data)
 
-if __name__ == '__main__':
-    WalletApp().run()
+    def show_qr(self, png_data):
+        qr_code_popup = Popup(title='Your QR Code', size_hint=(0.8, 0.8))
+        qr_code_image = Image()
+        qr_code_image.source = 'data:image/png;base64,' + base64.b64encode(png_data).decode('utf-8')
+        qr_code_popup.add_widget(qr_code_image)
+        qr_code_popup.open()
+
+    def nav_addContact(self):
+        self.manager.current = 'addcontact'
+
+    def nav_navbar(self):
+        self.manager.current = 'navbar'
+
+    def Add_Money(self):
+        self.manager.current = 'Wallet'
