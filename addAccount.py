@@ -1,19 +1,105 @@
+# import requests
+# from kivy.lang import Builder
+# from kivy.storage.jsonstore import JsonStore
+# from kivymd.uix.button import MDFlatButton
+# from kivymd.uix.dialog import MDDialog
+# from kivymd.uix.screen import Screen
+# from kivymd.uix.snackbar import Snackbar
+
+# KV_STRING = '''
+# <AddAccountScreen>
+#     name: 'addaccount'
+#     BoxLayout:
+#         orientation: 'vertical'
+#         spacing: dp(10)
+#         # padding: dp(10)
+#         pos_hint: {'top': 1}
+
+#         MDTopAppBar:
+#             title: 'Add Account'
+#             elevation: 3
+#             left_action_items: [['arrow-left', lambda x: root.go_back()]]
+#             md_bg_color: "#1e75b9"
+#             specific_text_color: "#ffffff"
+#             size_hint_y: None  # Disable automatic height adjustment
+#             height: dp(56)  # Set the desired height of the MDTopAppBar
+
+#         ScrollView:
+#             BoxLayout:
+#                 orientation: 'vertical'
+#                 spacing: dp(5)
+#                 padding: dp(20)
+
+#                 # Profile Details
+#                 MDTextField:
+#                     id: account_holder_name
+#                     hint_text: "Account Holder's Name"
+#                     mode: "rectangle"
+#                     multiline: False
+
+#                 MDTextField:
+#                     id: account_number
+#                     hint_text: "Account Number"
+#                     mode: "rectangle"
+#                     multiline: False
+
+#                 MDTextField:
+#                     id: confirm_account_number
+#                     hint_text: "Confirm Account Number"
+#                     mode: "rectangle"
+#                     multiline: False
+
+#                 MDTextField:
+#                     id: bank_name
+#                     hint_text: "Bank Name"
+#                     mode: "rectangle"
+#                     multiline: False
+
+#                 MDTextField:
+#                     id: branch_name
+#                     hint_text: "Branch Name"
+#                     mode: "rectangle"
+#                     multiline: False
+
+#                 MDTextField:
+#                     id: ifsc_code
+#                     hint_text: "IFSC Code"
+#                     mode: "rectangle"
+#                     multiline: False
+
+#                 MDTextField:
+#                     id: account_type
+#                     hint_text: "Account Type"
+#                     mode: "rectangle"
+#                     multiline: False
+
+#                 Widget:
+#                     size_hint_y: None
+#                     height: '5dp'    
+
+#                 MDRaisedButton:
+#                     #id: edit_save_button
+#                     text: "Submit"
+#                     size_hint: None, None
+#                     size: dp(150), dp(50)
+#                     pos_hint: {'center_x': 0.5}
+#                     on_release: root.add_account()
+                      
+# '''
+# Builder.load_string(KV_STRING)
+
 import requests
 from kivy.lang import Builder
-from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.button import MDFlatButton
+from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
 from kivymd.uix.snackbar import Snackbar
 
-KV_STRING = '''
+KV = """
 <AddAccountScreen>
-    name: 'addaccount'
     BoxLayout:
-        orientation: 'vertical'
-        spacing: dp(10)
-        # padding: dp(10)
-        pos_hint: {'top': 1}
+        orientation: "vertical"
 
         MDTopAppBar:
             title: 'Add Account'
@@ -21,21 +107,20 @@ KV_STRING = '''
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             md_bg_color: "#1e75b9"
             specific_text_color: "#ffffff"
-            size_hint_y: None  # Disable automatic height adjustment
-            height: dp(56)  # Set the desired height of the MDTopAppBar
-
         ScrollView:
             BoxLayout:
-                orientation: 'vertical'
-                spacing: dp(5)
-                padding: dp(20)
+                orientation: "vertical"
+                spacing: "10dp"
+                padding: ["10dp", "1dp", "10dp", "1dp"]
+                size_hint_y: None
+                height: self.minimum_height
+                pos_hint: {'top': 1}
 
-                # Profile Details
                 MDTextField:
                     id: account_holder_name
                     hint_text: "Account Holder's Name"
                     mode: "rectangle"
-                    multiline: False
+                    multiline: False    
 
                 MDTextField:
                     id: account_number
@@ -76,7 +161,7 @@ KV_STRING = '''
                 Widget:
                     size_hint_y: None
                     height: '5dp'    
-
+                    
                 MDRaisedButton:
                     #id: edit_save_button
                     text: "Submit"
@@ -84,14 +169,14 @@ KV_STRING = '''
                     size: dp(150), dp(50)
                     pos_hint: {'center_x': 0.5}
                     on_release: root.add_account()
-                      
-'''
-Builder.load_string(KV_STRING)
+                    
+"""
+Builder.load_string(KV)
 
 
 class AddAccountScreen(Screen):
     def go_back(self):
-        self.manager.current = 'dashboard'
+        self.manager.current = 'accmanage'
 
     def show_popup(self, text):
         dialog = MDDialog(

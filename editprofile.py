@@ -13,8 +13,8 @@ KV = """
             title: 'Edit Profile'
             elevation: 3
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
-            #md_bg_color: app.theme_cls.primary_color
-
+            md_bg_color: "#1e75b9"
+            specific_text_color: "#ffffff"
         ScrollView:
             BoxLayout:
                 orientation: "vertical"
@@ -78,15 +78,17 @@ KV = """
                 MDRaisedButton:
                     text: "Save Edit"
                     on_release: root.save_edit()
-                    # pos_hint:{'center_x': 0.8, 'center_y':0.4}
+                    pos_hint: {'center_x': 0.5}
+                    #pos_hint:{'center_x': 0.8, 'center_y':0.4}
                     
 """
 Builder.load_string(KV)
 
 
+
 class EditUser(Screen):
     def go_back(self):
-        self.manager.current = 'navbar'
+        self.manager.current = 'settings'
 
     def save_edit(self):
         edit_scr = self.manager.get_screen('edituser')

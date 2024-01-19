@@ -18,7 +18,7 @@ navigation_helper = """
                 MDTopAppBar:
                     title: ""
                     elevation: 1
-                    # pos_hint: {"top": 1}
+                    pos_hint: {"top": 1}
                     md_bg_color: "#ffffff"
                     specific_text_color: "#000000"
                         
@@ -43,7 +43,7 @@ navigation_helper = """
                             pos_hint: {'center_y': 0.7, 'center_x': 0.7}
 
                 BoxLayout:
-                    #size: root.width, root.height
+                    size: root.width, root.height
                     spacing: '12dp'
                     padding: '8dp'
                     orientation: "vertical"
@@ -56,7 +56,6 @@ navigation_helper = """
                         size_hint_y:None
                         bold: True
                         height: self.texture_size[1]
-                        
 
 
                     MDLabel:
@@ -94,14 +93,15 @@ navigation_helper = """
                                     icon: "qrcode-scan"
                                     theme_text_color: 'Custom'
                                     text_color: get_color_from_hex("#3489eb")  
-                            OneLineIconListItem:
-                                text: "Auto Topup"
-                                IconLeftWidget:
-                                    icon: "autorenew" 
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb") 
+                            # OneLineIconListItem:
+                            #     text: "Auto Topup"
+                            #     IconLeftWidget:
+                            #         icon: "autorenew" 
+                            #         theme_text_color: 'Custom'
+                            #         text_color: get_color_from_hex("#3489eb") 
                             OneLineIconListItem:
                                 text: "Settings"
+                                on_release: root.manager.nav_settings()
                                 IconLeftWidget:
                                     icon: "cog-outline"
                                     theme_text_color: 'Custom'
@@ -114,19 +114,19 @@ navigation_helper = """
                                     theme_text_color: 'Custom'
                                     text_color: get_color_from_hex("#3489eb")
                             OneLineIconListItem:
-                                text: "Add Bank Account"
-                                on_release: root.manager.nav_account()
+                                text: "Account Management"
+                                on_release: root.manager.nav_accmanage()
                                 IconLeftWidget:
                                     icon: "bank"
                                     theme_text_color: 'Custom'
                                     text_color: get_color_from_hex("#3489eb")
-                            OneLineIconListItem:
-                                text: "Get Help"
-                                on_release: root.manager.nav_help()
-                                IconLeftWidget:
-                                    icon: "help-circle"
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")
+                            # OneLineIconListItem:
+                            #     text: "Get Help"
+                            #     on_release: root.manager.nav_help()
+                            #     IconLeftWidget:
+                            #         icon: "help-circle"
+                            #         theme_text_color: 'Custom'
+                            #         text_color: get_color_from_hex("#3489eb")
                             OneLineIconListItem:
                                 text: "Raise a Complaint"
                                 on_release: root.manager.nav_complaint()

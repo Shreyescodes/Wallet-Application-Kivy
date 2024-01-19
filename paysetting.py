@@ -3,13 +3,13 @@ from kivymd.app import MDApp
 from kivymd.uix.screen import Screen
 
 KV = '''
-<HelpScreen>:
+<PaysettingScreen>:
     Screen:
         MDScreen:
             BoxLayout:
                 orientation: "vertical"
                 MDTopAppBar:
-                    title: 'Help & Support'
+                    title: 'Payment Settings'
                     elevation: 3
                     left_action_items: [['arrow-left', lambda x: root.go_back()]]
                     md_bg_color: "#1e75b9"
@@ -19,7 +19,7 @@ KV = '''
                 
                     BoxLayout: 
                         size_hint_y: None
-                        height: dp(110)
+                        height: dp(220)
                         pos_hint: {'center_x': 0.45, 'y': 220}        
 
                         BoxLayout:
@@ -29,33 +29,36 @@ KV = '''
                             spacing: '4dp'
 
                             OneLineIconListItem:
-                                text: "Contact Us"
-                                on_release: root.manager.nav_contactus()
+                                text: "UPI Settings"
                                 IconLeftWidget:
-                                    icon: "email-outline"
+                                    icon: "at"
                                     theme_text_color: 'Custom'
                                     text_color: get_color_from_hex("#3489eb")  
-                            # OneLineIconListItem:
-                            #     text: "App info"
-                            #     IconLeftWidget:
-                            #         icon: "information-outline" 
-                            #         theme_text_color: 'Custom'
-                            #         text_color: get_color_from_hex("#3489eb") 
                             OneLineIconListItem:
-                                text: "Terms and Policies"
+                                text: "Auto Topup"
                                 IconLeftWidget:
-                                    icon: "file-document-outline"
+                                    icon: "refresh-auto" 
                                     theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")                      
+                                    text_color: get_color_from_hex("#3489eb") 
+                            OneLineIconListItem:
+                                text: "UPI International"
+                                IconLeftWidget:
+                                    icon: "web"
+                                    theme_text_color: 'Custom'
+                                    text_color: get_color_from_hex("#3489eb") 
+                            OneLineIconListItem:
+                                text: "Reminders"
+                                IconLeftWidget:
+                                    icon: "bell-check-outline"
+                                    theme_text_color: 'Custom'
+                                    text_color: get_color_from_hex("#3489eb")     
+                                                          
                         
 '''
 Builder.load_string(KV)
 
-class HelpScreen(Screen):
+class PaysettingScreen(Screen):
     def go_back(self):
         self.manager.current = 'settings'
 
-    def nav_contactus(self):
-        self.manager.current = 'contactus'    
-
-    
+   
