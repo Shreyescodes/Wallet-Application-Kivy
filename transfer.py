@@ -162,7 +162,8 @@ class TransferScreen(Screen):
                         'amount': amount,
                         'date': current_datetime,
                         'phone': sender_phone,
-                        'account_number': receiver_phone
+                        'account_number': receiver_phone,
+                        'type': 'Debit'
                     })
 
                     # Reference to the 'transactions' collection for receiver
@@ -174,7 +175,8 @@ class TransferScreen(Screen):
                         'amount': amount,
                         'date': current_datetime,
                         'phone': receiver_phone,
-                        'account_number': sender_phone
+                        'account_number': sender_phone,
+                        'type': 'Credit'
                     })
 
                     # Show success message
@@ -204,7 +206,9 @@ class TransferScreen(Screen):
                         'amount': amount,
                         'date': current_datetime,
                         'phone': sender_phone,
-                        'account_number': receiver_phone
+                        'account_number': receiver_phone,
+                        'type': 'Debit'
+                        
                     })
 
                     # Reference to the 'transactions' collection for receiver
@@ -216,7 +220,8 @@ class TransferScreen(Screen):
                         'amount': amount,
                         'date': current_datetime,
                         'phone': receiver_phone,
-                        'account_number': sender_phone
+                        'account_number': sender_phone,
+                        'type': 'Credit'
                     })
                     toast("Money sent successfully")
                     self.manager.get_total_balance(sender_phone)

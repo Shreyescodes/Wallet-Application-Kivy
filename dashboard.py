@@ -4,7 +4,10 @@ from kivy.uix.image import Image
 import qrcode
 import requests
 from kivy.lang import Builder
+from kivy.metrics import dp
+from kivymd.uix.label import MDLabel
 from kivy.storage.jsonstore import JsonStore
+from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -25,29 +28,6 @@ navigation_helper = """
         MDNavigationLayout:
             MDScreenManager:
                 MDScreen:
-                    BottomAppBar:
-                        MDBottomNavigation:
-                            spacing:dp(10)
-                            panel_color:get_color_from_hex("#3489eb")
-                            text_color_active:get_color_from_hex("F5F5F5")
-                            # MDBottomNavigationItem:
-                            #     name:"Withdraw"
-                            #     text:'Withdraw'
-                            #     font_size: '20sp'
-                            #     icon:'bank-transfer-out'
-                            #     on_tab_release:root.nav_withdraw()
-                            # MDBottomNavigationItem:
-                            #     name:"Withdraw"
-                            #     text:'Transfer'
-                            #     text_size: dp(1)
-                            #     icon:'bank-transfer-in'
-                            #     on_tab_release:root.nav_transfer()
-                            # MDBottomNavigationItem:
-                            #     name:"Withdraw"
-                            #     text:'Add Money'
-                            #     text_size:dp(8)
-                            #     icon:'wallet-plus'
-                            #     on_tab_release: root.nav_topup()
                     MDTopAppBar:
                         title: ""
                         elevation: 1
@@ -70,8 +50,8 @@ navigation_helper = """
                                 pos_hint: {'center_y': 0.5}
 
                             MDLabel:
-                                text: "G-wallet"
-                                font_size: '24sp'
+                                text: "Welcome to G-wallet"
+                                font_size: '20sp'
                                 bold: True
                                 pos_hint: {'center_y': 0.5, 'center_x': 0.5}
 
@@ -169,7 +149,7 @@ navigation_helper = """
                             # Icon and label for Transfer
 
 
-                            # Icon and label for Add Money
+                            # Icon and label for add phone number
                             BoxLayout:
                                 spacing: dp(10)
                                 orientation: 'vertical'
@@ -178,14 +158,14 @@ navigation_helper = """
                                 width:20
 
                                 MDIconButton:
-                                    icon: 'wallet-plus'
-                                    on_release: root.nav_topup()
+                                    icon: 'phone'
+                                    on_release: root.nav_addPhone()
                                     pos_hint: {'center_x': 0.5}
                                     theme_text_color: 'Custom'
                                     text_color: 0.117, 0.459, 0.725, 1 
 
                                 MDLabel:
-                                    text: 'Add Money'
+                                    text: 'Pay Phone Number'
                                     bold: True
                                     halign: 'center'
                                     font_size: '12sp'   
@@ -207,12 +187,12 @@ navigation_helper = """
                                     text_color: 0.117, 0.459, 0.725, 1 
 
                                 MDLabel:
-                                    text: 'Add Contacts'
+                                    text: 'Pay Contacts'
                                     bold: True
                                     halign: 'center'
                                     font_size: '12sp'
 
-                            # Icon and label for add phone number
+                            # Icon and label for add phone 
                             BoxLayout:
                                 spacing: dp(10)
                                 orientation: 'vertical'
@@ -416,6 +396,10 @@ class ContentNavigationDrawer(MDBoxLayout):
 
 
 class DashBoardScreen(Screen):
+    def get_username(self):
+            store = JsonStore('user_data.json')
+            return store.get('user')['value']["username"]
+
     def profile_view(self):
         store = JsonStore('user_data.json').get('user')['value']
         username = store["username"]
@@ -433,6 +417,9 @@ class DashBoardScreen(Screen):
         profile_screen.ids.address_label.text = f"Address:{address}"
         # Navigate to the 'Profile' screen
         self.manager.current = 'profile'
+
+    def nav_addPhone(self):
+        self.manager.current = 'addphone'
 
     def nav_topup(self):
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
@@ -529,14 +516,40 @@ class DashBoardScreen(Screen):
                 # Clear existing widgets in the MDList
                 trans_screen.ids.transaction_list.clear_widgets()
 
+                current_date = ""
+
                 # Display the transaction history in LIFO order
-                for transaction_id, transaction_data in sorted(transaction_history.items(), key=lambda x: x[1]['date'],
-                                                               reverse=True):
-                    transaction_item = f"{transaction_data['amount']}₹\n" \
-                                       f"{transaction_data['description']}\n"
+                for transaction_id, transaction_data in sorted(transaction_history.items(), key=lambda x: x[1]['date'], reverse=True):
+                    transaction_datetime = transaction_data['date']
+                    transaction_date = transaction_datetime.split(' ')[0]
+                    
+                    transaction_item = f"{transaction_data['description']}"
 
-                    trans_screen.ids.transaction_list.add_widget(OneLineListItem(text=transaction_item))
+                    # Add header for each date
+                    if transaction_date != current_date:
+                        current_date = transaction_date
+                        header_text = f"[b]{transaction_date}[/b]"
+                        trans_screen.ids.transaction_list.add_widget(OneLineListItem(text=header_text, theme_text_color='Custom', text_color=[0, 0, 0, 1]))
 
+                    # Create a BoxLayout to hold both transaction details and amount label
+                    transaction_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(36))
+
+                    # Add transaction details
+                    transaction_item_widget = OneLineListItem(text=transaction_item, theme_text_color='Custom', text_color=[0, 0, 0, 1])
+                    transaction_container.add_widget(transaction_item_widget)
+
+                    # Add spacing between transaction details and amount
+                    transaction_container.add_widget(Widget(size_hint_x=None, width=dp(20)))
+
+                    # Determine the color based on the transaction type
+                    amount_color = [0, 0.5, 0, 1] if transaction_data['type'] == 'Credit' else [1, 0, 0, 1]
+
+                    # Add the amount label on the right side for each transaction
+                    amount_label = MDLabel(text=f"₹{transaction_data['amount']}", theme_text_color='Custom', text_color=amount_color, halign='right')
+                    transaction_container.add_widget(amount_label)
+
+                    # Add the container to the transaction list
+                    trans_screen.ids.transaction_list.add_widget(transaction_container)
             else:
                 print(f"Error getting transaction history. Status Code: {response.status_code}")
 
@@ -594,6 +607,9 @@ class DashBoardScreen(Screen):
         converted_amount = amount * exchange_rate.get(to_currency, 1.0)
         return round(converted_amount, 2)  # Round to two decimal places
 
+    def nav_navbar(self):
+        self.manager.current = 'navbar'
+
     def generate_qr_code(self):
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
         qr_code = qrcode.QRCode(
@@ -620,9 +636,6 @@ class DashBoardScreen(Screen):
 
     def nav_addContact(self):
         self.manager.current = 'addcontact'
-
-    def nav_navbar(self):
-        self.manager.current = 'navbar'
 
     def Add_Money(self):
         self.manager.current = 'Wallet'

@@ -41,106 +41,111 @@ navigation_helper = """
                             font_size: '24sp'
                             bold: True
                             pos_hint: {'center_y': 0.7, 'center_x': 0.7}
-
-                BoxLayout:
-                    size: root.width, root.height
-                    spacing: '12dp'
-                    padding: '8dp'
-                    orientation: "vertical"
-                    pos_hint:{'top':1}        
-                    
-                    MDLabel:
-                        id: username_label
-                        text:''
-                        font_style:"H6"
-                        size_hint_y:None
-                        bold: True
-                        height: self.texture_size[1]
-
-
-                    MDLabel:
-                        id: email_label
-                        text:''
-                        font_style:"Body1" 
-                        size_hint_y:None
-                        #bold: True
-                        height: self.texture_size[1]
-
-                    MDLabel:
-                        id: contact_label  
-                        text: ''
-                        font_style: "Body1" 
+                ScrollView:
+                    BoxLayout:  
                         size_hint_y: None
-                        #bold: True
-                        height: self.texture_size[1]    
-
-
-                    BoxLayout: 
-                        size_hint_y: None
-                        height: dp(420)
+                        height: dp(510)
                         pos_hint: {'center_x': 0.45, 'y': 220}        
 
                         BoxLayout:
                             orientation: "vertical"
                             size_hint_y: None
                             height: self.minimum_height
-                            spacing: '4dp'
+                            spacing: '8dp'   
+                            padding: '15dp'   
+                        
+                            MDLabel:
+                                id: username_label
+                                text:''
+                                font_style:"H6"
+                                size_hint_y:None
+                                bold: True
+                                height: self.texture_size[1]
 
-                            OneLineIconListItem:
-                                text: "Your QR Code"
-                                on_release: root.generate_qr_code()
-                                IconLeftWidget:
-                                    icon: "qrcode-scan"
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")  
-                            # OneLineIconListItem:
-                            #     text: "Auto Topup"
-                            #     IconLeftWidget:
-                            #         icon: "autorenew" 
-                            #         theme_text_color: 'Custom'
-                            #         text_color: get_color_from_hex("#3489eb") 
-                            OneLineIconListItem:
-                                text: "Settings"
-                                on_release: root.manager.nav_settings()
-                                IconLeftWidget:
-                                    icon: "cog-outline"
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")                      
-                            OneLineIconListItem:
-                                text: "Profile"
-                                on_release: root.profile_view()
-                                IconLeftWidget:
-                                    icon: "face-man-profile" 
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")
-                            OneLineIconListItem:
-                                text: "Account Management"
-                                on_release: root.manager.nav_accmanage()
-                                IconLeftWidget:
-                                    icon: "bank"
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")
-                            # OneLineIconListItem:
-                            #     text: "Get Help"
-                            #     on_release: root.manager.nav_help()
-                            #     IconLeftWidget:
-                            #         icon: "help-circle"
-                            #         theme_text_color: 'Custom'
-                            #         text_color: get_color_from_hex("#3489eb")
-                            OneLineIconListItem:
-                                text: "Raise a Complaint"
-                                on_release: root.manager.nav_complaint()
-                                IconLeftWidget:
-                                    icon: "alert"  
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")        
-                            OneLineIconListItem:
-                                text: "Log-out"
-                                on_release: root.manager.logout()
-                                IconLeftWidget:
-                                    icon: "logout"  
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb") 
+
+                            MDLabel:
+                                id: email_label
+                                text:''
+                                font_style:"Body1" 
+                                size_hint_y:None
+                                #bold: True
+                                height: self.texture_size[1]
+
+                            MDLabel:
+                                id: contact_label  
+                                text: ''
+                                font_style: "Body1" 
+                                size_hint_y: None
+                                #bold: True
+                                height: self.texture_size[1]    
+
+
+                            BoxLayout: 
+                                size_hint_y: None
+                                height: dp(400)
+                                pos_hint: {'center_x': 0.45, 'y': 220}        
+
+                                BoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: self.minimum_height
+                                    spacing: '4dp'
+
+                                    OneLineIconListItem:
+                                        text: "Your QR Code"
+                                        on_release: root.generate_qr_code()
+                                        IconLeftWidget:
+                                            icon: "qrcode-scan"
+                                            theme_text_color: 'Custom'
+                                            text_color: get_color_from_hex("#3489eb")  
+                                    # OneLineIconListItem:
+                                    #     text: "Auto Topup"
+                                    #     IconLeftWidget:
+                                    #         icon: "autorenew" 
+                                    #         theme_text_color: 'Custom'
+                                    #         text_color: get_color_from_hex("#3489eb") 
+                                    OneLineIconListItem:
+                                        text: "Settings"
+                                        on_release: root.manager.nav_settings()
+                                        IconLeftWidget:
+                                            icon: "cog-outline"
+                                            theme_text_color: 'Custom'
+                                            text_color: get_color_from_hex("#3489eb")                      
+                                    OneLineIconListItem:
+                                        text: "Profile"
+                                        on_release: root.profile_view()
+                                        IconLeftWidget:
+                                            icon: "face-man-profile" 
+                                            theme_text_color: 'Custom'
+                                            text_color: get_color_from_hex("#3489eb")
+                                    OneLineIconListItem:
+                                        text: "Account Management"
+                                        on_release: root.manager.nav_accmanage()
+                                        IconLeftWidget:
+                                            icon: "bank"
+                                            theme_text_color: 'Custom'
+                                            text_color: get_color_from_hex("#3489eb")
+                                    # OneLineIconListItem:
+                                    #     text: "Get Help"
+                                    #     on_release: root.manager.nav_help()
+                                    #     IconLeftWidget:
+                                    #         icon: "help-circle"
+                                    #         theme_text_color: 'Custom'
+                                    #         text_color: get_color_from_hex("#3489eb")
+                                    OneLineIconListItem:
+                                        text: "Raise a Complaint"
+                                        on_release: root.manager.nav_complaint()
+                                        IconLeftWidget:
+                                            icon: "alert"  
+                                            theme_text_color: 'Custom'
+                                            text_color: get_color_from_hex("#3489eb")        
+                                    OneLineIconListItem:
+                                        text: "Log-out"
+                                        on_release: root.manager.logout()
+                                        IconLeftWidget:
+                                            icon: "logout"  
+                                            theme_text_color: 'Custom'
+                                            text_color: get_color_from_hex("#3489eb") 
                        
 """
 Builder.load_string(navigation_helper)

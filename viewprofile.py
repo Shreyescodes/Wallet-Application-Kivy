@@ -1,130 +1,130 @@
 from logging import root
 from kivy.app import App
+from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.screen import Screen
 from kivy.uix.camera import Camera
 
-
-KV = """
-<Profile>
-    name: 'view'
-    BoxLayout:
-        orientation: 'vertical'
-        spacing: dp(10)
-        # padding: dp(10)
-        pos_hint: {'top': 1}
-
-        MDTopAppBar:
-            title: 'Profile'
-            elevation: 3
-            left_action_items: [['arrow-left', lambda x: root.go_back()]]
-            md_bg_color: "#1e75b9"
-            specific_text_color: "#ffffff"
-            size_hint_y: None  # Disable automatic height adjustment
-            height: dp(56)  # Set the desired height of the MDTopAppBar
-
-        
-        MDIconButton:
-            icon: "camera"
-            theme_text_color: "Custom"
-            text_color: app.theme_cls.primary_color
-            md_bg_color: "#e1eaea"
-            size_hint_y: None
-            height: 200
-            pos_hint: {'center_x': 0.5, 'center_y': 0.9}
-            on_release: root.open_camera()
-                        
-
-        ScrollView:
+KV = '''
+<Profile>:
+    Screen:
+        MDScreen:
             BoxLayout:
-                orientation: 'vertical'
-                spacing: dp(5)
-                padding: dp(20)
+                orientation: "vertical"
+                MDTopAppBar:
+                    title: 'Profile'
+                    elevation: 3
+                    left_action_items: [['arrow-left', lambda x: root.go_back()]]
+                    md_bg_color: "#1e75b9"
+                    specific_text_color: "#ffffff"
+                # Scrollable part
+                ScrollView:
+                
+                    BoxLayout: 
+                        size_hint_y: None
+                        height: dp(500)
+                        pos_hint: {'center_x': 0.45, 'y': 220}        
 
-                # Profile Details
-                MDTextField:
-                    id: username_label
-                    hint_text: "Username"
-                    icon_left: "account"
-                    mode: "rectangle"
-                    readonly: True
-                    
+                        BoxLayout:
+                            orientation: "vertical"
+                            size_hint_y: None
+                            height: self.minimum_height
+                            spacing: '4dp'
+                            padding: dp(12)
 
-                BoxLayout:
-                    orientation: 'horizontal'
-                    size_hint_y: None
-                    height: dp(66)
-                    padding: dp(2.8)
-                    spacing: dp(5)
-                    MDTextField:
-                        id: email_label
-                        hint_text: "Email"
-                        mode: "rectangle"
-                        icon_left: "email"
-                        readonly: True
-                        theme_text_color: "Custom"
-                        text_color: '#000000'  # Set text color to black
-                        font_style: "Button"
-                        bold: True
-                    MDIconButton:
-                        icon: "pencil"
-                        pos_hint: {'center_y': 0.5}
-                        on_release: root.enable_email_edit()    
+                            MDIconButton:
+                                icon: "camera"
+                                theme_text_color: "Custom"
+                                text_color: app.theme_cls.primary_color
+                                md_bg_color: "#e1eaea"
+                                size_hint_y: None
+                                height: 200
+                                pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+                                on_release: root.open_camera()
+                            
+                            # Profile Details
+                            MDTextField:
+                                id: username_label
+                                hint_text: "Username"
+                                icon_left: "account"
+                                mode: "rectangle"
+                                readonly: True
 
-                BoxLayout:
-                    orientation: 'horizontal'
-                    size_hint_y: None
-                    height: dp(66)
-                    padding: dp(2.8)
-                    spacing: dp(5)
-                    MDTextField:
-                        id: contact_label
-                        hint_text: "Phone No."
-                        mode: "rectangle"
-                        icon_left: "phone"
-                        readonly: True
-                        theme_text_color: "Custom"
-                        text_color: '#000000'  # Set text color to black
-                        font_style: "Button"
-                        bold: True
-                    MDIconButton:
-                        icon: "pencil"
-                        pos_hint: {'center_y': 0.5}
-                        on_release: root.enable_contact_edit()
-                MDTextField:
-                    id: aadhaar_label
-                    hint_text: "Aadhaar"
-                    icon_left: "fingerprint"
-                    mode: "rectangle"
-                    readonly: True
+                            BoxLayout:
+                                orientation: 'horizontal'
+                                size_hint_y: None
+                                height: dp(66)
+                                padding: dp(3)
+                                spacing: dp(5)
+                                MDTextField:
+                                    id: email_label
+                                    hint_text: "Email"
+                                    mode: "rectangle"
+                                    icon_left: "email"
+                                    readonly: True
+                                    theme_text_color: "Custom"
+                                    text_color: '#000000'  # Set text color to black
+                                    font_style: "Button"
+                                    bold: True
+                                MDIconButton:
+                                    icon: "pencil"
+                                    pos_hint: {'center_y': 0.5}
+                                    on_release: root.enable_email_edit()  
 
-                MDTextField:
-                    id: pan_label
-                    hint_text: "PAN"
-                    icon_left: "credit-card"
-                    #mode: "rectangle"
-                    mode: "rectangle"
-                    readonly: True
+                            BoxLayout:
+                                orientation: 'horizontal'
+                                size_hint_y: None
+                                height: dp(66)
+                                padding: dp(2.8)
+                                spacing: dp(5)
+                                MDTextField:
+                                    id: contact_label
+                                    hint_text: "Phone No."
+                                    mode: "rectangle"
+                                    icon_left: "phone"
+                                    readonly: True
+                                    theme_text_color: "Custom"
+                                    text_color: '#000000'  # Set text color to black
+                                    font_style: "Button"
+                                    bold: True
+                                MDIconButton:
+                                    icon: "pencil"
+                                    pos_hint: {'center_y': 0.5}
+                                    on_release: root.enable_contact_edit() 
 
-                MDTextField:
-                    id: address_label
-                    hint_text: "Address"
-                    icon_left: "map-marker"
-                    mode: "rectangle"
-                    readonly: True
+                            MDTextField:
+                                id: aadhaar_label
+                                hint_text: "Aadhaar"
+                                icon_left: "fingerprint"
+                                mode: "rectangle"
+                                readonly: True
 
-                MDRaisedButton:
-                    id: edit_save_button
-                    text: "Edit Profile"
-                    size_hint: None, None
-                    size: dp(150), dp(50)
-                    pos_hint: {'center_x': 0.5}  
-                    on_release: root.edit_save_profile()   
+                            MDTextField:
+                                id: pan_label
+                                hint_text: "PAN"
+                                icon_left: "credit-card"
+                                #mode: "rectangle"
+                                mode: "rectangle"
+                                readonly: True
 
-"""
+                            MDTextField:
+                                id: address_label
+                                hint_text: "Address"
+                                icon_left: "map-marker"
+                                mode: "rectangle"
+                                readonly: True
+
+                            MDRaisedButton:
+                                id: edit_save_button
+                                text: "Edit Profile"
+                                size_hint: None, None
+                                size: dp(150), dp(50)
+                                pos_hint: {'center_x': 0.5}  
+                                on_release: root.edit_save_profile()                           
+                        
+'''
 Builder.load_string(KV)
-
 
 class Profile(Screen):
     current_user_data = None
@@ -217,4 +217,11 @@ class Profile(Screen):
 
     def open_camera(self):
         print("Opening camera") 
+
+
+
+
+
+
+           
            

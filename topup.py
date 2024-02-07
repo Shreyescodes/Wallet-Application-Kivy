@@ -201,11 +201,12 @@ class Topup(Screen):
 
                 # Make a POST request to add a new transaction record
                 response = requests.post(transactions_endpoint, json={
-                    'description': 'topup',
+                    'description': 'Wallet-topup',
                     'amount': amount,
                     'date': current_datetime,
                     'phone': phone,
-                    'account_number': self.account_number
+                    'account_number': self.account_number,
+                    'type': 'Credit'
                 })
 
                 # Show a success toast

@@ -21,13 +21,13 @@ KV = """
             padding: dp(10)
             spacing: dp(10)
             size_hint_y: None
-            height: dp(300)
+            height: dp(200)
             pos_hint: {'center_x': 0.5, 'center_y': 0.4}
 
             Image:
                 source: 'images/login.jpg'  # Update with your image file path
                 size_hint_y: None
-                height: dp(250)  # Adjust the height as needed
+                height: dp(170)  # Adjust the height as needed
                 pos_hint: {'center_x': 0.5}
                 
             MDTextField:

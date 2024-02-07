@@ -263,14 +263,15 @@ class WithdrawScreen(Screen):
                 transactions_collection = requests.post(
                     transactions_endpoint,
                     json={
-                        'description': f'Withdrawal to account number {self.account_number}',
+                        'description': f'Withdrawal to A/c No. {self.account_number}',
                         'amount': amount,
                         'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'phone': entered_mobile,
-                        'account_number': self.account_number
+                        'account_number': self.account_number,
+                        'type': 'Debit'
                     }
                 )
-
+ 
                 # wallet_label = wdrw_scr.ids.wallet_label
                 # wallet_label.text = f"Wallet Money: ${new_e_money_value}"
                 wallet_label = wdrw_scr.ids.balance_lbl
