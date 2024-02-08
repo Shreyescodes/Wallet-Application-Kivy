@@ -1,11 +1,13 @@
 from datetime import datetime
 import requests
+from anvil.tables import app_tables
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivymd.toast import toast
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
-
+from kivy.base import EventLoop
+from kivy.core.window import Window
 KV = '''
 <WithdrawScreen>
     MDTopAppBar:
@@ -115,49 +117,45 @@ Builder.load_string(KV)
 
 
 class WithdrawScreen(Screen):
+    def __init__(self, **kwargs):
+        super(WithdrawScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
     def go_back(self):
         self.manager.current = 'dashboard'
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27,9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def dropdown(self):
         try:
             store = JsonStore('user_data.json')
-            phone_number = store.get('user')['value']["phone"]
+            phone = store.get('user')['value']["phone"]
 
-            # Reference to the 'accounts' subcollection under the user's document
-            accounts_endpoint = f"https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app/account_details/{phone_number}/accounts.json"
+            # Call the server function to fetch account details and bank names
+            bank_names = app_tables.wallet_users_account.search(phone=phone)
+            bank_names_str = [str(row['bank_name']) for row in bank_names]
+            print(bank_names_str)
+            if bank_names_str:
+                # Create the menu list dynamically based on the fetched bank names
+                self.menu_list = [
+                    {"viewclass": "OneLineListItem", "text": bank_name,
+                     "on_release": lambda x=bank_name: self.test(x)}
+                    for bank_name in bank_names_str
+                ]
 
-            # Make a GET request to fetch the user's account details
-            response = requests.get(accounts_endpoint)
-
-            # Check if the request was successful (status code 200)
-            if response.status_code == 200:
-                # Parse the JSON response
-                account_details = response.json()
-
-                # Check if the 'accounts' subcollection exists
-                if account_details:
-                    # Extract unique bank names
-                    bank_names = set(entry['bank_name'] for entry in account_details.values())
-
-                    # Create the menu list dynamically based on the fetched bank names
-                    self.menu_list = [
-                        {"viewclass": "OneLineListItem", "text": bank_name,
-                         "on_release": lambda x=bank_name: self.test(x)}
-                        for bank_name in bank_names
-                    ]
-
-                    # Create and open the dropdown menu
-                    self.menu = MDDropdownMenu(
-                        caller=self.ids.bank_dropdown,
-                        items=self.menu_list,
-                        width_mult=4
-                    )
-                    self.menu.open()
-                else:
-                    toast("No accounts found")
-
+                # Create and open the dropdown menu
+                self.menu = MDDropdownMenu(
+                    caller=self.ids.bank_dropdown,
+                    items=self.menu_list,
+                    width_mult=4
+                )
+                self.menu.open()
             else:
-                toast(f"Failed to fetch account details. Status code: {response.status_code}")
+                toast("No accounts found")
 
         except Exception as e:
             print(f"Error fetching bank names: {e}")
@@ -170,34 +168,21 @@ class WithdrawScreen(Screen):
         self.account_number = None
         self.ids.bank_dropdown.text = text
         store = JsonStore('user_data.json')
-        phone_number = store.get('user')['value']["phone"]
+        phone = store.get('user')['value']["phone"]
 
         try:
-            # Reference to the 'accounts' sub collection under the user's document
-            accounts_endpoint = f"https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app/account_details/{phone_number}/accounts.json"
-
-            # Make a GET request to fetch the user's account details
-            response = requests.get(accounts_endpoint)
-
-            # Check if the request was successful (status code 200)
-            if response.status_code == 200:
-                # Parse the JSON response
-                account_details = response.json()
-
-                # Query the documents with the specified bank name
-                matching_accounts = [
-                    account for account in account_details.values() if account['bank_name'] == text
-                ]
-
-                # Check if any matching accounts were found
-                if matching_accounts:
-                    # Fetch the account number from the first matching account
-                    self.account_number = matching_accounts[0]['account_number']
-                else:
-                    toast("Account not found")
+            # Call the server function to fetch account details and update dropdown
+            matching_accounts = app_tables.wallet_users_account.search(phone=phone, bank_name=text)
+            account = [str(row['account_number']) for row in matching_accounts]
+            if matching_accounts:
+                # Fetch the account number from the first matching account
+                self.account_number = account[0]
+                print(self.account_number)
             else:
-                toast(f"Failed to fetch account details. Status code: {response.status_code}")
+                toast("Account not found")
+
             self.menu.dismiss()
+
         except Exception as e:
             print(f"Error fetching account number: {e}")
 
@@ -207,16 +192,15 @@ class WithdrawScreen(Screen):
 
     def withdraw(self):
         wdrw_scr = self.manager.get_screen('withdraw')
-        database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app/"
-
         # Get the entered mobile number, amount, and selected currency from your UI components
         amount = wdrw_scr.ids.amount_textfield.text
-        selected_currency = wdrw_scr.ids.currency_spinner.text
-        entered_mobile = JsonStore('user_data.json').get('user')['value']["phone"]
+        currency = wdrw_scr.ids.currency_spinner.text
+        date = datetime.now()
+        phone = JsonStore('user_data.json').get('user')['value']["phone"]
+        balance_table = app_tables.wallet_users_balance.get(phone=phone, currency_type=currency)
         selected_bank = wdrw_scr.ids.bank_dropdown.text
-
         # Validate inputs
-        if not selected_bank or not amount or not selected_currency:
+        if not selected_bank or not amount or not currency:
             self.show_error_popup("Please fill in all fields.")
             return
 
@@ -226,117 +210,28 @@ class WithdrawScreen(Screen):
             self.show_error_popup("Invalid amount. Please enter a valid number.")
             return
 
-        # Reference to the 'add_money' collection
-        add_money_endpoint = f"{database_url}/add_money/{entered_mobile}.json"
-
         try:
-            # Make a GET request to check if the user's account exists
-            response = requests.get(add_money_endpoint)
-            existing_record = response.json()
-
-            # Check if the user's account exists (status code 200)
-            if response.status_code == 200 and existing_record:
-                # Check if 'e_money' is present in the existing record
-                current_e_money = existing_record.get('e_money', 0)
-
-                # Check if the wallet has sufficient funds
-                if amount > current_e_money:
-                    self.show_error_popup("Insufficient funds.")
-                    return
-
-                # Withdraw money (subtract the withdrawal amount from e_money)
-                new_e_money_value = current_e_money - amount
-                existing_record.update({'e_money': new_e_money_value})
-
-                # Update the 'add_money' record with the new values
-                response = requests.put(add_money_endpoint, json={
-                    'currency_type': 'INR',
-                    'e_money': new_e_money_value,
-                    'phone': entered_mobile
-                })
-
-                # Convert the withdrawn amount to the selected currency
-                converted_amount = self.manager.convert_to_currency(amount, selected_currency)
-
-                # Reference to the 'transactions' collection
-                transactions_endpoint = f"{database_url}/transactions/{entered_mobile}/user_transactions.json"
-                transactions_collection = requests.post(
-                    transactions_endpoint,
-                    json={
-                        'description': f'Withdrawal to A/c No. {self.account_number}',
-                        'amount': amount,
-                        'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'phone': entered_mobile,
-                        'account_number': self.account_number,
-                        'type': 'Debit'
-                    }
-                )
- 
-                # wallet_label = wdrw_scr.ids.wallet_label
-                # wallet_label.text = f"Wallet Money: ${new_e_money_value}"
-                wallet_label = wdrw_scr.ids.balance_lbl
-                wallet_label.text = f"Wallet Balance: ₹{new_e_money_value}"
-           
-
-                # Show success message with the withdrawn amount in the selected currency
-                success_message = f"Withdrawal successful."
-                self.manager.show_success_popup(success_message)
-                self.manager.show_balance()
-
+            if balance_table is not None:
+                old_balance = balance_table['balance']
+                if amount <= old_balance:
+                    new_balance = old_balance - amount
+                    balance_table['balance'] = new_balance
+                    balance_table.update()
+                else:
+                    toast("balance is less than entered amount")
             else:
-                self.manager.show_error_popup("User not found.")
+                toast("you dont have a balance in this currency type")
+            app_tables.wallet_users_transaction.add_row(
+                reciever_phone=float(self.account_number),
+                phone=phone,
+                fund=amount,
+                date=date,
+                transaction_type="debit"
+            )
 
+            success_message = f"Withdrawal successful."
+            self.manager.show_success_popup(success_message)
+            self.manager.show_balance()
         except Exception as e:
             print(f"Error withdrawing money: {e}")
             self.show_error_popup("An error occurred. Please try again.")
-
-    menu = None  # Add this line to declare the menu attribute
-    options_button_icon_mapping = {
-        "INR": "currency-inr",
-        "POUND": "currency-gbp",
-        "USD": "currency-usd",
-        "EUROS": "currency-eur"
-    }
-
-    def show_currency_options(self, button):
-        currency_options = ["INR", "POUND", "USD", "EUROS"]
-        self.menu_list = [
-            {"viewclass": "OneLineListItem", "text": currency, "on_release": lambda x=currency: self.menu_callback(x)}
-            for currency in currency_options
-        ]
-
-        # Create and open the dropdown menu
-        self.menu = MDDropdownMenu(
-            caller=button,
-            items=self.menu_list,
-            width_mult=4
-        )
-        self.menu.open()
-
-    def menu_callback(self, instance_menu_item):
-        print(f"Selected currency: {instance_menu_item}")
-        store = JsonStore('user_data.json')
-        phone_no = store.get('user')['value']["phone"]
-        total_balance = self.manager.get_total_balance(phone_no)
-        # Convert the total balance to the selected currency
-        converted_balance = self.convert_currency(total_balance, instance_menu_item)
-
-        # Update the label with the selected currency and converted balance
-        self.ids.balance_lbl.text = f'{converted_balance} {instance_menu_item}'
-        self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
-        self.menu.dismiss()
-
-    def convert_currency(self, amount, to_currency):
-        # Implement your currency conversion logic here
-        # You may use an external API or a predefined exchange rate table
-
-        # For simplicity, let's assume a basic conversion formula
-        exchange_rate = {
-            "USD": 0.014,  # Example exchange rates, replace with actual rates
-            "EUROS": 0.012,
-            "INR": 1.0,
-            "POUND": 0.011
-        }
-
-        converted_amount = amount * exchange_rate.get(to_currency, 1.0)
-        return round(converted_amount, 2)  # Round to two decimal places

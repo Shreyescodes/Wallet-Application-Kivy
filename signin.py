@@ -1,11 +1,18 @@
 import re
+import sqlite3
+from datetime import datetime
+
 import requests
+from anvil.tables import app_tables
+from docutils.nodes import row
+from kivy.app import App
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
-
+from kivy.base import EventLoop
+from kivy.core.window import Window
 KV = """
 <SignInScreen>:
     Screen:
@@ -64,48 +71,81 @@ class SignInScreen(Screen):
     def go_back(self):
         self.manager.current = 'landing'
 
+    def __init__(self, **kwargs):
+        super(SignInScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27,9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
+
     def sign_in(self, input_text, password):
+        date = datetime.now()
         if input_text == '' or password == '':
             # Show popup for required fields
             self.show_popup("All Fields are Required")
         else:
             try:
-                database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app/"
-
-                # Function to query the 'login' collection in Firebase
-                def query_login_collection(field, value):
-                    login_endpoint = f"{database_url}/login.json"
-                    params = {'orderBy': f'"{field}"', 'equalTo': f'"{value}"'}
-                    response = requests.get(login_endpoint, params=params)
-                    return response.json()
-
-                # Use regex to determine the type of input
                 if re.match(r'^\d{10}$', input_text):  # Phone number with 10 digits
-                    query_result = query_login_collection('phone', input_text)
+                    user = app_tables.wallet_users.get(phone=float(input_text))
                 elif re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', input_text):  # Email
-                    query_result = query_login_collection('gmail', input_text)
+                    user = app_tables.wallet_users.get(email=input_text)
                 else:  # Assuming it's a username
-                    query_result = query_login_collection('username', input_text)
+                    user = app_tables.wallet_users.get(username=input_text)
 
-                # Check if any documents were found
-                if not query_result:
+                # Check if the user was found
+                if user is None:
                     # Show popup for invalid user
                     self.show_popup("Invalid User")
                 else:
-                    # Fetch the first document (if there are multiple matches, you may need to handle it differently)
-                    user_data = next(iter(query_result.values()))
-
-                    # Now 'user_data' contains the inner dictionary
-                    row = user_data
-                    print(row)
+                    # Now 'user' contains the Anvil row
+                    user.update(last_login=date)
+                    user_data = dict(user)
+                    user_data['last_login'] = str(user_data['last_login'])
+                    user.update(last_login=date)
+                    print(user_data)
                     # Show popup for successful login
                     self.show_popup("Login Successful")
+                    App.get_running_app().authenticated_user_number = row['phone']
                     self.manager.current = 'dashboard'
 
                     # Save user data to JsonStore (if needed)
                     store = JsonStore('user_data.json')
-                    store.put('user', value=row)
+                    store.put('user', value=user_data)
+                    try:
+                        conn = sqlite3.connect('wallet_database.db')
+                        cursor = conn.cursor()
+                        user = JsonStore('user_data.json').get('user')['value']
+                        phone = user['phone']
+                        username = user['username']
+                        email = user['email']
+                        password = user['password']
+                        confirm_email = user['confirm_email']
+                        aadhar_number = user['aadhar']
+                        pan = user['pan']
+                        address = user['address']
+                        usertype = user['usertype']
+                        banned = user['banned']
+                        balance_limit = user['limit']
+                        daily_limit = user['daily_limit']
+                        last_login = user['last_login']
 
+                        # Insert into wallet_users table
+                        cursor.execute('''
+                               INSERT INTO wallet_users (phone, username, email, password, confirm_email, aadhar_number,
+                                                        pan, address, usertype, banned, balance_limit, daily_limit, last_login)
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                           ''', (phone, username, email, password, confirm_email, aadhar_number,
+                                 pan, address, usertype, banned, balance_limit, daily_limit, last_login))
+
+                        conn.commit()
+                        conn.close()
+                    except Exception as e:
+                        print(e)
                     # Fetch and update dashboard
                     self.manager.fetch_and_update_navbar()
                     self.manager.show_balance()

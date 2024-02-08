@@ -2,7 +2,8 @@ from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.screen import Screen
 from kivymd.uix.textfield import MDTextField
-
+from kivy.base import EventLoop
+from kivy.core.window import Window
 
 # KV = '''
 # <AddContactScreen>:
@@ -162,6 +163,17 @@ class AddContactScreen(Screen):
     def search(self):
         pass
 
+    def __init__(self, **kwargs):
+        super(AddContactScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27,9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 ##################################
             
 

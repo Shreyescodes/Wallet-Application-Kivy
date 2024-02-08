@@ -19,7 +19,7 @@ Builder.load_string(
     """
 
 <AddMoneyScreen>:
-
+    
     canvas.before:
         Color:
             rgba: 0.8706, 0.9451, 1, 1  # Background color (#DEF1FF)
@@ -27,15 +27,15 @@ Builder.load_string(
             pos: self.pos
             size: self.size
     MDBoxLayout:
-
-
+        
+        
         orientation: 'vertical'
         padding: [dp(10), dp(0), dp(10), dp(20)]  # Padding: left, top, right, bottom
         spacing: dp(20)
         pos_hint: {'center_x': 0.5, 'center_y': 0.6}
         size_hint_y: None
         height: self.minimum_height
-
+        
         MDTopAppBar:
             title: 'Money Transfer'
             elevation: 3
@@ -43,7 +43,7 @@ Builder.load_string(
             md_bg_color: "#1e75b9"
             specific_text_color: "#ffffff"
             pos_hint:{'top':1}
-
+            
         MDCard:
             orientation: 'vertical'
             size_hint: 0.9, None  # 90% of parent width
@@ -67,7 +67,7 @@ Builder.load_string(
                 spacing: dp(10)
                 adaptive_height: True
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
-
+                    
                 MDTextField:
                     id: balance_lbl
                     text: 'Balance'
@@ -81,8 +81,8 @@ Builder.load_string(
                     padding: dp(5), dp(5)
                     theme_text_color: "Custom"
                     text_color: 0, 0, 0, 1  # Black text color
-
-
+                  
+                    
                 MDIconButton:
                     id: options_button
                     icon: "currency-inr"
@@ -91,7 +91,7 @@ Builder.load_string(
                     theme_text_color: "Custom"
                     text_color: 0, 0, 0, 1  # White text color
                     on_release: root.show_currency_options(self)
-
+                                        
 
         MDCard:
             orientation: 'vertical'
@@ -134,7 +134,7 @@ Builder.load_string(
                 padding: dp(10)
                 spacing: dp(10)
                 adaptive_height: True
-
+                
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 MDFlatButton:
                     text: '+100'
@@ -143,7 +143,7 @@ Builder.load_string(
                     width: dp(64)
                     md_bg_color: 0.85, 0.85, 0.85, 1
                     on_release: root.update_balance(100)
-
+                    
                 MDFlatButton:
                     text: '+200'
                     size_hint: 1, None  # Set the size_hint_x to 1 to fill the width
@@ -192,9 +192,8 @@ Builder.load_string(
         size_hint_x: None
         width: dp(100)
 
-
+       
 """)
-
 
 class AddMoneyScreen(Screen):
 
@@ -205,9 +204,10 @@ class AddMoneyScreen(Screen):
         super(AddMoneyScreen, self).__init__(**kwargs)
         EventLoop.window.bind(on_keyboard=self.on_key)
 
+
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android
-        if key in [27, 9]:
+        if key in [27,9]:
             self.go_back()
             return True  # Indicates that the key event has been handled
         return False
@@ -368,6 +368,8 @@ class AddMoneyScreen(Screen):
         # Update the text of the balance MDTextField with the selected amount
         self.ids.balance.text = str(amount)
 
+
+
     def get_transaction_history(self):
         try:
             # Replace "your-project-id" with your actual Firebase project ID
@@ -452,18 +454,14 @@ class AddMoneyScreen(Screen):
         }
 
         converted_amount = amount * exchange_rate.get(to_currency, 1.0)
-        return round(converted_amount, 2)  # Round to two decimal places
-
+        return round(converted_amount, 2)  # Round to two decimal places    
     def go_back(self):
         self.manager.current = 'dashboard'
-
-
 class WalletApp(MDApp):
     def build(self):
         screen_manager = ScreenManager()
         screen_manager.add_widget(AddMoneyScreen(name='Wallet'))
         return screen_manager
-
-
+    
 if __name__ == '__main__':
     WalletApp().run()

@@ -1,12 +1,14 @@
 from datetime import datetime
 import requests
+from anvil.tables import app_tables
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivymd.toast import toast
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
-
+from kivy.base import EventLoop
+from kivy.core.window import Window
 kv_string = '''
 <TransferScreen>
     MDScreen:
@@ -83,7 +85,17 @@ Builder.load_string(kv_string)
 class TransferScreen(Screen):
     def go_back(self):
         self.manager.current = 'dashboard'
+    def __init__(self, **kwargs):
+        super(TransferScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
 
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27,9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
     import requests
     from kivymd.toast import toast
     from kivymd.uix.dialog import MDDialog
@@ -93,157 +105,67 @@ class TransferScreen(Screen):
     def transfer_money(self):
         # Get data from the text fields and spinner
         amount = float(self.ids.amount_field.text)
-        receiver_phone = self.ids.mobile_no_field.text
+        try:
+            receiver_phone = float(self.ids.mobile_no_field.text)
+        except ValueError:
+            toast("Invalid mobile number. Please enter a valid numeric value.")
+            return
         currency = self.ids.currency_spinner.text
 
         store = JsonStore('user_data.json')
-        sender_phone = store.get('user')['value']["phone"]
-        current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Replace "your-project-id" with your actual Firebase project ID
-        database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app/"
-
-        # Reference to the 'add_money' collection
-        add_money_endpoint = f"{database_url}/add_money/{sender_phone}.json"
-
+        senders_phone = store.get('user')['value']["phone"]
+        date = datetime.now()
+        sender = app_tables.wallet_users_balance.get(phone=senders_phone, currency_type=currency)
+        # check reciever is exist or not
+        rec_exist = self.check_reg(receiver_phone)
+        if rec_exist is None:
+            self.show_not_registered_dialog()
+            return
+        reciever = app_tables.wallet_users_balance.get(phone=receiver_phone, currency_type=currency)
         try:
-            # Make a GET request to check if the sender's account exists
-            response = requests.get(add_money_endpoint)
-            sender_record = response.json()
-
-            # Check if the sender's account exists (status code 200)
-            if response.status_code == 200 and sender_record:
-                # Check if 'e_money' is present in the sender's record
-                current_e_money_sender = sender_record.get('e_money', 0)
-
-                # Check if the sender has sufficient balance
-                if current_e_money_sender < amount:
-                    toast("Insufficient balance")
-                    return
-
-                # Calculate the new balance for the sender
-                new_e_money_sender = current_e_money_sender - amount
-
-
-                # Reference to the receiver's document
-                receiver_add_money_endpoint = f"{database_url}/add_money/{receiver_phone}.json"
-                receiver_login_endpoint = f"{database_url}/login/{receiver_phone}.json"
-                # Make a GET request to check if the receiver's account exists
-                response = requests.get(receiver_add_money_endpoint)
-                receiver_record = response.json()
-                response2=requests.get(receiver_login_endpoint)
-                receivers_login_record=response2.json()
-
-                # Check if the receiver's account exists (status code 200)
-                if response.status_code == 200 and receiver_record:
-                    # Check if 'e_money' is present in the receiver's record
-                    current_e_money_receiver = receiver_record.get('e_money', 0)
-
-                    # Calculate the new balance for the receiver
-                    new_e_money_receiver = current_e_money_receiver + amount
-
-                    # Update the receiver's record with the new balance
-                    response = requests.put(receiver_add_money_endpoint, json={
-                        'currency_type': 'INR',
-                        'e_money': new_e_money_receiver,
-                        'phone': receiver_phone
-                    })
-                    response = requests.put(add_money_endpoint, json={
-                        'currency_type': 'INR',
-                        'e_money': new_e_money_sender,
-                        'phone': sender_phone
-                    })
-                    # Reference to the 'transactions' collection for sender
-                    sender_transactions_endpoint = f"{database_url}/transactions/{sender_phone}/user_transactions.json"
-
-                    # Make a POST request to add a new transaction record for sender
-                    response = requests.post(sender_transactions_endpoint, json={
-                        'description': f'send to {receiver_phone}',
-                        'amount': amount,
-                        'date': current_datetime,
-                        'phone': sender_phone,
-                        'account_number': receiver_phone,
-                        'type': 'Debit'
-                    })
-
-                    # Reference to the 'transactions' collection for receiver
-                    receiver_transactions_endpoint = f"{database_url}/transactions/{receiver_phone}/user_transactions.json"
-
-                    # Make a POST request to add a new transaction record for receiver
-                    response = requests.post(receiver_transactions_endpoint, json={
-                        'description': f'received from {sender_phone}',
-                        'amount': amount,
-                        'date': current_datetime,
-                        'phone': receiver_phone,
-                        'account_number': sender_phone,
-                        'type': 'Credit'
-                    })
-
-                    # Show success message
-                    toast("Money sent successfully")
-                    self.manager.get_total_balance(sender_phone)
-                    self.manager.show_balance()
-                    self.manager.current = 'dashboard'
-                elif response2.status_code == 200 and receivers_login_record:
-                    response2 = requests.put(receiver_add_money_endpoint, json={
-                        'currency_type': 'INR',
-                        'e_money': amount,
-                        'phone': receiver_phone
-                    })
-                    new_e_money_sender = current_e_money_sender - amount
-
-                    # Update the sender's record with the new balance
-                    response2 = requests.put(add_money_endpoint, json={
-                        'currency_type': 'INR',
-                        'e_money': new_e_money_sender,
-                        'phone': sender_phone
-                    })
-                    sender_transactions_endpoint = f"{database_url}/transactions/{sender_phone}/user_transactions.json"
-
-                    # Make a POST request to add a new transaction record for sender
-                    response2 = requests.post(sender_transactions_endpoint, json={
-                        'description': f'send to {receiver_phone}',
-                        'amount': amount,
-                        'date': current_datetime,
-                        'phone': sender_phone,
-                        'account_number': receiver_phone,
-                        'type': 'Debit'
-                        
-                    })
-
-                    # Reference to the 'transactions' collection for receiver
-                    receiver_transactions_endpoint = f"{database_url}/transactions/{receiver_phone}/user_transactions.json"
-
-                    # Make a POST request to add a new transaction record for receiver
-                    response2 = requests.post(receiver_transactions_endpoint, json={
-                        'description': f'received from {sender_phone}',
-                        'amount': amount,
-                        'date': current_datetime,
-                        'phone': receiver_phone,
-                        'account_number': sender_phone,
-                        'type': 'Credit'
-                    })
-                    toast("Money sent successfully")
-                    self.manager.get_total_balance(sender_phone)
-                    self.manager.show_balance()
-                    self.manager.current = 'dashboard'
+            if sender is not None:
+                s_old_balance = sender['balance']
+                if amount <= s_old_balance:
+                    new_balance = s_old_balance - amount
+                    sender['balance'] = new_balance
+                    if reciever is None:
+                        app_tables.wallet_users_balance.add_row(
+                            phone=receiver_phone,
+                            currency_type=currency,
+                            balance=amount
+                        )
+                    else:
+                        r_old_balance = reciever['balance']
+                        r_new_balance = r_old_balance + amount
+                        reciever['balance'] = r_new_balance
+                        reciever.update()
+                    sender.update()
                 else:
-                    # Receiver's phone number is not registered, show a dialogue box indicating the same
-                    self.show_not_registered_dialog()
-
+                    toast("balance is less than entered amount")
+                app_tables.wallet_users_transaction.add_row(
+                    reciever_phone=receiver_phone,
+                    phone=senders_phone,
+                    fund=amount,
+                    date=date,
+                    transaction_status="success",
+                    transaction_type="debit"
+                )
+                app_tables.wallet_users_transaction.add_row(
+                    reciever_phone=senders_phone,
+                    phone=receiver_phone,
+                    fund=amount,
+                    date=date,
+                    transaction_type="credit",
+                    transaction_status="success"
+                )
+                toast("Money added successfully.")
+                self.manager.current = 'dashboard'
+                self.manager.show_balance()
             else:
-                # Sender's phone number is not registered, show a dialogue box indicating the same
-                self.show_not_registered_dialog()
-
-        except ValueError:
-            toast("Invalid amount")
-
+                toast("you dont have a balance in this currency type")
         except Exception as e:
-            print(f"Error transferring money: {e}")
-
-        finally:
-            # No need to close a connection in Firestore, as it's managed automatically
-            pass
+            toast("an error occurred")
+            print(e)
 
     def show_not_registered_dialog(self):
         # Show a dialog indicating that the receiver's phone number is not registered
@@ -258,5 +180,9 @@ class TransferScreen(Screen):
             ]
         )
         dialog.open()
+
+    def check_reg(self, phone):
+        return app_tables.wallet_users.get(phone=phone)
+
 
 

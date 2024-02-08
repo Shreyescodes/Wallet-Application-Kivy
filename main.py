@@ -1,4 +1,7 @@
+import sqlite3
+import anvil
 import requests
+from anvil.tables import app_tables
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.boxlayout import BoxLayout
@@ -6,6 +9,7 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
+from kivymd.toast import toast
 from kivymd.uix.label import MDLabel
 from landing import LandingScreen
 from signup import SignUpScreen
@@ -122,6 +126,29 @@ Builder.load_string(
 class ScreenManagement(ScreenManager):
     current_user_data = None  # Class attribute to store the current user data
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.connect_to_server()
+    def connect_to_server(self):
+        if self.is_internet_connected():
+            # If internet is connected, connect to the Anvil server
+            self.anvil_server_connected = True
+            self.client = anvil.server.connect("server_K4J3PNJGMIQPFKIZQXN25QYR-MMHPVHQPUBUQ2TUV")
+        else:
+            # If no internet, use local database or show a popup
+            self.anvil_server_connected = False
+            toast("no internet connection", duration=3)
+            # self.show_no_internet_popup()
+            # Connect to local database (replace this with your local database code)
+
+    def is_internet_connected(self):
+        try:
+            # Try to make a simple HTTP request to a known server (e.g., Anvil's server)
+            response = requests.get("https://anvil.works")
+            return response.status_code == 200
+        except requests.ConnectionError:
+            return False
+
     # checking users login status
     def check_login_status(self):
         store = JsonStore('user_data.json')
@@ -160,7 +187,7 @@ class ScreenManagement(ScreenManager):
         # Update labels in NavbarScreen
         navbar_screen = self.get_screen('navbar')
         navbar_screen.ids.username_label.text = store["username"]
-        navbar_screen.ids.email_label.text = store["gmail"]
+        navbar_screen.ids.email_label.text = store["email"]
         navbar_screen.ids.contact_label.text = store["phone"]   
 
     def nav_complaint(self):
@@ -170,7 +197,7 @@ class ScreenManagement(ScreenManager):
         store = JsonStore('user_data.json').get('user')['value']
         # Update labels in ComplaintScreen
         complaint_screen = self.get_screen('complaint')
-        complaint_screen.ids.email_label.text = store["gmail"]
+        complaint_screen.ids.email_label.text = store["email"]
           
     def nav_account(self):
         self.current = 'addaccount'
@@ -182,35 +209,22 @@ class ScreenManagement(ScreenManager):
 
         if 'user' in store:
             # 'user' key found, proceed with retrieving data
-            phone_no = store.get('user')['value']["phone"]
-            balance_scr.ids.balance_lbl.text = f"{self.get_total_balance(phone_no)} INR"
+            phone = store.get('user')['value']["phone"]
+            currency = "INR"
+            balance_scr.ids.balance_lbl.text = f"{self.get_total_balance(phone, currency)} INR"
         else:
             # 'user' key not found, show an appropriate message
             balance_scr.ids.balance_lbl.text = "User data not found. Please log in."
 
-    def get_total_balance(self, phone_no):
+    def get_total_balance(self, phone,currency_type):
         try:
-            # Replace "your-project-id" with your actual Firebase project ID
-            database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app"
-            transactions_endpoint = f"{database_url}/add_money/{phone_no}.json"
-
-            # Make a GET request to retrieve data from the user's entry in the 'add_money' table
-            response = requests.get(transactions_endpoint)
-
-            # Check if the request was successful (status code 200)
-            if response.status_code == 200:
-                user_data = response.json()
-
-                # Retrieve 'e_money' value for the user
-                e_money = user_data.get('e_money', 0)
-                print(f"The total balance for {phone_no} is: {e_money}")
-                return e_money
+            acc_row = app_tables.wallet_users_balance.get(phone=phone, currency_type=currency_type)
+            if acc_row:
+                return acc_row['balance']
             else:
-                print(f"Failed to retrieve data. Status code: {response.status_code}")
                 return 0
-
         except Exception as e:
-            print(f"Error fetching data from Realtime Database: {e}")
+            print(f"Error fetching data from anvil Database: {e}")
             return 0
 
     def convert_to_currency(self, amount, target_currency):
@@ -285,7 +299,73 @@ class WalletApp(MDApp):
     def build(self):
         self.scr_mgr = ScreenManagement()
         self.scr_mgr.check_login_status()
+        self.createTables()
         return self.scr_mgr
+
+    def createTables(self):
+        # Connect to SQLite database (or create it if it doesn't exist)
+        conn = sqlite3.connect('wallet_database.db')
+        cursor = conn.cursor()
+
+        # Create the wallet_users table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS wallet_users (
+                phone INTEGER PRIMARY KEY,
+                username TEXT,
+                email TEXT,
+                password TEXT,
+                confirm_email BOOLEAN,
+                aadhar_number INTEGER,
+                pan TEXT,
+                address TEXT,
+                usertype TEXT,
+                banned BOOLEAN,
+                balance_limit INTEGER,
+                daily_limit INTEGER,
+                last_login DATE
+            )
+        ''')
+
+        # Create the wallet_users_account table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS wallet_users_account (
+                phone INTEGER,
+                account_number INTEGER,
+                account_holder_name TEXT,
+                bank_name TEXT,
+                branch_name TEXT,
+                ifsc_code TEXT,
+                account_type TEXT,
+                FOREIGN KEY (phone) REFERENCES wallet_users(phone)
+            )
+        ''')
+
+        # Create the wallet_users_balance table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS wallet_users_balance (
+                phone INTEGER,
+                currency_type TEXT,
+                balance INTEGER,
+                PRIMARY KEY (phone, currency_type),
+                FOREIGN KEY (phone) REFERENCES wallet_users(phone)
+            )
+        ''')
+
+        # Create the wallet_users_transaction table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS wallet_users_transaction (
+                phone INTEGER,
+                date DATETIME,
+                fund INTEGER,
+                transaction_type TEXT,
+                transaction_status TEXT,
+                FOREIGN KEY (phone) REFERENCES wallet_users(phone)
+            )
+        ''')
+
+        # Commit the changes and close the connection
+        conn.commit()
+        conn.close()
 
 
 if __name__ == '__main__':

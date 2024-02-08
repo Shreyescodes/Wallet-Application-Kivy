@@ -90,12 +90,15 @@
 
 import requests
 from kivy.lang import Builder
+from kivymd.toast import toast
 from kivymd.uix.button import MDFlatButton
 from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
 from kivymd.uix.snackbar import Snackbar
-
+from kivy.base import EventLoop
+from kivy.core.window import Window
+from anvil.tables import app_tables
 KV = """
 <AddAccountScreen>
     BoxLayout:
@@ -178,6 +181,18 @@ class AddAccountScreen(Screen):
     def go_back(self):
         self.manager.current = 'accmanage'
 
+    def __init__(self, **kwargs):
+        super(AddAccountScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27,9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
+
     def show_popup(self, text):
         dialog = MDDialog(
             title="Alert",
@@ -206,42 +221,38 @@ class AddAccountScreen(Screen):
         # Check if the account numbers match
         if account_number != confirm_account_number:
             print("Error: Account numbers do not match.")
-            Snackbar(
-                text="Error: Account number didn't match.").open()
+            Snackbar(text="Error: Account number didn't match.").open()
             # You might want to handle this case in your UI, e.g., show an error message.
             return
 
         # Retrieve phone number from user_data.json
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
-
         try:
-            # Replace "your-project-id" with your actual Firebase project ID
-            database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app"
+            accounts_table = app_tables.wallet_users_account
 
-            # Reference to the 'accounts' subcollection under the user's document
-            accounts_endpoint = f"{database_url}/account_details/{phone}/accounts.json"
+            # Check if the account already exists
+            existing_account = accounts_table.get(account_number=float(account_number))
+            if existing_account:
+                print("Error: Account number already exists.")
+                Snackbar(text="Error: Account number already exists.").open()
+                return
 
-            # Make a POST request to add a new document to the 'accounts' subcollection
-            response = requests.post(accounts_endpoint, json={
-                'account_holder_name': account_holder_name,
-                'account_number': account_number,
-                'bank_name': bank_name,
-                'branch_name': branch_name,
-                'ifsc_code': ifsc_code,
-                'account_type': account_type
-            })
+            # Add a new row to the 'accounts' subcollection
+            new_account = accounts_table.add_row(
+                account_holder_name=account_holder_name,
+                account_number=float(account_number),
+                bank_name=bank_name,
+                branch_name=branch_name,
+                ifsc_code=ifsc_code,
+                account_type=account_type,
+                status_confirm=True,
+                phone=phone
+            )
 
-            # Check if the new document was added successfully (status code 200)
-            if response.status_code == 200:
-                print("Account details added successfully.")
-                self.show_popup("Account added successfully.")
-                self.manager.current = 'dashboard'
-            else:
-                print(f"Failed to add account details. Status code: {response.status_code}")
-                Snackbar(
-                    text=f"Failed to add account details. Status code: {response.status_code}").open()
+            print("Account details added successfully.")
+            toast("account added successfully")
+            self.manager.current = 'dashboard'
 
         except Exception as e:
             print(f"Error adding account details: {e}")
-            Snackbar(
-                text=f"Error adding account details: {e}").open()
+            toast("error adding account details")

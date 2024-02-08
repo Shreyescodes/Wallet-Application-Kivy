@@ -3,6 +3,10 @@ from kivy.lang import Builder
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
+from kivy.base import EventLoop
+from kivy.core.window import Window
+from anvil.tables import app_tables
+from kivymd.uix.snackbar import Snackbar
 
 KV = """
 <EditUser>
@@ -89,44 +93,48 @@ Builder.load_string(KV)
 class EditUser(Screen):
     def go_back(self):
         self.manager.current = 'settings'
+    def __init__(self, **kwargs):
+        super(EditUser, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27,9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def save_edit(self):
         edit_scr = self.manager.get_screen('edituser')
         phone = edit_scr.ids.phone.text
         username = edit_scr.ids.username.text
-        gmail = edit_scr.ids.email.text
+        email = edit_scr.ids.email.text
         password = edit_scr.ids.password.text
-        Aadhaar = edit_scr.ids.aadhaar.text
+        aadhar = edit_scr.ids.aadhaar.text
         pan = edit_scr.ids.pan.text
         address = edit_scr.ids.address.text
 
         try:
-            # Replace "your-project-id" with your actual Firebase project ID
-            database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app"
-            login_endpoint = f"{database_url}/login/{phone}.json"
+            # Reference to the 'login' table in Anvil
+            login_table = app_tables.wallet_users
 
-            # Make a GET request to check if the user exists
-            response = requests.get(login_endpoint)
+            # Check if the user exists
+            user = login_table.get(phone=float(phone))
 
-            # Check if the user exists (status code 200)
-            if response.status_code == 200:
-                # Make a PATCH request to update the user details
-                response = requests.patch(login_endpoint, json={
-                    'username': username,
-                    'gmail': gmail,
-                    'password': password,
-                    'Aadhaar': Aadhaar,
-                    'pan': pan,
-                    'address': address
-                })
+            if user is not None:
+                # Update the user details
+                user.update(
+                    username=username,
+                    email=email,
+                    password=password,
+                    aadhar=float(aadhar),
+                    pan=pan,
+                    address=address,
+                )
 
-                # Check if the update was successful
-                if response.status_code == 200:
-                    print("User details updated successfully.")
-                    self.show_update_success_popup()
-                else:
-                    print(f"Failed to update user details. Status code: {response.status_code}")
-                    self.manager.show_error_popup(f"Failed to update user details. Status code: {response.status_code}")
+                print("User details updated successfully.")
+                Snackbar(text="User details updated successfully.").open()
+                self.show_update_success_popup()
             else:
                 print(f"User with phone number {phone} does not exist.")
                 self.manager.show_error_popup(f"User with phone number {phone} does not exist.")

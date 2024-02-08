@@ -1,11 +1,21 @@
+from kivy.clock import Clock
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.screen import Screen
+from kivy.base import EventLoop
+from kivy.core.window import Window
 
 KV = '''
 <PaysettingScreen>:
     Screen:
         MDScreen:
+            on_pre_enter: self.bind_keyboard()
+            on_pre_leave: self.unbind_keyboard()
+
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    text: 'PaysettingScreen Content'
             BoxLayout:
                 orientation: "vertical"
                 MDTopAppBar:
@@ -57,8 +67,21 @@ KV = '''
 '''
 Builder.load_string(KV)
 
+
 class PaysettingScreen(Screen):
     def go_back(self):
         self.manager.current = 'settings'
 
-   
+    def __init__(self, **kwargs):
+        super(PaysettingScreen, self).__init__(**kwargs)
+        lambda x: Window.bind(on_keyboard=self.on_key)
+        print("hello")
+
+    def on_key(self, key):
+        # 27 is the key code for the back button on Android
+        print(key)
+        if key in [27, 9]:
+            self.manager.current = 'settings'
+
+            return True  # Indicates that the key event has been handled
+        return False

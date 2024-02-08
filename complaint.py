@@ -4,7 +4,8 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.screen import Screen
-
+from kivy.base import EventLoop
+from kivy.core.window import Window
 
 KV = """
 <ComplaintScreen>
@@ -116,17 +117,29 @@ KV = """
 """
 Builder.load_string(KV)
 
+
 class ComplaintScreen(Screen):
     def go_back(self):
         self.manager.current = 'navbar'
+
+    def __init__(self, **kwargs):
+        super(ComplaintScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def fetch_and_update_complaint(self):
         store = JsonStore('user_data.json').get('user')['value']
         # Update labels in ComplaintScreen
         complaint_screen = self.get_screen('complaint')
-        complaint_screen.ids.email_label.text = store["gmail"]    
+        complaint_screen.ids.email_label.text = store["gmail"]
 
-    def Submit(self):    
+    def Submit(self):
         self.show_popup("Your Report has been submited. \nOur Technical Executive will respond you shortly.")
         self.manager.current = 'dashboard'
 
@@ -142,4 +155,4 @@ class ComplaintScreen(Screen):
                 )
             ]
         )
-        dialog.open()        
+        dialog.open()

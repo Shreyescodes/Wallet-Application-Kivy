@@ -4,10 +4,7 @@ from kivy.uix.image import Image
 import qrcode
 import requests
 from kivy.lang import Builder
-from kivy.metrics import dp
-from kivymd.uix.label import MDLabel
 from kivy.storage.jsonstore import JsonStore
-from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -21,13 +18,36 @@ from kivymd.uix.button import MDIconButton
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.scrollview import ScrollView
-
+from anvil.tables import app_tables
 navigation_helper = """
 <DashBoardScreen>:
     Screen:
         MDNavigationLayout:
             MDScreenManager:
                 MDScreen:
+                    # BottomAppBar:
+                    #     MDBottomNavigation:
+                    #         spacing:dp(10)
+                    #         panel_color:get_color_from_hex("#3489eb")
+                    #         text_color_active:get_color_from_hex("F5F5F5")
+                            # MDBottomNavigationItem:
+                            #     name:"Withdraw"
+                            #     text:'Withdraw'
+                            #     font_size: '20sp'
+                            #     icon:'bank-transfer-out'
+                            #     on_tab_release:root.nav_withdraw()
+                            # MDBottomNavigationItem:
+                            #     name:"Withdraw"
+                            #     text:'Transfer'
+                            #     text_size: dp(1)
+                            #     icon:'bank-transfer-in'
+                            #     on_tab_release:root.nav_transfer()
+                            # MDBottomNavigationItem:
+                            #     name:"Withdraw"
+                            #     text:'Add Money'
+                            #     text_size:dp(8)
+                            #     icon:'wallet-plus'
+                            #     on_tab_release: root.nav_topup()
                     MDTopAppBar:
                         title: ""
                         elevation: 1
@@ -51,6 +71,7 @@ navigation_helper = """
 
                             MDLabel:
                                 text: "Welcome to G-wallet"
+                                #{}".format(root.get_username()) 
                                 font_size: '20sp'
                                 bold: True
                                 pos_hint: {'center_y': 0.5, 'center_x': 0.5}
@@ -149,7 +170,7 @@ navigation_helper = """
                             # Icon and label for Transfer
 
 
-                            # Icon and label for add phone number
+                            # Icon and label for Add Money
                             BoxLayout:
                                 spacing: dp(10)
                                 orientation: 'vertical'
@@ -192,7 +213,7 @@ navigation_helper = """
                                     halign: 'center'
                                     font_size: '12sp'
 
-                            # Icon and label for add phone 
+                            # Icon and label for add phone number
                             BoxLayout:
                                 spacing: dp(10)
                                 orientation: 'vertical'
@@ -277,6 +298,7 @@ navigation_helper = """
                                         #text_color: 0, 0, 0, 1  # White text color    
 
                                 MDLabel:
+                                    id: balance_lbl
                                     text: 'Check Balance'
                                     bold: True
                                     halign: 'center'
@@ -381,7 +403,7 @@ navigation_helper = """
                                     IconLeftWidget:
                                         icon: "logout"  
                                         theme_text_color: 'Custom'
-                                        text_color: get_color_from_hex("#3489eb")   
+                                        text_color: get_color_from_hex("#3489eb")     
 
 """
 Builder.load_string(navigation_helper)
@@ -397,9 +419,10 @@ class ContentNavigationDrawer(MDBoxLayout):
 
 class DashBoardScreen(Screen):
     def get_username(self):
-            store = JsonStore('user_data.json')
-            return store.get('user')['value']["username"]
-
+            store = JsonStore('user_data.json').get('user')['value']
+            return store["username"]
+    def nav_addPhone(self):
+        self.manager.current = 'addphone'
     def profile_view(self):
         store = JsonStore('user_data.json').get('user')['value']
         username = store["username"]
@@ -418,9 +441,6 @@ class DashBoardScreen(Screen):
         # Navigate to the 'Profile' screen
         self.manager.current = 'profile'
 
-    def nav_addPhone(self):
-        self.manager.current = 'addphone'
-
     def nav_topup(self):
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
         account_details = self.account_details_exist(phone)
@@ -430,27 +450,11 @@ class DashBoardScreen(Screen):
         else:
             self.show_add_account_dialog()
 
-    def account_details_exist(self, phone_number):
+    def account_details_exist(self, phone):
         try:
-            # Replace "your-project-id" with your actual Firebase project ID
-            database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app"
-
-            # Reference to the 'account_details' collection
-            account_details_endpoint = f"{database_url}/account_details/{phone_number}.json"
-
-            # Make a GET request to check if the user's account details exist
-            response = requests.get(account_details_endpoint)
-
-            # Check if the account details exist (status code 200)
-            if response.status_code == 200:
-                # Check if the 'accounts' subcollection exists within the document
-                account_details = response.json()
-                return 'accounts' in account_details
-            else:
-                return False
-
+            return app_tables.wallet_users_account.search(phone=phone)  # Returns a list of accounts
         except Exception as e:
-            print(f"Error checking account details: {e}")
+            print(f"Error fetching accounts: {e}")
             return False
 
     def nav_withdraw(self):
@@ -497,61 +501,21 @@ class DashBoardScreen(Screen):
 
     def get_transaction_history(self):
         try:
-            # Replace "your-project-id" with your actual Firebase project ID
-            database_url = "https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app/"
+            # Get the phone number from the JSON file
+            phone = JsonStore('user_data.json').get('user')['value']['phone']
 
-            # Get the phone number from user data
-            phone = JsonStore('user_data.json').get('user')['value']["phone"]
+            # Query the 'transactions' table to fetch the transaction history
+            transactions = app_tables.wallet_users_transaction.search(phone=phone)
+            trans_screen = self.manager.get_screen('transaction')
+            # Clear existing widgets in the MDList
+            trans_screen.ids.transaction_list.clear_widgets()
 
-            # Reference to the 'transactions' collection
-            transactions_endpoint = f"{database_url}/transactions/{phone}/user_transactions.json"
+            # Display the transaction history in LIFO order
+            for transaction in sorted(transactions, key=lambda x: x['date'], reverse=True):
+                transaction_item = f"{transaction['money']}₹\n" \
+                                   f"{transaction['transaction_type']}\n"
 
-            # Make a GET request to fetch the transaction history
-            response = requests.get(transactions_endpoint)
-
-            if response.status_code == 200:
-                transaction_history = response.json()
-
-                trans_screen = self.manager.get_screen('transaction')
-                # Clear existing widgets in the MDList
-                trans_screen.ids.transaction_list.clear_widgets()
-
-                current_date = ""
-
-                # Display the transaction history in LIFO order
-                for transaction_id, transaction_data in sorted(transaction_history.items(), key=lambda x: x[1]['date'], reverse=True):
-                    transaction_datetime = transaction_data['date']
-                    transaction_date = transaction_datetime.split(' ')[0]
-                    
-                    transaction_item = f"{transaction_data['description']}"
-
-                    # Add header for each date
-                    if transaction_date != current_date:
-                        current_date = transaction_date
-                        header_text = f"[b]{transaction_date}[/b]"
-                        trans_screen.ids.transaction_list.add_widget(OneLineListItem(text=header_text, theme_text_color='Custom', text_color=[0, 0, 0, 1]))
-
-                    # Create a BoxLayout to hold both transaction details and amount label
-                    transaction_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(36))
-
-                    # Add transaction details
-                    transaction_item_widget = OneLineListItem(text=transaction_item, theme_text_color='Custom', text_color=[0, 0, 0, 1])
-                    transaction_container.add_widget(transaction_item_widget)
-
-                    # Add spacing between transaction details and amount
-                    transaction_container.add_widget(Widget(size_hint_x=None, width=dp(20)))
-
-                    # Determine the color based on the transaction type
-                    amount_color = [0, 0.5, 0, 1] if transaction_data['type'] == 'Credit' else [1, 0, 0, 1]
-
-                    # Add the amount label on the right side for each transaction
-                    amount_label = MDLabel(text=f"₹{transaction_data['amount']}", theme_text_color='Custom', text_color=amount_color, halign='right')
-                    transaction_container.add_widget(amount_label)
-
-                    # Add the container to the transaction list
-                    trans_screen.ids.transaction_list.add_widget(transaction_container)
-            else:
-                print(f"Error getting transaction history. Status Code: {response.status_code}")
+                trans_screen.ids.transaction_list.add_widget(OneLineListItem(text=transaction_item))
 
         except Exception as e:
             print(f"Error getting transaction history: {e}")
@@ -559,13 +523,13 @@ class DashBoardScreen(Screen):
     menu = None  # Add this line to declare the menu attribute
     options_button_icon_mapping = {
         "INR": "currency-inr",
-        "POUND": "currency-gbp",
+        "GBP": "currency-gbp",
         "USD": "currency-usd",
-        "EUROS": "currency-eur"
+        "EUR": "currency-eur"
     }
 
     def show_currency_options(self, button):
-        currency_options = ["INR", "POUND", "USD", "EUROS"]
+        currency_options = ["INR", "GBP", "USD", "EUR"]
         self.menu_list = [
             {"viewclass": "OneLineListItem", "text": currency, "on_release": lambda x=currency: self.menu_callback(x)}
             for currency in currency_options
@@ -583,12 +547,11 @@ class DashBoardScreen(Screen):
         print(f"Selected currency: {instance_menu_item}")
         store = JsonStore('user_data.json')
         phone_no = store.get('user')['value']["phone"]
-        total_balance = self.manager.get_total_balance(phone_no)
+        total_balance = self.manager.get_total_balance(phone_no, instance_menu_item)
         # Convert the total balance to the selected currency
-        converted_balance = self.convert_currency(total_balance, instance_menu_item)
 
-        # Update the label with the selected currency and converted balance
-        self.ids.balance_lbl.text = f'{converted_balance} {instance_menu_item}'
+        self.ids.balance_lbl.text = f'balance: {total_balance} '
+        print(total_balance)
         self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
         self.menu.dismiss()
 
@@ -606,9 +569,6 @@ class DashBoardScreen(Screen):
 
         converted_amount = amount * exchange_rate.get(to_currency, 1.0)
         return round(converted_amount, 2)  # Round to two decimal places
-
-    def nav_navbar(self):
-        self.manager.current = 'navbar'
 
     def generate_qr_code(self):
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
@@ -636,6 +596,9 @@ class DashBoardScreen(Screen):
 
     def nav_addContact(self):
         self.manager.current = 'addcontact'
+
+    def nav_navbar(self):
+        self.manager.current = 'navbar'
 
     def Add_Money(self):
         self.manager.current = 'Wallet'

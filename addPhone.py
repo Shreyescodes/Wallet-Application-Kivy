@@ -1,7 +1,9 @@
 from tkinter import Label
 
 import requests
+from anvil.tables import app_tables
 from kivy.clock import Clock
+from kivy.storage.jsonstore import JsonStore
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineListItem, MDList
@@ -94,7 +96,7 @@ class TransactionBetweenUsersScreen(MDScreen):
 
     def on_enter(self, *args):
         app = MDApp.get_running_app()
-        self.sender_number = app.authenticated_user_number
+        self.sender_number = app.authenticated_user_number()
         selected_phone_number = getattr(app, 'selected_phone_number', '')
 
         try:
@@ -106,12 +108,11 @@ class TransactionBetweenUsersScreen(MDScreen):
         self.display_transaction_history(transaction_history)
 
     def fetch_transaction_history(self):
-        url = f"https://e-wallet-realtime-database-default-rtdb.asia-southeast1.firebasedatabase.app/transactions/{self.sender_number}/user_transactions.json"
-        print(f"Fetching from URL: {url}")
+        phone=JsonStore("userdata.json").get("user")["value"]["phone"]
+        response=app_tables.wallet_users_transaction.get(phone=phone)
 
         try:
-            response = requests.get(url)
-            response.raise_for_status()
+
 
             transaction_history = response.json()
             print(f"Transaction History Response: {transaction_history}")
