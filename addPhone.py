@@ -72,47 +72,47 @@ KV = '''
 '''
 
 Builder.load_string(KV)
-Builder.load_string("""
-<UserDetailsScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-
-        MDTopAppBar:
-            title: root.top_app_bar_title
-            elevation: 3
-            left_action_items: [['arrow-left', lambda x: root.go_back()]]
-            md_bg_color: app.theme_cls.primary_color
-
-        ScrollView:
-            BoxLayout:
-                orientation: 'vertical'
-                size_hint_y: None
-                height: self.minimum_height
-
-                Label:
-                    text: 'Transaction History'
-                    size_hint_y: None
-                    height: dp(36)
-                    font_size: 18
-                    halign: 'center'
-
-                BoxLayout:
-                    orientation: 'vertical'
-                    size_hint_y: None
-                    height: dp(400)
-
-                    MDList:
-                        id: transaction_list_mdlist
-
-        BoxLayout:
-            orientation: 'vertical'
-            size_hint_y: None
-            height: dp(50)
-
-            MDTextField:
-                text: "This is a text box at the bottom."
-                multiline: True
-""")
+# Builder.load_string("""
+# <UserDetailsScreen>:
+#     BoxLayout:
+#         orientation: 'vertical'
+#
+#         MDTopAppBar:
+#             title: root.top_app_bar_title
+#             elevation: 3
+#             left_action_items: [['arrow-left', lambda x: root.go_back()]]
+#             md_bg_color: app.theme_cls.primary_color
+#
+#         ScrollView:
+#             BoxLayout:
+#                 orientation: 'vertical'
+#                 size_hint_y: None
+#                 height: self.minimum_height
+#
+#                 Label:
+#                     text: 'Transaction History'
+#                     size_hint_y: None
+#                     height: dp(36)
+#                     font_size: 18
+#                     halign: 'center'
+#
+#                 BoxLayout:
+#                     orientation: 'vertical'
+#                     size_hint_y: None
+#                     height: dp(400)
+#
+#                     MDList:
+#                         id: transaction_list_mdlist
+#
+#         BoxLayout:
+#             orientation: 'vertical'
+#             size_hint_y: None
+#             height: dp(50)
+#
+#             MDTextField:
+#                 text: "This is a text box at the bottom."
+#                 multiline: True
+# """)
 
 
 class TransactionBetweenUsersScreen(MDScreen):
@@ -281,88 +281,78 @@ class AddPhoneScreen(Screen):
         print(f"Selected username: {username}, Phone number: {number}")
         if username:
             # Create a new screen instance with the selected username and phone number
-            next_screen = UserDetailsScreen(username=username, phone_number=number)
-            # Switch to the new screen
-            self.manager.add_widget(next_screen)
-            self.manager.current = 'user_details'
+            # next_screen = UserDetailsScreen(username=username, phone_number=number)
+            # # Switch to the new screen
+            # self.manager.add_widget(next_screen)
+            # self.manager.current = 'user_details'
+            pass
 
 
 class UserDetailsScreen(Screen):
-    top_app_bar_title = ""
-    def go_back(self):
-        self.manager.current = 'addphone'
-
-    def __init__(self, username='', phone_number='', **kwargs):
-        super().__init__(**kwargs)
-        self.username = username
-        self.phone_number = phone_number
-        self.top_app_bar_title = username
-        self.transaction_list_mdlist = None  # Added attribute for MDList
-        print(f"UserDetailsScreen initialized with username: {self.username}, Phone number: {self.phone_number}")
-        if self.phone_number:
-            transaction_history = self.fetch_transaction_history(self.phone_number)
-            self.display_transaction_history(transaction_history)
-        else:
-            pass
-
-    def fetch_transaction_history(self, receiver_phone):
-        store = JsonStore('user_data.json')
-        phone = store.get('user')['value']["phone"]
-        print(type(receiver_phone))
-        #print("phone" + receiver_phone)
-
-        try:
-            response = app_tables.wallet_users_transaction.get(phone=phone, receiver_phone=receiver_phone)
-            transaction_history = response
-            print(f"Transaction History Response: {transaction_history}")
-            return transaction_history
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching transaction history: {e}")
-            return {}
-
-    def display_transaction_history(self, transaction_history):
-        if not self.transaction_list_mdlist:
-            return
-
-        self.transaction_list_mdlist.clear_widgets()
-
-        if not transaction_history:
-            item = MDLabel(text="No transactions found", font_size=20, size_hint_y=None, height=dp(50))
-            self.transaction_list_mdlist.add_widget(item)
-        else:
-            for transaction_id, transaction in transaction_history.items():
-                # Display transactions based on your design preference
-                transaction_layout = BoxLayout(orientation='vertical', spacing=dp(10), size_hint_y=None,
-                                               padding=[dp(10), dp(10), dp(10), 0])
-
-                # Format date and time
-                date_time_split = transaction.get("date", "").split(" ")
-                formatted_date = date_time_split[0] if len(date_time_split) > 1 else transaction.get("date", "")
-                formatted_time = date_time_split[1] if len(date_time_split) > 1 else ""
-
-                # Show date
-                date_label = MDLabel(text=f"Date: {formatted_date}", font_size=16)
-                transaction_layout.add_widget(date_label)
-
-                # Show transaction type
-                transaction_type_label = MDLabel(text=f"Type: {transaction.get('transaction_type', '')}", font_size=16)
-                transaction_layout.add_widget(transaction_type_label)
-
-                # Show transaction status
-                transaction_status_label = MDLabel(text=f"Status: {transaction.get('transaction_status', '')}",
-                                                   font_size=16)
-                transaction_layout.add_widget(transaction_status_label)
-
-                # Show amount
-                amount_label = MDLabel(text=f"Amount: {transaction.get('fund', 0):.2f}", font_size=16)
-                transaction_layout.add_widget(amount_label)
-
-                # Show time
-                time_label = MDLabel(text=f"Time: {formatted_time}", font_size=12)
-                transaction_layout.add_widget(time_label)
-
-                self.transaction_list_mdlist.add_widget(transaction_layout)
-
+    pass
+    # top_app_bar_title = ""
+    #
+    # def go_back(self):
+    #     self.manager.current = 'addphone'
+    #
+    # def __init__(self, username='', phone_number='', **kwargs):
+    #     super().__init__(**kwargs)
+    #     self.username = username
+    #     self.phone_number = phone_number
+    #     self.top_app_bar_title = username
+    #     self.transaction_list_mdlist = MDList()  # Added attribute for MDList
+    #     layout = BoxLayout(orientation='vertical')
+    #     # Add the MDList to the layout
+    #     layout.add_widget(self.transaction_list_mdlist)
+    #     print(f"UserDetailsScreen initialized with username: {self.username}, Phone number: {self.phone_number}")
+    #     if self.phone_number:
+    #         transaction_history = self.fetch_transaction_history(self.phone_number)
+    #         self.display_transaction_history(transaction_history)
+    #     else:
+    #         pass
+    #
+    # def fetch_transaction_history(self, receiver_phone):
+    #     store = JsonStore('user_data.json')
+    #     phone = store.get('user')['value']["phone"]
+    #     print(type(receiver_phone))
+    #     # print("phone" + receiver_phone)
+    #
+    #     try:
+    #         response = app_tables.wallet_users_transaction.search(phone=phone, receiver_phone=receiver_phone)
+    #         transaction_history = response
+    #         print(f"Transaction History Response: {transaction_history}")
+    #         return transaction_history
+    #     except requests.exceptions.RequestException as e:
+    #         print(f"Error fetching transaction history: {e}")
+    #         return {}
+    #
+    # def display_transaction_history(self, transaction_history):
+    #     if not transaction_history:
+    #         print("no transactions")
+    #         item = MDLabel(text="No transactions found", font_size=20, size_hint_y=None, height=dp(50))
+    #         self.transaction_list_mdlist.add_widget(item)
+    #     else:
+    #         transaction_list = list(transaction_history)
+    #
+    #         for transaction_row in transaction_list:
+    #             # Access fields from the row
+    #             fund = transaction_row['fund']
+    #             date = transaction_row['date']
+    #             transaction_type = transaction_row['transaction_type']
+    #             transaction_status = transaction_row['transaction_status']
+    #             receiver_phone = transaction_row['receiver_phone']
+    #             sender_phone = transaction_row['phone']
+    #
+    #             print(
+    #                 f"Type: {transaction_type}\nAmount: {fund}\nDate: {date}\nStatus: {transaction_status}\nReceiver Phone: {receiver_phone}\nSender Phone: {sender_phone}")
+    #
+    #             #Uncomment the following lines to add labels to your MDList
+    #             item = MDLabel(
+    #                 text=f"Type: {transaction_type}\nAmount: {fund}\nDate: {date}\nStatus: {transaction_status}\nReceiver Phone: {receiver_phone}\nSender Phone: {sender_phone}",
+    #                 font_size=20, size_hint_y=None, height=dp(150)
+    #             )
+    #             self.transaction_list_mdlist.add_widget(item)
+    #
 
 class WalletApp(MDApp):
 
@@ -373,5 +363,5 @@ class WalletApp(MDApp):
         # Add screens to the screen manager
         screen_manager.add_widget(AddPhoneScreen(name='add_phone'))
         # Add other screens as needed
-
+        screen_manager.add_widget(UserDetailsScreen(name='user_details'))
         return screen_manager

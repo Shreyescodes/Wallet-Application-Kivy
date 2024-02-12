@@ -133,7 +133,7 @@ class EditUser(Screen):
                 )
 
                 print("User details updated successfully.")
-                Snackbar(text="User details updated successfully.").open()
+                #Snackbar(text="User details updated successfully.").open()
                 self.show_update_success_popup()
             else:
                 print(f"User with phone number {phone} does not exist.")
@@ -141,8 +141,8 @@ class EditUser(Screen):
 
         except Exception as e:
             print(f"Error updating user details: {e}")
-            self.manager.show_error_popup(f"Error updating user details: {e}")
-            print(e)
+            #self.manager.show_error_popup(f"Error updating user details: {e}")
+            #print(e)
 
     def show_update_success_popup(self):
         dialog = MDDialog(
@@ -151,7 +151,7 @@ class EditUser(Screen):
             buttons=[
                 MDFlatButton(
                     text="OK",
-                    on_release=lambda *args: (dialog.dismiss(), self.manager.logout())
+                    on_release=lambda *args: (dialog.dismiss(), self.manager.logout()),
                 )
             ]
         )

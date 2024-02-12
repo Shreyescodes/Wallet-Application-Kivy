@@ -83,10 +83,10 @@ class SettingsScreen(Screen):
         store = JsonStore('user_data.json').get('user')['value']
 
         edit_screen.ids.username.text = store["username"]
-        edit_screen.ids.email.text = store["gmail"]
-        edit_screen.ids.phone.text = store["phone"]
+        edit_screen.ids.email.text = store["email"]
+        edit_screen.ids.phone.text = str(store["phone"])
         edit_screen.ids.password.text = store["password"]
-        edit_screen.ids.aadhaar.text = store["Aadhaar"]
+        edit_screen.ids.aadhaar.text = str(store["aadhar"])
         edit_screen.ids.pan.text = store["pan"]
         edit_screen.ids.address.text = store["address"]
         self.manager.current = 'edituser'

@@ -195,9 +195,9 @@ class NavbarScreen(Screen):
     def profile_view(self):
         store = JsonStore('user_data.json').get('user')['value']
         username = store["username"]
-        gmail = store["gmail"]
+        gmail = store["email"]
         phone = store["phone"]
-        aadhaar = store["Aadhaar"]
+        aadhaar = store["aadhar"]
         address = store["address"]
         pan = store["pan"]
         profile_screen = self.manager.get_screen('profile')

@@ -39,7 +39,7 @@ Builder.load_string(
         height: self.minimum_height
         
         MDTopAppBar:
-            title: 'Money Transfer'
+            title: 'Add Money'
             elevation: 3
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             md_bg_color: "#1e75b9"
@@ -288,7 +288,7 @@ class AddMoneyScreen(Screen):
         wallet_scr = self.manager.get_screen('Wallet')
         money = wallet_scr.ids.balance.text
         amount = float(money)
-        #print("amount " + amount)
+        # print("amount " + amount)
         bank_name = wallet_scr.ids.bank_dropdown.text
         date = datetime.now()
         currency = wallet_scr.ids.currency_dropdown.text
@@ -415,7 +415,7 @@ class AddMoneyScreen(Screen):
     def currencyDropdown(self):
         try:
             # Manually set currencies
-            currencies = ["USD", "EUR", "GBP", "JPY", "AUD"]
+            currencies = ["INR", "USD", "EUR", "GBP", "JPY", "AUD"]
 
             # Create the menu list dynamically based on the fetched currencies
             self.menu_list = [
