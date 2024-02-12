@@ -19,35 +19,13 @@ from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.scrollview import ScrollView
 from anvil.tables import app_tables
+
 navigation_helper = """
 <DashBoardScreen>:
     Screen:
         MDNavigationLayout:
             MDScreenManager:
                 MDScreen:
-                    # BottomAppBar:
-                    #     MDBottomNavigation:
-                    #         spacing:dp(10)
-                    #         panel_color:get_color_from_hex("#3489eb")
-                    #         text_color_active:get_color_from_hex("F5F5F5")
-                            # MDBottomNavigationItem:
-                            #     name:"Withdraw"
-                            #     text:'Withdraw'
-                            #     font_size: '20sp'
-                            #     icon:'bank-transfer-out'
-                            #     on_tab_release:root.nav_withdraw()
-                            # MDBottomNavigationItem:
-                            #     name:"Withdraw"
-                            #     text:'Transfer'
-                            #     text_size: dp(1)
-                            #     icon:'bank-transfer-in'
-                            #     on_tab_release:root.nav_transfer()
-                            # MDBottomNavigationItem:
-                            #     name:"Withdraw"
-                            #     text:'Add Money'
-                            #     text_size:dp(8)
-                            #     icon:'wallet-plus'
-                            #     on_tab_release: root.nav_topup()
                     MDTopAppBar:
                         title: ""
                         elevation: 1
@@ -419,10 +397,12 @@ class ContentNavigationDrawer(MDBoxLayout):
 
 class DashBoardScreen(Screen):
     def get_username(self):
-            store = JsonStore('user_data.json').get('user')['value']
-            return store["username"]
+        store = JsonStore('user_data.json').get('user')['value']
+        return store["username"]
+
     def nav_addPhone(self):
         self.manager.current = 'addphone'
+
     def profile_view(self):
         store = JsonStore('user_data.json').get('user')['value']
         username = store["username"]

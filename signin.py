@@ -110,7 +110,7 @@ class SignInScreen(Screen):
                     print(user_data)
                     # Show popup for successful login
                     self.show_popup("Login Successful")
-                    App.get_running_app().authenticated_user_number = row['phone']
+                    # App.get_running_app().authenticated_user_number = row['phone']
                     self.manager.current = 'dashboard'
 
                     # Save user data to JsonStore (if needed)

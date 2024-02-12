@@ -143,7 +143,7 @@ class TransferScreen(Screen):
                 else:
                     toast("balance is less than entered amount")
                 app_tables.wallet_users_transaction.add_row(
-                    reciever_phone=receiver_phone,
+                    receiver_phone=receiver_phone,
                     phone=senders_phone,
                     fund=amount,
                     date=date,
@@ -151,7 +151,7 @@ class TransferScreen(Screen):
                     transaction_type="debit"
                 )
                 app_tables.wallet_users_transaction.add_row(
-                    reciever_phone=senders_phone,
+                    receiver_phone=senders_phone,
                     phone=receiver_phone,
                     fund=amount,
                     date=date,

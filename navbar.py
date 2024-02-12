@@ -99,12 +99,6 @@ navigation_helper = """
                                             icon: "qrcode-scan"
                                             theme_text_color: 'Custom'
                                             text_color: get_color_from_hex("#3489eb")  
-                                    # OneLineIconListItem:
-                                    #     text: "Auto Topup"
-                                    #     IconLeftWidget:
-                                    #         icon: "autorenew" 
-                                    #         theme_text_color: 'Custom'
-                                    #         text_color: get_color_from_hex("#3489eb") 
                                     OneLineIconListItem:
                                         text: "Settings"
                                         on_release: root.manager.nav_settings()
