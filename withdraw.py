@@ -222,7 +222,7 @@ class WithdrawScreen(Screen):
             else:
                 toast("you dont have a balance in this currency type")
             app_tables.wallet_users_transaction.add_row(
-                reciever_phone=float(self.account_number),
+                receiver_phone=float(self.account_number),
                 phone=phone,
                 fund=amount,
                 date=date,
@@ -234,4 +234,4 @@ class WithdrawScreen(Screen):
             self.manager.show_balance()
         except Exception as e:
             print(f"Error withdrawing money: {e}")
-            self.show_error_popup("An error occurred. Please try again.")
+            self.manager.show_error_popup("An error occurred. Please try again.")
