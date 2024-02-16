@@ -15,64 +15,127 @@ KV = '''
 
         MDTopAppBar:
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
-            title: 'Sign Up'
-            elevation: 5
+            title: 'Sign Up            '
+            elevation: 2
+            
 
         ScrollView:
 
 
-            MDGridLayout:
-                cols: 1
-                adaptive_height: True
-                padding: dp(16)
-                required: True
-
+            BoxLayout:
+                size_hint_y: None
+                height: self.minimum_height
+                padding: "10dp"
+                spacing: "13dp"
+                orientation: 'vertical'
+                Widget:
+                    size_hint_y: None
+                    height: '5dp'
+                MDLabel:
+                    text: "Create An Account"
+                    halign: 'center'
+                    bold:True
+                    theme_text_color: "Primary"
+                Widget:
+                    size_hint_y: None
+                    height: '3dp'    
                 MDTextField:
+                    mode: "rectangle"
                     id: gmail
-                    hint_text: "Gmail"
-                    required: True
+                    hint_text: " Gmail"
+                    line_color_normal: app.theme_cls.primary_color
+                    # required: True
 
                 MDTextField:
+                    mode: "rectangle"
                     id: username
-                    hint_text: "Username"
-                    required: True
+                    hint_text: " Username"
+                    line_color_normal: app.theme_cls.primary_color
+                    # required: True
 
                 MDTextField:
+                    mode: "rectangle"
                     id: password
-                    hint_text: "Password"
+                    hint_text: " Password"
                     password: True
-                    required: True
+                    line_color_normal: app.theme_cls.primary_color
+                    # required: True
 
                 MDTextField:
+                    mode: "rectangle"
                     id: phone_no
-                    hint_text: "Phone Number"
-                    required: True
+                    hint_text: " Phone Number"
+                    line_color_normal: app.theme_cls.primary_color
+                    # required: True
 
                 MDTextField:
+                    mode: "rectangle"
                     id: aadhar_card
-                    hint_text: "Aadhar Card Number"
-                    required: True
+                    hint_text: " Aadhar Card Number"
+                    line_color_normal: app.theme_cls.primary_color
+                    # required: True
 
                 MDTextField:
+                    mode: "rectangle"
                     id: pan_card
-                    hint_text: "PAN Card Number"
-                    required: True
+                    hint_text: " PAN Card Number"
+                    line_color_normal: app.theme_cls.primary_color
+                    # required: True
 
                 MDTextField:
+                    mode: "rectangle"
                     id: address
-                    hint_text: "Address"
-                    required: True
-
-                MDRectangleFlatButton:
+                    hint_text: " Address"
+                    line_color_normal: app.theme_cls.primary_color
+                    # required: True
+                Widget:
+                    size_hint_y: None
+                    height: '4dp'
+                MDFillRoundFlatButton:
                     text: "Sign Up"
-                    pos_hint: {'center_x': 0.5}
+                    pos_hint: {"center_x": .5}
                     on_release: root.signup()
+                    halign:"center"
+                    size_hint: .3, None
+                Widget:
+                    size_hint_y: None
+                    height: '2dp'    
+               
+                
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    
+                    height: self.minimum_height
+                    spacing: dp(20) 
+                    Widget:
+                        size_hint_x: None
+                        height: '10dp'
+                    MDLabel:
+                        text: "Already have an account?"
+                        font_size: "11sp"
+                        theme_text_color: "Primary"
+                        halign: 'right'
+                        height: self.texture_size[1] + dp(2)
+                    MDLabel:
+                        text: "Sign In"
+                        font_size: "12sp"
+                        halign: 'left'
+                        size_hint_y: None
+                        height: self.texture_size[1] + dp(2)  # Adjust padding
+                        bold:True
+                        theme_text_color: "Custom"
+                        text_color: 0.117, 0.459, 0.725, 1
+                        on_touch_down: root.manager.current = 'signin' if self.collide_point(*args[1].pos) else False
+ 
+                    
           
 '''
 Builder.load_string(KV)
 
 
 class SignUpScreen(Screen):
+
     def go_back(self):
         self.manager.current = 'landing'
     def __init__(self, **kwargs):

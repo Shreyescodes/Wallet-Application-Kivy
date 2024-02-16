@@ -1,5 +1,5 @@
 from datetime import datetime
-import requests
+
 from anvil.tables import app_tables
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
@@ -8,146 +8,221 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
 from kivy.core.window import Window
-KV = '''
-<WithdrawScreen>
-    MDTopAppBar:
-        left_action_items: [["arrow-left", lambda x: root.go_back()]]
-        title: "Withdraw"
-        md_bg_color: "#1e75b9"
-        specific_text_color: "#ffffff"
-        pos_hint: {'top': 1}
-    BoxLayout:
-        orientation: 'vertical'
-        padding: dp(10)
-        spacing: dp(10)
+
+Builder.load_string(
+    """
+<WithdrawScreen>:
+    # canvas.before:
+    #     Color:
+    #         rgba: 1, 1, 1, 1   # Background color (#DEF1FF)
+    #     Rectangle:
+    #         pos: self.pos
+    #         size: self.size
+
+    MDBoxLayout:
+        orientation: 'vertical'              
+        padding: [dp(0), dp(40), dp(0), dp(20)]  # Padding: left, top, right, bottom
+        spacing: dp(20)
+        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
         size_hint_y: None
         height: self.minimum_height
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-    
-        Image:
-            source: 'images/withdraw.jpg'  # Update with your image file path
+        
+        Widget:  # Added empty widget for space
             size_hint_y: None
-            height: dp(180)  # Adjust the height as needed
-            pos_hint: {'center_x': 0.5} 
+            height: dp(30)
 
-        BoxLayout:
-            orientation: "vertical"
-            padding: 5
-            pos_hint:{'center_x':0.44}
+        MDTopAppBar:
+            title: 'Withdraw Money'  # Updated title to 'Withdraw Money'
+            elevation: 3
+            left_action_items: [['arrow-left', lambda x: root.go_back()]]
+            md_bg_color: "#148EFE"
+            specific_text_color: "#ffffff"
+            pos_hint:{'top':1}
 
         MDCard:
-            radius: [1, 1, 1, 1]
             orientation: 'vertical'
-            size_hint: 1, 0.4
-            height: self.minimum_height
-            #md_bg_color: 0.9, 0.9, 0.9, 1
-            md_bg_color: "#e1eaea"
+            size_hint: 0.9, None  # 90% of parent width
+            height: dp(140)
+            pos_hint: {"center_x": 0.5}
+            # elevation: 0.2
+            radius: [10, 10, 10, 10]
+            padding: dp(20)
+            spacing: dp(20)
+            md_bg_color: 0.7961, 0.9019, 0.9412, 1
 
-            BoxLayout:
-                padding: "5dp"
-                orientation: 'horizontal'
-                spacing: "20dp"
+            MDLabel:
+                text: 'Total Wallet Balance'
+                halign: 'left'  # Align text to the left
+                valign: 'top'  # Align text to the top
+                size_hint_y: None
+                height: self.texture_size[1]
+                pos_hint: {'x': 0}  # Align label to the left side of the MDCard
 
-                MDLabel:
+            MDBoxLayout:
+                padding: dp(10)
+                spacing: dp(10)
+                adaptive_height: True
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
+
+                MDTextField:
                     id: balance_lbl
-                    text: "Wallet Balance:"  # Replace this with the actual wallet amount
-                    size_hint: 1, None
-                    font_size:"18sp"
-                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                    bold: True
-                    height:"18dp"
-                    halign: "center"
-                    valign: "center"
+                    # text: 'Balance'
+                    halign: 'center'
+                    mode: "rectangle"
+                    hint_text: "Balance"
+                    pos_hint: {'center_x': .3}
+                    size_hint: 0.8, 1.3
+                    readonly: True
+                    md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                    text_color: 0, 0, 0, 1
+                    line_color: 0.5, 0.5, 0.5, 1
 
                 MDIconButton:
                     id: options_button
-                    icon: 'currency-inr'
-                    pos_hint: {'center_x': 0.5}
+                    icon: "currency-inr"
+                    pos_hint: {'center_y':0.5}
+                    md_bg_color: "#148EFE"  # Blue background color
+                    theme_text_color: "Custom"
+                    text_color: 0, 0, 0, 1  # White text color
                     on_release: root.show_currency_options(self)
-                    padding: dp(20)
-                    theme_text_color: 'Custom'
-                    text_color: 0.117, 0.459, 0.725, 1 
-                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                    
-        BoxLayout:
-            orientation: 'vertical'
+
+        MDLabel:
+            text: "Send Money from Wallet to Bank"
+            halign: 'center'
+            font_style: 'Subtitle1'
+            size_hint_y: None
+            height: dp(40)
+            bold: True 
+            pos_hint: {'center_x': 0.5}
+
+        MDBoxLayout:
+            padding: dp(10)
+            spacing: dp(20)
+            adaptive_height: True
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}  # This will create a 10dp gap
+
+            MDRectangleFlatButton:
+                id: bank_dropdown
+                radius:40,40,40,40
+                text: 'Select bank account'
+                size_hint: 1, 1.3
+                height: dp(50)
+                pos_hint: {'center_x': 0.5}
+                md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                on_release: root.fetch_bank_names()
+                text_color: 0, 0, 0, 1
+                line_color: 1, 1, 1, 1
+
+
+        MDBoxLayout:
+            padding: dp(5)
+            spacing: dp(10)  # Adjust the spacing as needed
+            adaptive_height: True
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}  # This will create a 10dp gap
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1  # Black border color
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [15, 15, 15, 15] 
+            MDTextField:
+                id: amount_textfield
+                mode: "rectangle"
+                hint_text: "Enter amount"
+                pos_hint: {'center_x': .5}
+                line_color: 0.5, 0.5, 0.5, 1
+
+
+        MDSeparator:
+            height: dp(1)
+
+        MDBoxLayout:
             padding: dp(10)
             spacing: dp(10)
-            size_hint_y: None
-            height: self.minimum_height
+            adaptive_height: True
+
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-            size_hint_x:None
-            width:300
+            MDFlatButton:
+                text: '+100'
+                size_hint: 1, None  # Set the size_hint_x to 1 to fill the width
+                height: dp(40)
+                width: dp(64)
+                md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                on_release: root.update_amount(100)
 
-            Spinner:
-                id: currency_spinner
-                text: 'Currency'
-                values: ['INR', 'USD', 'EUROS', 'POUND']
-                size_hint: None, None
-                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                size: "150dp", "50dp"
-                on_text: root.select_currency(self.text)
-        
-        MDRectangleFlatButton:
-            id: bank_dropdown
-            text: "select bank account"
-            theme_text_color: "Custom"
-            text_color: 0, 0, 0, 1  # White text color
-            line_color: 0, 0, 0, 1  # Black border color
-            size_hint: None, None
-            on_release: root.dropdown()
-            size: dp(200), dp(48)
-            pos_hint: {'center_x': 0.5, 'center_y': 0.45}
+            MDFlatButton:
+                text: '+200'
+                size_hint: 1, None  # Set the size_hint_x to 1 to fill the width
+                width: dp(64)
+                height: dp(40)
+                md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                on_release: root.update_amount(200)
+            MDFlatButton:
+                text: '+500'
+                size_hint: 1, None
+                width: dp(64)
+                height: dp(40)
+                md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                on_release: root.update_amount(500)
+            MDFlatButton:
+                text: '+1000'
+                size_hint: 1, None
+                width: dp(64)
+                height: dp(40)
+                md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                on_release: root.update_amount(1000)
 
-        MDTextField:
-            id: amount_textfield
-            hint_text: "Amount"
-            helper_text: "Enter withdrawal amount"
-            helper_text_mode: "on_focus"
-            input_filter: "float"
-            hint_text_mode: "on_focus"
-            
-        MDRaisedButton:
-            text: "Proceed"
-            on_release: root.withdraw()
-            pos_hint:{'center_x': 0.5}
+        MDBoxLayout:
+            padding: dp(10)
+            adaptive_height: True
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            MDRaisedButton:
+                text: 'Proceed '
+                md_bg_color: 20/255, 142/255, 254/255, 1
+                size_hint: 1.5, None  # Set the size_hint_x to 1 to fill the width
+                height: dp(50)
+                on_press: root.withdraw()
 
-'''
-Builder.load_string(KV)
+    MDBoxLayout:
+        size_hint_y: None
+        height: dp(100)
+        pos_hint: {'center_x': 0.5, 'center_y': 0.1}
+        size_hint_x: None
+        width: dp(100)
+""")
 
 
 class WithdrawScreen(Screen):
     def __init__(self, **kwargs):
         super(WithdrawScreen, self).__init__(**kwargs)
         EventLoop.window.bind(on_keyboard=self.on_key)
-    def go_back(self):
-        self.manager.current = 'dashboard'
 
+    def go_back(self):
+        self.ids.amount_textfield.text = ""  # Clear the amount input field
+        self.ids.bank_dropdown.text = "Select bank account"  # Reset the bank dropdown text
+        self.update_balance_label(self.ids.options_button.text)  # Update the balance label
+        self.manager.current = 'dashboard'
     def on_key(self, window, key, scancode, codepoint, modifier):
-        # 27 is the key code for the back button on Android
-        if key in [27,9]:
+        if key in [27, 9]:
             self.go_back()
-            return True  # Indicates that the key event has been handled
+            return True
         return False
 
-    def dropdown(self):
+    def fetch_bank_names(self):
         try:
             store = JsonStore('user_data.json')
             phone = store.get('user')['value']["phone"]
 
-            # Call the server function to fetch account details and bank names
             bank_names = app_tables.wallet_users_account.search(phone=phone)
             bank_names_str = [str(row['bank_name']) for row in bank_names]
-            print(bank_names_str)
             if bank_names_str:
-                # Create the menu list dynamically based on the fetched bank names
                 self.menu_list = [
                     {"viewclass": "OneLineListItem", "text": bank_name,
                      "on_release": lambda x=bank_name: self.test(x)}
                     for bank_name in bank_names_str
                 ]
 
-                # Create and open the dropdown menu
                 self.menu = MDDropdownMenu(
                     caller=self.ids.bank_dropdown,
                     items=self.menu_list,
@@ -161,45 +236,38 @@ class WithdrawScreen(Screen):
             print(f"Error fetching bank names: {e}")
 
         finally:
-            # No need to close a connection in Firebase Realtime Database
             pass
 
     def test(self, text):
         self.account_number = None
+        self.account_holder_name = None
         self.ids.bank_dropdown.text = text
         store = JsonStore('user_data.json')
         phone = store.get('user')['value']["phone"]
 
         try:
-            # Call the server function to fetch account details and update dropdown
             matching_accounts = app_tables.wallet_users_account.search(phone=phone, bank_name=text)
-            account = [str(row['account_number']) for row in matching_accounts]
             if matching_accounts:
-                # Fetch the account number from the first matching account
-                self.account_number = account[0]
-                print(self.account_number)
+                self.account_number = matching_accounts[0]['account_number']
             else:
                 toast("Account not found")
-
             self.menu.dismiss()
-
         except Exception as e:
-            print(f"Error fetching account number: {e}")
+            print(f"Error fetching account details: {e}")
 
     def select_currency(self, currency):
         wdrw_scr = self.manager.get_screen('withdraw')
-        wdrw_scr.ids.currency_spinner.text = currency
+        wdrw_scr.ids.options_button.text = currency
 
     def withdraw(self):
         wdrw_scr = self.manager.get_screen('withdraw')
-        # Get the entered mobile number, amount, and selected currency from your UI components
         amount = wdrw_scr.ids.amount_textfield.text
-        currency = wdrw_scr.ids.currency_spinner.text
+        currency = wdrw_scr.ids.options_button.text  # Get the selected currency from options_button
         date = datetime.now()
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
         balance_table = app_tables.wallet_users_balance.get(phone=phone, currency_type=currency)
         selected_bank = wdrw_scr.ids.bank_dropdown.text
-        # Validate inputs
+
         if not selected_bank or not amount or not currency:
             self.show_error_popup("Please fill in all fields.")
             return
@@ -218,9 +286,9 @@ class WithdrawScreen(Screen):
                     balance_table['balance'] = new_balance
                     balance_table.update()
                 else:
-                    toast("balance is less than entered amount")
+                    toast("Balance is less than the entered amount")
             else:
-                toast("you dont have a balance in this currency type")
+                toast("You don't have a balance in this currency type")
             app_tables.wallet_users_transaction.add_row(
                 receiver_phone=float(self.account_number),
                 phone=phone,
@@ -234,4 +302,64 @@ class WithdrawScreen(Screen):
             self.manager.show_balance()
         except Exception as e:
             print(f"Error withdrawing money: {e}")
-            self.manager.show_error_popup("An error occurred. Please try again.")
+            self.show_error_popup("An error occurred. Please try again.")
+
+    def update_amount(self, amount):
+        self.ids.amount_textfield.text = str(amount)
+
+    def show_currency_options(self, button):
+        currency_options = ["INR", "GBP", "USD", "EUR"]
+        self.menu_list = [
+            {"viewclass": "OneLineListItem", "text": currency, "on_release": lambda x=currency: self.menu_callback(x)}
+            for currency in currency_options
+        ]
+        print(button)
+        self.menu = MDDropdownMenu(
+            caller=button,
+            items=self.menu_list,
+            width_mult=4
+        )
+        self.menu.open()
+
+    menu = None
+    options_button_icon_mapping = {
+        "INR": "currency-inr",
+        "GBP": "currency-gbp",
+        "USD": "currency-usd",
+        "EUR": "currency-eur"
+    }
+
+    def menu_callback(self, instance_menu_item):
+        print(f"Selected currency: {instance_menu_item}")
+        store = JsonStore('user_data.json')
+        phone_no = store.get('user')['value']["phone"]
+        total_balance = self.manager.get_total_balance(phone_no, instance_menu_item)
+
+        self.ids.options_button.text = instance_menu_item
+        self.ids.balance_lbl.text = f'balance: {total_balance} '
+        print(total_balance)
+        self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
+        self.menu.dismiss()
+
+    def currencyDropdown(self):
+        try:
+            currencies = ["INR", "USD", "EUR", "GBP", "JPY", "AUD"]
+            self.menu_list = [
+                {"viewclass": "OneLineListItem", "text": currency,
+                 "on_release": lambda x=currency: self.select_currency(x)}
+                for currency in currencies
+            ]
+            self.menu = MDDropdownMenu(
+                caller=self.ids.currency_dropdown,
+                items=self.menu_list,
+                width_mult=4
+            )
+            self.menu.open()
+        except Exception as e:
+            print(f"Error fetching currencies: {e}")
+
+    def update_balance_label(self, currency):
+        store = JsonStore('user_data.json')
+        phone_no = store.get('user')['value']["phone"]
+        total_balance = self.manager.get_total_balance(phone_no, currency)
+        self.ids.balance_lbl.text = f'Balance: {total_balance} {currency}'

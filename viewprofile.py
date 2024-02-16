@@ -215,7 +215,7 @@ class Profile(Screen):
             on_release: root.save_edit()
                 
     def go_back(self):
-        self.manager.current = 'navbar'
+        self.manager.current = 'dashboard'
     def __init__(self, **kwargs):
         super(Profile, self).__init__(**kwargs)
         EventLoop.window.bind(on_keyboard=self.on_key)

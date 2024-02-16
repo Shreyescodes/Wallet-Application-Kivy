@@ -48,7 +48,7 @@ KV = """
                     hint_text: "Phone Number"
                     helper_text: "Enter your phone number"
                     icon_right: "phone"
-                    #readonly: True
+                    readonly: False  # Allow editing
 
                 MDTextField:
                     id: password
@@ -56,13 +56,14 @@ KV = """
                     hint_text: "Password"
                     helper_text: "Enter your password"
                     icon_right: "lock"
+
                 MDTextField:
                     id: aadhaar
                     text:""
                     hint_text: "Aadhaar Number"
                     helper_text: "Enter your Aadhaar number"
                     icon_right: "fingerprint"
-                    readonly: True
+                    readonly: False  # Allow editing
 
                 MDTextField:
                     id: pan
@@ -70,7 +71,7 @@ KV = """
                     hint_text: "PAN Number"
                     helper_text: "Enter your PAN number"
                     icon_right: "credit-card"
-                    readonly: True
+                    readonly: False  # Allow editing
 
                 MDTextField:
                     id: address
@@ -78,28 +79,28 @@ KV = """
                     hint_text: "Address"
                     helper_text: "Enter your address"
                     icon_right: "home"
+                    readonly: False  # Allow editing
 
                 MDRaisedButton:
                     text: "Save Edit"
                     on_release: root.save_edit()
                     pos_hint: {'center_x': 0.5}
-                    #pos_hint:{'center_x': 0.8, 'center_y':0.4}
-                    
+
 """
 Builder.load_string(KV)
-
 
 
 class EditUser(Screen):
     def go_back(self):
         self.manager.current = 'settings'
+
     def __init__(self, **kwargs):
         super(EditUser, self).__init__(**kwargs)
         EventLoop.window.bind(on_keyboard=self.on_key)
 
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android
-        if key in [27,9]:
+        if key == 27:
             self.go_back()
             return True  # Indicates that the key event has been handled
         return False
@@ -133,7 +134,6 @@ class EditUser(Screen):
                 )
 
                 print("User details updated successfully.")
-                #Snackbar(text="User details updated successfully.").open()
                 self.show_update_success_popup()
             else:
                 print(f"User with phone number {phone} does not exist.")
@@ -141,8 +141,6 @@ class EditUser(Screen):
 
         except Exception as e:
             print(f"Error updating user details: {e}")
-            #self.manager.show_error_popup(f"Error updating user details: {e}")
-            #print(e)
 
     def show_update_success_popup(self):
         dialog = MDDialog(
@@ -156,3 +154,6 @@ class EditUser(Screen):
             ]
         )
         dialog.open()
+
+
+

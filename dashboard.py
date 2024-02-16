@@ -1,5 +1,7 @@
 import base64
 import io
+from datetime import datetime
+
 from kivy.uix.image import Image
 import qrcode
 import requests
@@ -7,9 +9,12 @@ from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
+from kivy.uix.widget import Widget
+from kivymd.material_resources import dp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
+from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
@@ -19,375 +24,640 @@ from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.scrollview import ScrollView
 from anvil.tables import app_tables
+from kivy.core.window import Window
+
+Window.size = (400, 600)
 
 navigation_helper = """
 <DashBoardScreen>:
-    Screen:
-        MDNavigationLayout:
-            MDScreenManager:
-                MDScreen:
+    MDNavigationLayout:
+        MDScreenManager:
+            MDScreen:
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_y :0.1
+                    pos_hint:{"top":1}
+                    #md_bg_color: "#fe5016"
+                    
                     MDTopAppBar:
-                        title: ""
+                        title: "[b][color=#ffffff]G WALLET[/color][/b]"
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
                         elevation: 1
-                        pos_hint: {"top": 1}
-                        md_bg_color: "#ffffff"
+                        pos_hint: {"center_y": 1}
+                        md_bg_color: "#148EFE"
                         specific_text_color: "#000000"
-
-                        # Adding a logo to the left of the text
-                        BoxLayout:
-                            spacing: dp(10)
-                            MDIconButton:
-                                icon: 'menu'
-                                on_release: root.nav_navbar()
-                                pos_hint: {'center_y': 0.5}
-
-                            Image:
-                                source: 'images/2.png'  # Replace with the actual path to your logo
-                                size_hint: None, None
-                                size: dp(30), dp(28)
-                                pos_hint: {'center_y': 0.5}
-
-                            MDLabel:
-                                text: "Welcome to G-wallet"
-                                #{}".format(root.get_username()) 
-                                font_size: '20sp'
-                                bold: True
-                                pos_hint: {'center_y': 0.5, 'center_x': 0.5}
-
-
-
-
-                    #Main page
-
-                    BoxLayout:
-                        orientation: 'vertical'
-                        spacing:dp(20)
-                        padding: dp(10)
-                        pos_hint:{'center_y':.37}
-
-                        Image:
-                            source: 'images/signin.jpg'  # Replace with the actual path to your image
-                            allow_stretch: True
-                            keep_ratio: False
-                            size_hint_y: None
-                            height: dp(200)
-
-
-                        GridLayout:
-                            #spacing:dp(100)
-                            #padding:dp(5)
-                            cols: 4
-                            spacing:dp(20)
-                            rows:4
-
-
-
-                            # Icon and label for qrcode-scan
-                            BoxLayout:
-
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-                                width:20
-
-                                MDIconButton:
-                                    icon: 'qrcode-scan'
-                                    on_release: root.generate_qr_code()# Replace with your actual function
-                                    pos_hint: {'center_x': 0.5}
-                                    theme_text_color: 'Custom'
-                                    text_color: 0.117, 0.459, 0.725, 1 
-
-                                MDLabel:
-                                    text: 'Scan Any QR code'
-                                    bold: True
-                                    halign: 'center'
-                                    font_size: '12sp'
-
-                            BoxLayout:
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-                                width:20
-
-
-                                MDIconButton:
-                                    icon: 'bank-transfer-in' 
-                                    on_release: root.nav_transfer()
-                                    pos_hint: {'center_x': 0.5}
-                                    theme_text_color: 'Custom'
-                                    text_color: 0.117, 0.459, 0.725, 1 
-
-                                MDLabel:
-                                    text: 'Transfer'
-                                    bold: True
-                                    halign: 'center'
-                                    font_size: '12sp'
-
-                            BoxLayout:
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-                                width:20
-
-                                MDIconButton:
-                                    icon: 'bank-transfer-out'
-                                    on_release: root.nav_withdraw()
-                                    pos_hint: {'center_x': 0.5}
-                                    theme_text_color: 'Custom'
-                                    text_color: 0.117, 0.459, 0.725, 1 
-
-                                MDLabel:
-                                    text: 'Withdraw'
-                                    bold: True
-                                    halign: 'center'
-                                    font_size: '12sp'
-
-                            # Icon and label for Transfer
-
-
-                            # Icon and label for Add Money
-                            BoxLayout:
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-                                width:20
-
-                                MDIconButton:
-                                    icon: 'phone'
-                                    on_release: root.nav_addPhone()
-                                    pos_hint: {'center_x': 0.5}
-                                    theme_text_color: 'Custom'
-                                    text_color: 0.117, 0.459, 0.725, 1 
-
-                                MDLabel:
-                                    text: 'Pay Phone Number'
-                                    bold: True
-                                    halign: 'center'
-                                    font_size: '12sp'   
-
-                            # Icon and label for add contacts        
-                            BoxLayout:
-
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                MDIconButton:
-                                    icon: 'contacts'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release: root.nav_addContact()
-                                    padding: dp(20)
-                                    theme_text_color: 'Custom'
-                                    text_color: 0.117, 0.459, 0.725, 1 
-
-                                MDLabel:
-                                    text: 'Pay Contacts'
-                                    bold: True
-                                    halign: 'center'
-                                    font_size: '12sp'
-
-                            # Icon and label for add phone number
-                            BoxLayout:
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-                                width: 20
-
-                                MDIconButton:
-                                    icon: 'wallet'
-                                    on_release: root.Add_Money()
-                                    pos_hint: {'center_x': 0.5}
-                                    theme_text_color: 'Custom'
-                                    text_color: 0.117, 0.459, 0.725, 1 
-
-                                MDLabel:
-                                    id: balance_lbl
-                                    text: 'Wallet Balance'
-                                    bold: True
-                                    halign: 'center'
-                                    font_size: '12sp'        
-
-                            # Icon and label for transaction history        
-                            BoxLayout:
-
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                MDIconButton:
-                                    icon: 'history'
-                                    pos_hint: {'center_x': 0.5}
-                                    on_release:root.go_to_transaction()
-                                    padding: dp(20)
-                                    theme_text_color: 'Custom'
-                                    text_color: 0.117, 0.459, 0.725, 1 
-
-                                MDLabel:
-                                    text: 'Transaction History'
-                                    bold: True
-                                    halign: 'center'
-                                    font_size: '12sp'
-
-                            # Icon and label for check balance
-                            BoxLayout:
-
-                                spacing: dp(10)
-                                orientation: 'vertical'
-                                size_hint_y: None
-                                height: self.minimum_height
-
-                                BoxLayout:
-                                    orientation: "vertical"
-                                    padding: 5
-                                    pos_hint:{'center_x':0.44}
-
-                                MDCard:
-                                    radius: [1, 1, 1, 1]
-                                    orientation: 'vertical'
-                                    size_hint: 1, 0.4
-                                    height: self.minimum_height
-                                    md_bg_color: 0.9, 0.9, 0.9, 1
-
-                                    BoxLayout:
-                                        padding: "20dp"
-                                        orientation: 'horizontal'
-                                        spacing: "5dp"
-
-
-
-                                    MDIconButton:
-                                        id: options_button
-                                        icon: 'currency-inr'
-                                        pos_hint: {'center_x': 0.5}
-                                        on_release: root.show_currency_options(self)
-                                        padding: dp(20)
-                                        theme_text_color: 'Custom'
-                                        text_color: 0.117, 0.459, 0.725, 1 
-
-
-                                        #md_bg_color: 0.7, 0.7, 0.7, 1  # Blue background color
-                                        #text_color: 0, 0, 0, 1  # White text color    
-
-                                MDLabel:
-                                    id: balance_lbl
-                                    text: 'Check Balance'
-                                    bold: True
-                                    halign: 'center'
-                                    font_size: '12sp'   #        
-
-            MDNavigationDrawer:
-                id: nav_drawer
-                radius: (0, 10, 10, 0)
-
-                ContentNavigationDrawer:
-
-
-                    BoxLayout:
-                        size: root.width, root.height
-                        spacing: '12dp'
-                        padding: '8dp'
+                        elevation: 1
+                        left_action_items:
+                            [['images/menu.png', lambda x: nav_drawer.set_state("open")]]
+                        right_action_items: [["images/user.png", lambda x: print("Image Button Pressed")]]                
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_y: 0.1
+                    pos_hint: {"top":0.9}
+                    #md_bg_color: "#fefe16"
+                    
+                    MDCard:
                         orientation: "vertical"
-                        pos_hint:{'top':1}
-
+                        size_hint: None, None
+                        size: "320dp", "30dp"
+                        md_bg_color: "#C4E3FF"
+                        radius: [dp(15), dp(15), dp(15), dp(15)]
+                        pos_hint: {"center_y": 1, "center_x": 0.5}
+                
                         MDLabel:
-                            id: username_label
-                            text:''
-                            font_style:"Subtitle1"
-                            size_hint_y:None
-                            height: self.texture_size[1]
-
-
-                        MDLabel:
-                            id: email_label
-                            text:''
-                            font_style:"Caption" 
-                            size_hint_y:None
-                            height: self.texture_size[1]
-
-                        MDLabel:
-                            id: contact_label  
-                            text: ''
-                            font_style: "Caption" 
-                            size_hint_y: None
-                            height: self.texture_size[1]    
-
-
-                        BoxLayout: 
-                            size_hint_y: None
-                            height: dp(500)
-                            pos_hint: {'center_x': 0.45, 'y': 230}        
-
-                            BoxLayout:
+                            text: "Search in G Wallet"
+                            theme_text_color: "Custom"  # Disable theme color
+                            text_color: 0, 0, 0, 1
+                            # size_hint_y:None
+                            pos_hint: {"center_x": 0.8, "center_y": 0.5}
+                            font_size: "15sp"
+                            
+                    BoxLayout:
+                        orientation: "vertical"
+                        size_hint: None, None
+                        size: "320dp", "20dp"
+                    
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_y :0.5
+                    pos_hint:{"top":0.8}
+                    #md_bg_color: "#1650fe"
+                    
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        pos_hint: {"center_x": 0.5,"center_y":0.5}
+                        #md_bg_color: "#fe168a"
+                        size_hint_y: 1
+                        size_hint_x: 1
+                        
+                        MDGridLayout:
+                            cols: 3
+                            rows: 3
+                            spacing: dp(25)
+                            size_hint: (None, None)  # Set size_hint to None
+                            width: self.minimum_width  # Set width explicitly
+                            height: self.minimum_height  # Set height explicitly
+                            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+                            
+                            
+                            MDCard:
                                 orientation: "vertical"
-                                size_hint_y: None
-                                height: self.minimum_height
-                                spacing: '4dp'
-
-                                OneLineIconListItem:
-                                    text: "Your QR Code"
-                                    on_release: root.generate_qr_code()
-                                    IconLeftWidget:
-                                        icon: "qrcode-scan"
-                                        theme_text_color: 'Custom'
-                                        text_color: get_color_from_hex("#3489eb")  
-                                OneLineIconListItem:
-                                    text: "Auto Topup"
-                                    IconLeftWidget:
-                                        icon: "autorenew" 
-                                        theme_text_color: 'Custom'
-                                        text_color: get_color_from_hex("#3489eb") 
-                                OneLineIconListItem:
-                                    text: "Settings"
-                                    IconLeftWidget:
-                                        icon: "cog-outline"
-                                        theme_text_color: 'Custom'
-                                        text_color: get_color_from_hex("#3489eb")                      
-                                OneLineIconListItem:
-                                    text: "Profile"
-                                    on_release: root.profile_view()
-                                    IconLeftWidget:
-                                        icon: "face-man-profile" 
-                                        theme_text_color: 'Custom'
-                                        text_color: get_color_from_hex("#3489eb")
-                                OneLineIconListItem:
-                                    text: "Add Bank Account"
-                                    on_release: root.manager.nav_account()
-                                    IconLeftWidget:
-                                        icon: "bank"
-                                        theme_text_color: 'Custom'
-                                        text_color: get_color_from_hex("#3489eb")
-                                OneLineIconListItem:
-                                    text: "Get Help"
-                                    IconLeftWidget:
-                                        icon: "help-circle"
-                                        theme_text_color: 'Custom'
-                                        text_color: get_color_from_hex("#3489eb")
-                                OneLineIconListItem:
-                                    text: "Raise a Complaint"
-                                    IconLeftWidget:
-                                        icon: "alert"  
-                                        theme_text_color: 'Custom'
-                                        text_color: get_color_from_hex("#3489eb")        
-                                OneLineIconListItem:
-                                    text: "Log-out"
-                                    on_release: root.manager.logout()
-                                    IconLeftWidget:
-                                        icon: "logout"  
-                                        theme_text_color: 'Custom'
-                                        text_color: get_color_from_hex("#3489eb")     
-
+                                size_hint: None, None
+                                size: "70dp", "70dp"
+                                md_bg_color: "#ffffff"
+                                radius: [dp(20), dp(20), dp(20), dp(20)]
+                                pos_hint_y: None
+                                pos_hint_x:  None
+                                # elevation: 1 
+                                on_release: root.nav_transfer()
+                            
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "70dp"
+                                    spacing: dp(-12)
+                                    
+                                    Image:
+                                        source: "images/money-transfer.png"
+                                        size_hint: (0.3, 1)
+                                        pos_hint:{"center_x":0.5,"center_y":0.2}
+                                    
+                                    MDLabel:
+                                        text: "Transfer"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                        
+                                        
+                                    MDLabel:
+                                        text: "Money"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                        
+                            MDCard:
+                                orientation: "vertical"
+                                size_hint: None, None
+                                size: "70dp", "70dp"
+                                md_bg_color: "#ffffff"
+                                radius: [dp(20), dp(20), dp(20), dp(20)]
+                                pos_hint_y: None
+                                pos_hint_x:  None
+                                # elevation: 1
+                                on_release: root.Add_Money()
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "70dp"
+                                    spacing: dp(-12)
+                                    
+                                    Image:
+                                        source: "images/wallet.png"
+                                        size_hint: (0.3, 1)
+                                        pos_hint:{"center_x":0.5,"center_y":0.2}
+                                    
+                                    MDLabel:
+                                        text: "Your"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                        
+                                    MDLabel:
+                                        text: "Wallet"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"    
+                            MDCard:
+                                orientation: "vertical"
+                                size_hint: None, None
+                                size: "70dp", "70dp"
+                                md_bg_color: "#ffffff"
+                                radius: [dp(20), dp(20), dp(20), dp(20)]
+                                pos_hint_y: None
+                                pos_hint_x:  None 
+                                # elevation: 1
+                                on_release: root.nav_withdraw()       
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "70dp"
+                                    spacing: dp(-12)
+                                    
+                                    Image:
+                                        source: "images/cash-withdrawal.png"
+                                        size_hint: (0.3, 1)
+                                        pos_hint:{"center_x":0.5,"center_y":0.2}
+                                    
+                                    MDLabel:
+                                        text: "Withdraw"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                    MDLabel:
+                                        text: "  Money"
+                                        color: 20/255, 142/255, 254/255,1 
+                                        font_size: "14sp" 
+                                        halign: "center"  
+                            MDCard:
+                                orientation: "vertical"
+                                size_hint: None, None
+                                size: "70dp", "70dp"
+                                md_bg_color: "#ffffff"
+                                radius: [dp(20), dp(20), dp(20), dp(20)]
+                                pos_hint_y: None
+                                pos_hint_x:  None
+                                # elevation: 1 
+                                on_release: root.nav_addPhone()       
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "70dp"
+                                    spacing: dp(-12)
+                                    
+                                    Image:
+                                        source: "images/phone.png"
+                                        size_hint: (0.3, 1)
+                                        pos_hint:{"center_x":0.5,"center_y":0.2}
+                                    
+                                    MDLabel:
+                                        text: "Pay"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                        
+                                    MDLabel:
+                                        text: "contacts"
+                                        color: 20/255, 142/255, 254/255,1 
+                                        font_size: "14sp"
+                                        halign: "center"   
+                                    
+                            MDCard:
+                                orientation: "vertical"
+                                size_hint: None, None
+                                size: "70dp", "70dp"
+                                md_bg_color: "#ffffff"
+                                radius: [dp(20), dp(20), dp(20), dp(20)]
+                                pos_hint_y: None
+                                pos_hint_x:  None
+                                # elevation: 1 
+                                     
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "70dp"
+                                    spacing: dp(-12)
+                                    
+                                    Image:
+                                        source: "images/topup.png"
+                                        size_hint: (0.3, 1)
+                                        pos_hint:{"center_x":0.5,"center_y":0.2}
+                                    
+                                    MDLabel:
+                                        text: "Auto"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                    MDLabel:
+                                        text: "Topup"
+                                        color: 20/255, 142/255, 254/255,1 
+                                        font_size: "14sp"
+                                        halign: "center"   
+                            MDCard:
+                                orientation: "vertical"
+                                size_hint: None, None
+                                size: "70dp", "70dp"
+                                md_bg_color: "#ffffff"
+                                radius: [dp(20), dp(20), dp(20), dp(20)]
+                                pos_hint_y: None
+                                pos_hint_x:  None
+                                # elevation: 1 
+                                on_release: root.bank_account()         
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "70dp"
+                                    spacing: dp(-12)
+                                    
+                                    Image:
+                                        source: "images/museum.png"
+                                        size_hint: (0.3, 1)
+                                        pos_hint:{"center_x":0.5,"center_y":0.2}
+                                    
+                                    MDLabel:
+                                        text: "Bank"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                        
+                                    MDLabel:
+                                        text: "Accounts"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"    
+                            MDCard:
+                                orientation: "vertical"
+                                size_hint: None, None
+                                size: "70dp", "70dp"
+                                md_bg_color: "#ffffff"
+                                radius: [dp(20), dp(20), dp(20), dp(20)]
+                                pos_hint_y: None
+                                pos_hint_x:  None
+                                # elevation: 1
+                                on_release: root.nav_transfer()  
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "70dp"
+                                    spacing: dp(-12)
+                                    
+                                    Image:
+                                        source: "images/self-transfer.png"
+                                        size_hint: (0.3, 1)
+                                        pos_hint:{"center_x":0.5,"center_y":0.2}
+                                    
+                                    MDLabel:
+                                        text: "Self"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                        
+                                    MDLabel:
+                                        text: "Transfer"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"   
+                                    
+                            MDCard:
+                                orientation: "vertical"
+                                size_hint: None, None
+                                size: "70dp", "70dp"
+                                md_bg_color: "#ffffff"
+                                radius: [dp(20), dp(20), dp(20), dp(20)]
+                                pos_hint_y: None
+                                pos_hint_x:  None
+                                # elevation: 1        
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "70dp"
+                                    spacing: dp(-12)
+                                    
+                                    Image:
+                                        source: "images/refer.png"
+                                        size_hint: (0.3, 1)
+                                        pos_hint:{"center_x":0.5,"center_y":0.2}
+                                    
+                                    MDLabel:
+                                        text: "Refer a"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                        
+                                    MDLabel:
+                                        text: "friend"
+                                        color: 20/255, 142/255, 254/255,1 
+                                        font_size: "14sp"
+                                        halign: "center"   
+                                    
+                            MDCard:
+                                orientation: "vertical"
+                                size_hint: None, None
+                                size: "70dp", "70dp"
+                                md_bg_color: "#ffffff"
+                                radius: [dp(20), dp(20), dp(20), dp(20)]
+                                pos_hint_y: None
+                                pos_hint_x:  None
+                                # elevation: 1        
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "70dp"
+                                    spacing: dp(-12)
+                                    
+                                    Image:
+                                        source: "images/scanner.png"
+                                        size_hint: (0.3, 1)
+                                        pos_hint:{"center_x":0.5,"center_y":0.2}
+                                    
+                                    MDLabel:
+                                        text: "Scan a"
+                                        color: 20/255, 142/255, 254/255,1
+                                        font_size: "14sp"
+                                        halign: "center"
+                                    MDLabel:
+                                        text: "QR Code"
+                                        color: 20/255, 142/255, 254/255,
+                                        font_size: "14sp" 
+                                        halign: "center"
+                    
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            size_hint: None, None
+                            size: "320dp", "30dp"
+                            
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_y :0.4
+                    pos_hint:{"center_y":0.12}
+                    md_bg_color: "#C4E3FF"
+                    spacing: dp(-10)
+                    
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        size_hint_y :0.28
+                        pos_hint:{"center_y":1}
+                
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            md_bg_color: "#C4E3FF"
+                            on_release: root.generate_qr_code()  
+                            Image:
+                                source: "images/qr-code.png"
+                                size_hint: (0.5, 0.5)
+                                pos_hint:{"center_x":0.1}
+                                
+                            MDLabel:
+                                text: "Receive money from QR code"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "13sp"
+                                pos_hint:{"center_y":0.25}
+                            Image:
+                                source: "images/right-chevron.png"
+                                size_hint: (0.4, 0.4)        
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            md_bg_color: "#C4E3FF"
+                            on_release: root.go_to_transaction()  
+                            Image:
+                                source: "images/history.png"
+                                size_hint: (0.5, 0.5)
+                                
+                            MDLabel:
+                                text: "See transaction history"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "13sp"
+                                pos_hint:{"center_y":0.25}
+                            Image:
+                                source: "images/right-chevron.png"
+                                size_hint: (0.4, 0.4)    
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            md_bg_color: "#C4E3FF"
+                            Image:
+                                source: "images/balance.png"
+                                size_hint: (0.5, 0.5)
+                            MDLabel:
+                                text: "Check balance"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "13sp"
+                                pos_hint:{"center_y":0.25}
+                            Image:
+                                source: "images/right-chevron.png"
+                                size_hint: (0.4, 0.4)    
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            md_bg_color: "#C4E3FF"
+                            on_release: root.nav_settings()  
+                            Image:
+                                source: "images/setting.png"
+                                size_hint: (0.5, 0.5)
+                                
+                            MDLabel:
+                                text: "Settings"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "13sp"
+                                pos_hint:{"center_y":0.25}
+                            Image:
+                                source: "images/right-chevron.png"
+                                size_hint: (0.4, 0.4)    
+                    MDBoxLayout:
+                        orientation: "vertical" 
+                        size_hint_y:0.12     
+                                                                                                                                                  
+        MDNavigationDrawer:
+            id: nav_drawer
+            radius: (0, 10, 10, 0)
+            #md_bg_color: "#148EFE"
+            padding: 0 
+            spacing: 0
+            ContentNavigationDrawer:
+                MDBoxLayout:
+                    orientation: "vertical"
+                    #md_bg_color: "#148EFE"
+                    
+                    MDBoxLayout: #for user information
+                        orientation: "horizontal"
+                        md_bg_color: "#148EFE"
+                        size_hint_y: 0.2
+                        pos_hint: {"top":1}
+                        
+                        MDBoxLayout: # for labels
+                            orientation: "vertical"
+                            #md_bg_color: "#fe1616"
+                            size_hint_x: 0.6
+                            
+                            MDLabel:
+                                text: "[b]your name[/b]"
+                                id:username_label
+                                markup: True
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 1, 1, 1, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_x":0.7}
+                            MDLabel:
+                                text: "[b]Email[/b]"
+                                id:email_label
+                                markup: True
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 1, 1, 1, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_x":0.7}
+                            MDLabel:
+                                text: "[b]phone number[/b]"
+                                id:contact_label
+                                markup: True
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 1, 1, 1, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_x":0.7}        
+                        MDBoxLayout: # for labels
+                            orientation: "vertical"
+                            #md_bg_color: "#5016fe"
+                            size_hint_x: 0.4    
+                            Image:
+                                source: "images/user.png"
+                                size_hint: (0.5, 0.5)
+                                pos_hint:{"center_x":0.5,"center_y":0.3}
+                                
+                            
+                    MDBoxLayout: #for features
+                        orientation: "vertical"
+                        size_hint_y: 0.6
+                        pos_hint: {"top":0.8}
+                        
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            on_release: root.generate_qr_code()
+                            Image:
+                                source: "images/qr-code.png"
+                                size_hint: (0.4, 0.4)
+                                pos_hint:{"center_x":0.1}
+                            MDLabel:
+                                text: "Your QR code"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_y":0.2} 
+                      
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            Image:
+                                source: "images/topup.png"
+                                size_hint: (0.4, 0.4)
+                                pos_hint:{"center_x":0.1}
+                            MDLabel:
+                                text: "Auto topup"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_y":0.2}   
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            on_release: root.nav_settings()  
+                            Image:
+                                source: "images/setting.png"
+                                size_hint: (0.4, 0.4)
+                                pos_hint:{"center_x":0.1}
+                            MDLabel:
+                                text: "Settings"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_y":0.2}         
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            on_release: root.profile_view()
+                            Image:
+                                source: "images/account.png"
+                                size_hint: (0.4, 0.4)
+                                pos_hint:{"center_x":0.1}
+                            MDLabel:
+                                text: "Manage account"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_y":0.2}        
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            on_release: root.nav_help()
+                            Image:
+                                source: "images/help.png"
+                                size_hint: (0.4, 0.4)
+                                pos_hint:{"center_x":0.1}
+                            MDLabel:
+                                text: "Get help"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_y":0.2} 
+                                
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            on_release: root.nav_complaint()
+                            Image:
+                                source: "images/report.png"
+                                size_hint: (0.4, 0.4)
+                                pos_hint:{"center_x":0.1}
+                            MDLabel:
+                                text: "Raise a complaint"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_y":0.2}
+                                
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            on_release: root.nav_complaint()
+                            Image:
+                                source: "images/logout.png"
+                                size_hint: (0.4, 0.4)
+                                pos_hint:{"center_x":0.1}
+                            MDLabel:
+                                text: "Logout"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_y":0.2}         
+                    MDBoxLayout:
+                        orientation:"vertical"
+                        size_hint_y: 0.15
+                        #md_bg_color: "#fefe16"
+                           
 """
 Builder.load_string(navigation_helper)
 
 
 class BottomAppBar(FloatLayout):
+    pass
+
+
+class MDCardBoxLayout(BoxLayout):
     pass
 
 
@@ -403,12 +673,17 @@ class DashBoardScreen(Screen):
     def nav_addPhone(self):
         self.manager.current = 'addphone'
 
+    def fetch_and_update_addPhone(self):
+        store = JsonStore('user_data.json').get('user')['value']
+        # Update labels in ComplaintScreen
+        addPhone_screen = self.get_screen('addPhone')
+        addPhone_screen.ids.contact_label.text = store["phone"]
     def profile_view(self):
         store = JsonStore('user_data.json').get('user')['value']
         username = store["username"]
-        gmail = store["gmail"]
+        gmail = store["email"]
         phone = store["phone"]
-        aadhaar = store["Aadhaar"]
+        aadhaar = store["aadhar"]
         address = store["address"]
         pan = store["pan"]
         profile_screen = self.manager.get_screen('profile')
@@ -490,13 +765,50 @@ class DashBoardScreen(Screen):
             # Clear existing widgets in the MDList
             trans_screen.ids.transaction_list.clear_widgets()
 
+            current_date = ""
+
             # Display the transaction history in LIFO order
-            for transaction in sorted(transactions, key=lambda x: x['date'], reverse=True):
-                transaction_item = f"{transaction['money']}₹\n" \
-                                   f"{transaction['transaction_type']}\n"
+            for transaction in sorted(transactions, key=lambda x: x.get('date', datetime.min), reverse=True):
+                # transaction_item = f"{transaction['fund']}₹\n" \
+                #                    f"{transaction['transaction_type']}\n"
+                #
+                # trans_screen.ids.transaction_list.add_widget(OneLineListItem(text=transaction_item))
+                transaction_datetime = transaction['date']
+                # Convert datetime object to string
+                transaction_date_str = transaction_datetime.strftime('%Y-%m-%d')
+                transaction_date = transaction_date_str.split(' ')[0]
 
-                trans_screen.ids.transaction_list.add_widget(OneLineListItem(text=transaction_item))
+                transactions = f"{transaction['transaction_status']}\n" \
+                               f"{transaction['receiver_phone']}"
 
+                # Add header for each date
+                if transaction_date != current_date:
+                    current_date = transaction_date
+                    header_text = f"[b]{transaction_date}[/b]"
+                    trans_screen.ids.transaction_list.add_widget(
+                        OneLineListItem(text=header_text, theme_text_color='Custom', text_color=[0, 0, 0, 1]))
+
+                # Create a BoxLayout to hold both transaction details and amount label
+                transaction_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(36))
+
+                # Add transaction details
+                transaction_item_widget = OneLineListItem(text=transactions, theme_text_color='Custom',
+                                                          text_color=[0, 0, 0, 1])
+                transaction_container.add_widget(transaction_item_widget)
+
+                # Add spacing between transaction details and amount
+                transaction_container.add_widget(Widget(size_hint_x=None, width=dp(20)))
+
+                # Determine the color based on the transaction type
+                fund_color = [0, 0.5, 0, 1] if transaction['transaction_type'] == 'Credit' else [1, 0, 0, 1]
+
+                # Add the amount label on the right side for each transaction
+                fund_label = MDLabel(text=f"₹{transaction['fund']}", theme_text_color='Custom',
+                                     text_color=fund_color, halign='right')
+                transaction_container.add_widget(fund_label)
+
+                # Add the container to the transaction list
+                trans_screen.ids.transaction_list.add_widget(transaction_container)
         except Exception as e:
             print(f"Error getting transaction history: {e}")
 
@@ -582,3 +894,15 @@ class DashBoardScreen(Screen):
 
     def Add_Money(self):
         self.manager.current = 'Wallet'
+
+    def bank_account(self):
+        self.manager.current = 'accmanage'
+
+    def nav_settings(self):
+        self.manager.current = 'settings'
+
+    def nav_help(self):
+        self.manager.current = "help"
+
+    def nav_complaint(self):
+        self.manager.current = "complaint"

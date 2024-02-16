@@ -11,6 +11,11 @@ from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
 from kivymd.toast import toast
 from kivymd.uix.label import MDLabel
+from kivy.metrics import dp
+from kivymd.uix.list import OneLineListItem
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.widget import Widget
+from kivymd.uix.label import MDLabel
 from landing import LandingScreen
 from signup import SignUpScreen
 from signin import SignInScreen
@@ -33,29 +38,30 @@ from complaint import ComplaintScreen
 from addPhone import AddPhoneScreen
 from Wallet import AddMoneyScreen
 from addPhone import UserDetailsScreen
+
 Builder.load_string(
     """
 <ScreenManagement>:
     LandingScreen:
         name: 'landing'
         manager: root
-        
+
     SignUpScreen:
         name: 'signup'
         manager: root  
-        
+
     SignInScreen:
         name: 'signin'
         manager: root 
-        
+
     DashBoardScreen:
         name: 'dashboard'
         manager: root
-    
+
     Profile:
         name:'profile'
         manager: root  
-        
+
     EditUser:
         name: 'edituser'
         manager: root
@@ -71,7 +77,7 @@ Builder.load_string(
     ContactUsScreen:
         name: 'contactus'
         manager: root    
-    
+
     AddAccountScreen:
         name:'addaccount'
         manager: root
@@ -91,19 +97,19 @@ Builder.load_string(
     PaysettingScreen:
         name:'paysetting'
         manager: root         
-        
+
     NavbarScreen:
         name:'navbar'
         manager: root   
-        
+
     HelpScreen:
         name:'help'
         manager: root      
-    
+
     Transaction:
         name: 'transaction'
         manager: root
-                
+
     Topup:
         name:'topup'
         manager: root 
@@ -115,13 +121,13 @@ Builder.load_string(
     TransferScreen:
         name:'transfer'
         manager:root 
-    
+
     AddMoneyScreen:
         name:'Wallet'
         manager: root
-         
+
     UserDetailsScreen:
-        name:"user_details" 
+        name:'userdetails'
         manager:root                   
 """
 )
@@ -163,6 +169,7 @@ class ScreenManagement(ScreenManager):
             self.get_username()
             self.fetch_and_update_navbar()
             self.fetch_and_update_complaint()
+            self.fetch_and_update_addPhone()
             self.show_balance()
         else:
             self.current = 'landing'
@@ -190,7 +197,7 @@ class ScreenManagement(ScreenManager):
     def fetch_and_update_navbar(self):
         store = JsonStore('user_data.json').get('user')['value']
         # Update labels in NavbarScreen
-        navbar_screen = self.get_screen('navbar')
+        navbar_screen = self.get_screen('dashboard')
         navbar_screen.ids.username_label.text = store["username"]
         navbar_screen.ids.email_label.text = store["email"]
         navbar_screen.ids.contact_label.text = str(store["phone"])
@@ -204,6 +211,13 @@ class ScreenManagement(ScreenManager):
         complaint_screen = self.get_screen('complaint')
         complaint_screen.ids.email_label.text = store["email"]
 
+    def fetch_and_update_addPhone(self):
+        store = JsonStore('user_data.json').get('user')['value']
+        # Update labels in ComplaintScreen
+        addPhone_screen = self.get_screen('addphone')
+        # addPhone_screen.ids.contact_label.text = store["phone"]
+        addPhone_screen.current_user_phone = str(store["phone"])
+
     def nav_account(self):
         self.current = 'addaccount'
 
@@ -216,10 +230,11 @@ class ScreenManagement(ScreenManager):
             # 'user' key found, proceed with retrieving data
             phone = store.get('user')['value']["phone"]
             currency = "INR"
-            balance_scr.ids.balance_lbl.text = f"{self.get_total_balance(phone, currency)} INR"
+            #balance_scr.ids.balance_lbl.text = f"{self.get_total_balance(phone, currency)} INR"
         else:
             # 'user' key not found, show an appropriate message
-            balance_scr.ids.balance_lbl.text = "User data not found. Please log in."
+            #balance_scr.ids.balance_lbl.text = "User data not found. Please log in."
+            pass
 
     def get_total_balance(self, phone, currency_type):
         try:
@@ -297,6 +312,9 @@ class ScreenManagement(ScreenManager):
 
     def nav_accmanage(self):
         self.current = 'accmanage'
+
+    def nav_userdetails(self):
+        self.current = 'userdetails'
 
     def Add_Money(self):
         self.current = 'Wallet'

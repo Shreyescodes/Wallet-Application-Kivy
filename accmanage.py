@@ -34,9 +34,10 @@ KV = '''
 '''
 Builder.load_string(KV)
 
+
 class AccmanageScreen(Screen):
     def go_back(self):
-        self.manager.current = 'navbar'
+        self.manager.current = 'dashboard'
 
     def on_pre_enter(self, *args):
         # Called before the screen is displayed, update the details here
@@ -44,6 +45,7 @@ class AccmanageScreen(Screen):
 
     def nav_account(self):
         self.manager.current = 'addaccount'
+
     def update_details(self):
         try:
             store = JsonStore('user_data.json')

@@ -64,7 +64,7 @@ Builder.load_string(KV)
 
 class SettingsScreen(Screen):
     def go_back(self):
-        self.manager.current = 'navbar'
+        self.manager.current = 'dashboard'
 
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)

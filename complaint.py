@@ -120,7 +120,7 @@ Builder.load_string(KV)
 
 class ComplaintScreen(Screen):
     def go_back(self):
-        self.manager.current = 'navbar'
+        self.manager.current = 'dashboard'
 
     def __init__(self, **kwargs):
         super(ComplaintScreen, self).__init__(**kwargs)
