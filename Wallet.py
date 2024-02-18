@@ -21,31 +21,26 @@ Builder.load_string(
     """
 
 <AddMoneyScreen>:
-    
-    canvas.before:
-        Color:
-            rgba: 0.8706, 0.9451, 1, 1  # Background color (#DEF1FF)
-        Rectangle:
-            pos: self.pos
-            size: self.size
     MDBoxLayout:
-        
-        
         orientation: 'vertical'
-        padding: [dp(10), dp(0), dp(10), dp(20)]  # Padding: left, top, right, bottom
-        spacing: dp(20)
-        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
-        size_hint_y: None
-        height: self.minimum_height
+        size_hint_y: 0.1
+        pos_hint: {"top":1}
+         
         
         MDTopAppBar:
             title: 'Add Money'
             elevation: 3
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
-            md_bg_color: "#1e75b9"
+            md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"
             pos_hint:{'top':1}
-            
+    
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint_y: 0.25 
+        pos_hint: {"top":0.86} 
+        #md_bg_color: "fefe16" 
+        
         MDCard:
             orientation: 'vertical'
             size_hint: 0.9, None  # 90% of parent width
@@ -55,9 +50,11 @@ Builder.load_string(
             radius: [20, 20, 20, 20]
             padding: dp(20)
             spacing: dp(20)
-
+            md_bg_color: "#148EFE"
             MDLabel:
                 text: 'Total Wallet Balance'
+                theme_text_color: "Custom"  # Disable theme color
+                text_color: 1, 1, 1, 1
                 halign: 'left'  # Align text to the left
                 valign: 'top'  # Align text to the top
                 size_hint_y: None
@@ -92,9 +89,13 @@ Builder.load_string(
                     md_bg_color: 0.7, 0.7, 0.7, 1  # Blue background color
                     theme_text_color: "Custom"
                     text_color: 0, 0, 0, 1  # White text color
-                    on_release: root.show_currency_options(self)
-                                        
-
+                    on_release: root.show_currency_options(self) 
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint_y: 0.5 
+        pos_hint: {"top":0.60} 
+        #md_bg_color: "fe1616"
+        
         MDCard:
             orientation: 'vertical'
             size_hint: 0.9, None  # 90% of parent width
@@ -103,6 +104,7 @@ Builder.load_string(
             elevation: 1
             radius: [20, 20, 20, 20]
             padding: dp(20)
+            md_bg_color: "#148EFE"
 
             MDLabel:
                 text: 'Add Money to Wallet'
@@ -111,7 +113,8 @@ Builder.load_string(
                 size_hint_y: None
                 height: self.texture_size[1]
                 pos_hint: {'center_y': 0.1}  # Align label to the left side of the MDCard
-
+                theme_text_color: "Custom"  # Disable theme color
+                text_color: 1, 1, 1, 1
             MDBoxLayout:
                 padding: dp(5)
                 spacing: dp(10)  # Adjust the spacing as needed
@@ -135,9 +138,9 @@ Builder.load_string(
                 MDRectangleFlatButton:
                     id: currency_dropdown
                     text: "Select Currency"
-                    theme_text_color: "Custom"
-                    text_color: 0, 0, 0, 1  # White text color
-                    line_color: 0, 0, 0, 1  # Black border color
+                    theme_text_color: "Custom"  # Disable theme color
+                    text_color: 1, 1, 1, 1
+                    line_color: 1, 1, 1, 1  # Black border color
                     size_hint: None, None
                     size: dp(100), dp(48)
                     pos_hint: {"center_x": 0.5, "center_y": 0.45}
@@ -184,9 +187,9 @@ Builder.load_string(
             MDRectangleFlatButton:
                 id: bank_dropdown
                 text: "select bank account"
-                theme_text_color: "Custom"
-                text_color: 0, 0, 0, 1  # White text color
-                line_color: 0, 0, 0, 1  # Black border color
+                #theme_text_color: "Custom"  # Disable theme color
+                text_color: 1, 1, 1, 1
+                line_color: 1, 1, 1, 1  # white border color
                 size_hint: None, None
                 on_release: root.dropdown()
                 size: dp(200), dp(48)
@@ -197,16 +200,12 @@ Builder.load_string(
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 MDRaisedButton:
                     text: 'Proceed to add'
-                    md_bg_color: 0, 180/255, 219/255, 1
+                    theme_text_color: "Custom"  # Disable theme color
+                    text_color: 20/255, 142/255, 254/255, 1
+                    md_bg_color: "#ffffff"
                     size_hint: 1, None  # Set the size_hint_x to 1 to fill the width
                     height: dp(50)
                     on_press: root.add_money()
-    MDBoxLayout:
-        size_hint_y: None
-        height: dp(50)
-        pos_hint: {'center_x': 0.5, 'center_y': 0.1}
-        size_hint_x: None
-        width: dp(100)
 
        
 """)
@@ -327,7 +326,8 @@ class AddMoneyScreen(Screen):
                     phone=phone,
                     fund=self.exchange_rate_value,
                     date=date,
-                    transaction_type="credit"
+                    transaction_type="credit",
+                    transaction_status="Wallet-Topup"
                 )
                 # Show a success toast
                 toast("Money added successfully.")

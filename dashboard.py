@@ -1,7 +1,7 @@
 import base64
 import io
+import traceback
 from datetime import datetime
-
 from kivy.uix.image import Image
 import qrcode
 import requests
@@ -678,6 +678,7 @@ class DashBoardScreen(Screen):
         # Update labels in ComplaintScreen
         addPhone_screen = self.get_screen('addPhone')
         addPhone_screen.ids.contact_label.text = store["phone"]
+
     def profile_view(self):
         store = JsonStore('user_data.json').get('user')['value']
         username = store["username"]
@@ -757,18 +758,17 @@ class DashBoardScreen(Screen):
     def get_transaction_history(self):
         try:
             # Get the phone number from the JSON file
-            phone = JsonStore('user_data.json').get('user')['value']['phone']
-
+            store = JsonStore('user_data.json').get('user')['value']
+            phone = store['phone']
             # Query the 'transactions' table to fetch the transaction history
-            transactions = app_tables.wallet_users_transaction.search(phone=phone)
+            transactions = list(app_tables.wallet_users_transaction.search(phone=phone))
+
             trans_screen = self.manager.get_screen('transaction')
-            # Clear existing widgets in the MDList
             trans_screen.ids.transaction_list.clear_widgets()
 
             current_date = ""
 
-            # Display the transaction history in LIFO order
-            for transaction in sorted(transactions, key=lambda x: x.get('date', datetime.min), reverse=True):
+            for transaction in sorted(transactions, key=lambda x: x['date'], reverse=True):
                 # transaction_item = f"{transaction['fund']}₹\n" \
                 #                    f"{transaction['transaction_type']}\n"
                 #
@@ -810,7 +810,7 @@ class DashBoardScreen(Screen):
                 # Add the container to the transaction list
                 trans_screen.ids.transaction_list.add_widget(transaction_container)
         except Exception as e:
-            print(f"Error getting transaction history: {e}")
+            print(f"Error getting transaction history: {e} ,{traceback.format_exc()}")
 
     menu = None  # Add this line to declare the menu attribute
     options_button_icon_mapping = {
