@@ -277,7 +277,7 @@ class WithdrawScreen(Screen):
                 phone=phone,
                 fund=amount,
                 date=date,
-                transaction_type="debit"
+                transaction_type="Debit"
             )
 
             success_message = f"Withdrawal successful."

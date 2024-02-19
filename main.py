@@ -144,7 +144,7 @@ class ScreenManagement(ScreenManager):
         if self.is_internet_connected():
             # If internet is connected, connect to the Anvil server
             self.anvil_server_connected = True
-            self.client = anvil.server.connect("server_EA6GJLMRXICKHURLRX2DFUI5-RJ2KRH55RF5FXDTW")
+            self.client = anvil.server.connect("server_QVP7TBTIZPTLZZTXO5LN7GBD-2QQVRBJQQ5M7D6YM")
         else:
             # If no internet, use local database or show a popup
             self.anvil_server_connected = False

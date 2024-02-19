@@ -326,7 +326,7 @@ class AddMoneyScreen(Screen):
                     phone=phone,
                     fund=self.exchange_rate_value,
                     date=date,
-                    transaction_type="credit",
+                    transaction_type="Credit",
                     transaction_status="Wallet-Topup"
                 )
                 # Show a success toast

@@ -93,9 +93,6 @@ navigation_helper = """
                         size_hint_y: 1
                         size_hint_x: 1
                         
-                        MDBoxLayout:
-                            orientation: "vertical"
-                            #md_bg_color: "#fe1616"
                         
                         MDGridLayout:
                             cols: 3
