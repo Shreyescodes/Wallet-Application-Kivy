@@ -49,9 +49,8 @@ navigation_helper = """
                         specific_text_color: "#000000"
                         elevation: 1
                         left_action_items:
-                            [['images/menu.png', lambda x: nav_drawer.set_state("open")]]
-                        right_action_items: [["images/user.png", lambda x: print("Image Button Pressed")]] 
-          
+                            [['menu', lambda x: nav_drawer.set_state("open")]]
+                        right_action_items: [["account-circle", lambda x: print("Image Button Pressed")]] 
                     MDBoxLayout:
                         orientation: "vertical"                   
                 MDBoxLayout:
