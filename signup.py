@@ -21,7 +21,6 @@ KV = '''
 
         ScrollView:
 
-
             BoxLayout:
                 size_hint_y: None
                 height: self.minimum_height
@@ -126,7 +125,7 @@ KV = '''
                         bold:True
                         theme_text_color: "Custom"
                         text_color: 0.117, 0.459, 0.725, 1
-                        on_touch_down: root.manager.current = 'signin' if self.collide_point(*args[1].pos) else False
+                        #on_touch_down: root.manager.current = 'signin' if self.collide_point(*args[1].pos) else False
  
                     
           

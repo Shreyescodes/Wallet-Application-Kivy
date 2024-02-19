@@ -50,12 +50,15 @@ navigation_helper = """
                         elevation: 1
                         left_action_items:
                             [['images/menu.png', lambda x: nav_drawer.set_state("open")]]
-                        right_action_items: [["images/user.png", lambda x: print("Image Button Pressed")]]                
+                        right_action_items: [["images/user.png", lambda x: print("Image Button Pressed")]] 
+          
+                    MDBoxLayout:
+                        orientation: "vertical"                   
                 MDBoxLayout:
                     orientation: "vertical"
                     size_hint_y: 0.1
                     pos_hint: {"top":0.9}
-                    #md_bg_color: "#fefe16"
+                    
                     
                     MDCard:
                         orientation: "vertical"
@@ -73,11 +76,10 @@ navigation_helper = """
                             pos_hint: {"center_x": 0.8, "center_y": 0.5}
                             font_size: "15sp"
                             
-                    BoxLayout:
+                    MDBoxLayout:
                         orientation: "vertical"
                         size_hint: None, None
                         size: "320dp", "20dp"
-                    
                 MDBoxLayout:
                     orientation: "vertical"
                     size_hint_y :0.5
@@ -90,6 +92,10 @@ navigation_helper = """
                         #md_bg_color: "#fe168a"
                         size_hint_y: 1
                         size_hint_x: 1
+                        
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            #md_bg_color: "#fe1616"
                         
                         MDGridLayout:
                             cols: 3
@@ -393,8 +399,7 @@ navigation_helper = """
                     
                         MDBoxLayout:
                             orientation: "vertical"
-                            size_hint: None, None
-                            size: "320dp", "30dp"
+                            #md_bg_color: "#fefe16"
                             
                 MDBoxLayout:
                     orientation: "vertical"
@@ -633,7 +638,7 @@ navigation_helper = """
                         MDCard:
                             orientation: "horizontal"
                             size_hint_y :0.1
-                            on_release: root.nav_complaint()
+                            on_release: root.manager.logout()
                             Image:
                                 source: "images/logout.png"
                                 size_hint: (0.4, 0.4)
@@ -768,7 +773,8 @@ class DashBoardScreen(Screen):
 
             current_date = ""
 
-            for transaction in sorted(transactions, key=lambda x: x['date'], reverse=True):
+            for transaction in sorted(filter(lambda x: x['date'] is not None, transactions), key=lambda x: x['date'],
+                                      reverse=True):
                 # transaction_item = f"{transaction['fund']}₹\n" \
                 #                    f"{transaction['transaction_type']}\n"
                 #
@@ -778,8 +784,8 @@ class DashBoardScreen(Screen):
                 transaction_date_str = transaction_datetime.strftime('%Y-%m-%d')
                 transaction_date = transaction_date_str.split(' ')[0]
 
-                transactions = f"{transaction['transaction_status']}\n" \
-                               f"{transaction['receiver_phone']}"
+                transactions = f"{transaction['receiver_phone']}\n" \
+                    # f"{transaction['transaction_status']}"
 
                 # Add header for each date
                 if transaction_date != current_date:
@@ -799,12 +805,16 @@ class DashBoardScreen(Screen):
                 # Add spacing between transaction details and amount
                 transaction_container.add_widget(Widget(size_hint_x=None, width=dp(20)))
 
-                # Determine the color based on the transaction type
-                fund_color = [0, 0.5, 0, 1] if transaction['transaction_type'] == 'Credit' else [1, 0, 0, 1]
-
+                # Determine the color and sign based on the transaction type
+                if transaction['transaction_type'] == 'Credit':
+                    fund_color = [0, 0.5, 0, 1]
+                    sign = '+'
+                else:
+                    fund_color = [1, 0, 0, 1]
+                    sign = '-'
                 # Add the amount label on the right side for each transaction
-                fund_label = MDLabel(text=f"₹{transaction['fund']}", theme_text_color='Custom',
-                                     text_color=fund_color, halign='right')
+                fund_label = MDLabel(text=f"{sign}₹{transaction['fund']}", theme_text_color='Custom',
+                                     text_color=fund_color, halign='right', padding=(15, 15))
                 transaction_container.add_widget(fund_label)
 
                 # Add the container to the transaction list

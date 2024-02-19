@@ -13,6 +13,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
 from kivy.core.window import Window
+
 KV = """
 <SignInScreen>:
     Screen:
@@ -75,10 +76,9 @@ class SignInScreen(Screen):
         super(SignInScreen, self).__init__(**kwargs)
         EventLoop.window.bind(on_keyboard=self.on_key)
 
-
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android
-        if key in [27,9]:
+        if key in [27, 9]:
             self.go_back()
             return True  # Indicates that the key event has been handled
         return False
@@ -91,11 +91,11 @@ class SignInScreen(Screen):
         else:
             try:
                 if re.match(r'^\d{10}$', input_text):  # Phone number with 10 digits
-                    user = app_tables.wallet_users.get(phone=float(input_text))
+                    user = app_tables.wallet_users.get(phone=float(input_text), password=password)
                 elif re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', input_text):  # Email
-                    user = app_tables.wallet_users.get(email=input_text)
+                    user = app_tables.wallet_users.get(email=input_text, password=password)
                 else:  # Assuming it's a username
-                    user = app_tables.wallet_users.get(username=input_text)
+                    user = app_tables.wallet_users.get(username=input_text, password=password)
 
                 # Check if the user was found
                 if user is None:

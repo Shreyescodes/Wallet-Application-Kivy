@@ -25,141 +25,148 @@ Builder.load_string(
             orientation: 'vertical'
             padding: dp(10)
             spacing: dp(10)
-
-            MDCard:
+            size_hint_y:0.9
+            pos_hint: {"top":0.8}
+            #md_bg_color: "#fe1616"
+            MDBoxLayout:
                 orientation: 'vertical'
-                size_hint: 1, None  # Full width
-                height: dp(150)
-                pos_hint: {"center_x": 0.5}
-                radius: [10, 10, 10, 10]
-                padding: dp(20)
-                spacing: dp(20)
-                md_bg_color: 0.7961, 0.9019, 0.9412, 1
-
+            MDBoxLayout:
+                orientation: 'vertical'
+                MDCard:
+                    orientation: 'vertical'
+                    size_hint: 1, None  # Full width
+                    height: dp(150)
+                    pos_hint: {"center_x": 0.5}
+                    radius: [10, 10, 10, 10]
+                    padding: dp(20)
+                    spacing: dp(20)
+                    md_bg_color: 0.7961, 0.9019, 0.9412, 1
+    
+                    MDLabel:
+                        text: 'Total Wallet Balance'
+                        halign: 'left'
+                        valign: 'top'
+                        size_hint_y: None
+                        height: self.texture_size[1]
+    
+                    MDBoxLayout:
+                        padding: dp(10)
+                        spacing: dp(10)
+                        adaptive_height: True
+    
+                        MDTextField:
+                            id: balance_lbl
+                            halign: 'center'
+                            mode: "rectangle"
+                            hint_text: "Balance"
+                            size_hint_x: 0.8
+                            readonly: True
+                            md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                            text_color: 0, 0, 0, 1
+                            line_color: 0.5, 0.5, 0.5, 1
+    
+                        MDIconButton:
+                            id: options_button
+                            icon: "currency-inr"
+                            md_bg_color: "#148EFE"
+                            theme_text_color: "Custom"
+                            text_color: 0, 0, 0, 1
+                            on_release: root.show_currency_options(self)
+    
                 MDLabel:
-                    text: 'Total Wallet Balance'
-                    halign: 'left'
-                    valign: 'top'
+                    text: "Send Money from Wallet to Bank"
+                    halign: 'center'
+                    font_style: 'Subtitle1'
                     size_hint_y: None
-                    height: self.texture_size[1]
-
+                    height: dp(40)
+                    bold: True 
+    
+                MDBoxLayout:
+                    padding: dp(10)
+                    spacing: dp(20)
+                    adaptive_height: True
+    
+                    MDRectangleFlatButton:
+                        id: bank_dropdown
+                        radius:40,40,40,40
+                        text: 'Select bank account'
+                        size_hint_x: 1
+                        height: dp(50)
+                        md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                        on_release: root.fetch_bank_names()
+                        text_color: 0, 0, 0, 1
+                        line_color: 1, 1, 1, 1
+    
+                MDBoxLayout:
+                    padding: dp(5)
+                    spacing: dp(10)
+                    adaptive_height: True
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 1
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [15, 15, 15, 15] 
+                    MDTextField:
+                        id: amount_textfield
+                        mode: "rectangle"
+                        hint_text: "Enter amount"
+                        size_hint_x: 1
+                        line_color: 0.5, 0.5, 0.5, 1
+    
+                MDSeparator:
+                    height: dp(1)
+    
                 MDBoxLayout:
                     padding: dp(10)
                     spacing: dp(10)
                     adaptive_height: True
-
-                    MDTextField:
-                        id: balance_lbl
-                        halign: 'center'
-                        mode: "rectangle"
-                        hint_text: "Balance"
-                        size_hint_x: 0.8
-                        readonly: True
+    
+                    MDFlatButton:
+                        text: '+100'
+                        size_hint_x: None
+                        width: dp(64)
+                        height: dp(40)
                         md_bg_color: 0.7961, 0.9019, 0.9412, 1
-                        text_color: 0, 0, 0, 1
-                        line_color: 0.5, 0.5, 0.5, 1
-
-                    MDIconButton:
-                        id: options_button
-                        icon: "currency-inr"
-                        md_bg_color: "#148EFE"
-                        theme_text_color: "Custom"
-                        text_color: 0, 0, 0, 1
-                        on_release: root.show_currency_options(self)
-
-            MDLabel:
-                text: "Send Money from Wallet to Bank"
-                halign: 'center'
-                font_style: 'Subtitle1'
-                size_hint_y: None
-                height: dp(40)
-                bold: True 
-
+                        on_release: root.update_amount(100)
+    
+                    MDFlatButton:
+                        text: '+200'
+                        size_hint_x: None
+                        width: dp(64)
+                        height: dp(40)
+                        md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                        on_release: root.update_amount(200)
+    
+                    MDFlatButton:
+                        text: '+500'
+                        size_hint_x: None
+                        width: dp(64)
+                        height: dp(40)
+                        md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                        on_release: root.update_amount(500)
+    
+                    MDFlatButton:
+                        text: '+1000'
+                        size_hint_x: None
+                        width: dp(64)
+                        height: dp(40)
+                        md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                        on_release: root.update_amount(1000)
+    
+                MDBoxLayout:
+                    padding: dp(10)
+                    adaptive_height: True
+    
+                    MDRaisedButton:
+                        text: 'Proceed '
+                        md_bg_color: 20/255, 142/255, 254/255, 1
+                        size_hint_x: 1.5
+                        height: dp(50)
+                        on_press: root.withdraw()
             MDBoxLayout:
-                padding: dp(10)
-                spacing: dp(20)
-                adaptive_height: True
-
-                MDRectangleFlatButton:
-                    id: bank_dropdown
-                    radius:40,40,40,40
-                    text: 'Select bank account'
-                    size_hint_x: 1
-                    height: dp(50)
-                    md_bg_color: 0.7961, 0.9019, 0.9412, 1
-                    on_release: root.fetch_bank_names()
-                    text_color: 0, 0, 0, 1
-                    line_color: 1, 1, 1, 1
-
-            MDBoxLayout:
-                padding: dp(5)
-                spacing: dp(10)
-                adaptive_height: True
-                canvas.before:
-                    Color:
-                        rgba: 1, 1, 1, 1
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [15, 15, 15, 15] 
-                MDTextField:
-                    id: amount_textfield
-                    mode: "rectangle"
-                    hint_text: "Enter amount"
-                    size_hint_x: 1
-                    line_color: 0.5, 0.5, 0.5, 1
-
-            MDSeparator:
-                height: dp(1)
-
-            MDBoxLayout:
-                padding: dp(10)
-                spacing: dp(10)
-                adaptive_height: True
-
-                MDFlatButton:
-                    text: '+100'
-                    size_hint_x: None
-                    width: dp(64)
-                    height: dp(40)
-                    md_bg_color: 0.7961, 0.9019, 0.9412, 1
-                    on_release: root.update_amount(100)
-
-                MDFlatButton:
-                    text: '+200'
-                    size_hint_x: None
-                    width: dp(64)
-                    height: dp(40)
-                    md_bg_color: 0.7961, 0.9019, 0.9412, 1
-                    on_release: root.update_amount(200)
-
-                MDFlatButton:
-                    text: '+500'
-                    size_hint_x: None
-                    width: dp(64)
-                    height: dp(40)
-                    md_bg_color: 0.7961, 0.9019, 0.9412, 1
-                    on_release: root.update_amount(500)
-
-                MDFlatButton:
-                    text: '+1000'
-                    size_hint_x: None
-                    width: dp(64)
-                    height: dp(40)
-                    md_bg_color: 0.7961, 0.9019, 0.9412, 1
-                    on_release: root.update_amount(1000)
-
-            MDBoxLayout:
-                padding: dp(10)
-                adaptive_height: True
-
-                MDRaisedButton:
-                    text: 'Proceed '
-                    md_bg_color: 20/255, 142/255, 254/255, 1
-                    size_hint_x: 1.5
-                    height: dp(50)
-                    on_press: root.withdraw()
-
+                orientation: 'vertical'    
         MDBoxLayout:
             size_hint_y: None
             height: dp(100)

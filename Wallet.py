@@ -26,7 +26,6 @@ Builder.load_string(
         size_hint_y: 0.1
         pos_hint: {"top":1}
          
-        
         MDTopAppBar:
             title: 'Add Money'
             elevation: 3
@@ -34,7 +33,8 @@ Builder.load_string(
             md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"
             pos_hint:{'top':1}
-    
+        MDBoxLayout:
+            orientation: 'vertical'
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.25 
