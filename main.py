@@ -144,7 +144,7 @@ class ScreenManagement(ScreenManager):
         if self.is_internet_connected():
             # If internet is connected, connect to the Anvil server
             self.anvil_server_connected = True
-            self.client = anvil.server.connect("server_QVP7TBTIZPTLZZTXO5LN7GBD-2QQVRBJQQ5M7D6YM")
+            self.client = anvil.server.connect("server_7JA6PVL5DBX5GSBY357V7WVW-TLZI2SSXOVZCVYDM")
         else:
             # If no internet, use local database or show a popup
             self.anvil_server_connected = False
@@ -269,23 +269,23 @@ class ScreenManagement(ScreenManager):
     def nav_help(self):
         self.current = 'help'
 
-    def show_success_popup(self, message):
-        content = BoxLayout(orientation='vertical', spacing='10dp')
-        content.add_widget(MDLabel(text=message, halign='center'))
-
-        ok_button = Button(text='OK', size_hint=(None, None), size=('150dp', '50dp'))
-        ok_button.bind(on_press=lambda *args: popup.dismiss())
-        content.add_widget(ok_button)
-
-        popup = Popup(
-            title='Success',
-            content=content,
-            size_hint=(None, None),
-            size=('300dp', '200dp'),
-            auto_dismiss=True
-        )
-        popup.open()
-        self.current = 'dashboard'
+    # def show_success_popup(self, message):
+    #     content = BoxLayout(orientation='vertical', spacing='10dp')
+    #     content.add_widget(MDLabel(text=message, halign='center'))
+    #
+    #     ok_button = Button(text='OK', size_hint=(None, None), size=('150dp', '50dp'))
+    #     ok_button.bind(on_press=lambda *args: popup.dismiss())
+    #     content.add_widget(ok_button)
+    #
+    #     popup = Popup(
+    #         title='Success',
+    #         content=content,
+    #         size_hint=(None, None),
+    #         size=('300dp', '200dp'),
+    #         auto_dismiss=True
+    #     )
+    #     popup.open()
+    #     self.current = 'dashboard'
 
     def nav_contactus(self):
         self.current = 'contactus'

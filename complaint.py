@@ -67,6 +67,7 @@ KV = """
                         width: "100dp"  # Adjust the width as needed
                         
                     MDTextField:
+                        id:issue
                         multiline: False
 
                 #3
@@ -86,6 +87,7 @@ KV = """
                         width: "100dp"  # Adjust the width as needed
                         
                     MDTextField:
+                        id:specific_issue
                         multiline: False   
                             
                 #4
@@ -105,6 +107,7 @@ KV = """
                         width: "100dp"  # Adjust the width as needed
                         
                     MDTextField:
+                        id:description
                         multiline: True        
                 
                 MDRectangleFlatButton:
@@ -121,6 +124,10 @@ Builder.load_string(KV)
 class ComplaintScreen(Screen):
     def go_back(self):
         self.manager.current = 'dashboard'
+        self.ids.description.text=''
+        self.ids.specific_issue.text = ''
+        self.ids.issue.text = ''
+
 
     def __init__(self, **kwargs):
         super(ComplaintScreen, self).__init__(**kwargs)

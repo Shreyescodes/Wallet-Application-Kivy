@@ -31,6 +31,7 @@ KV = '''
                 pos_hint: {'center_x': 0.5}
                 
             MDTextField:
+                id:contact
                 hint_text: "Tell us how we can help you"
                 multiline: True
                 
@@ -49,6 +50,7 @@ Builder.load_string(KV)
 class ContactUsScreen(Screen):
     def go_back(self):
         self.manager.current = 'help'
+        self.ids.issue.text=''
 
     def __init__(self, **kwargs):
         super(ContactUsScreen, self).__init__(**kwargs)
@@ -78,3 +80,4 @@ class ContactUsScreen(Screen):
             ]
         )
         dialog.open()
+        self.ids.issue.text = ''

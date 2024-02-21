@@ -280,12 +280,16 @@ class WithdrawScreen(Screen):
                 transaction_type="Debit"
             )
 
-            success_message = f"Withdrawal successful."
-            self.manager.show_success_popup(success_message)
+            # success_message = f"Withdrawal successful."
+            # self.manager.show_success_popup(success_message)
+            toast("Withdrawal successful.", duration=5)
+            self.manager.current = 'dashboard'
             self.manager.show_balance()
+            self.ids.amount_textfield.text = ""
         except Exception as e:
             print(f"Error withdrawing money: {e}")
             self.show_error_popup("An error occurred. Please try again.")
+            self.ids.amount_textfield.text = ""
 
     def update_amount(self, amount):
         self.ids.amount_textfield.text = str(amount)

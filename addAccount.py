@@ -180,6 +180,14 @@ Builder.load_string(KV)
 class AddAccountScreen(Screen):
     def go_back(self):
         self.manager.current = 'accmanage'
+        self.ids.account_holder_name.text = ''
+        self.ids.account_number.text = ''
+        self.ids.confirm_account_number.text = ''
+        self.ids.bank_name.text = ''
+        self.ids.branch_name.text = ''
+        self.ids.ifsc_code.text = ''
+        self.ids.account_type.text = ''
+
 
     def __init__(self, **kwargs):
         super(AddAccountScreen, self).__init__(**kwargs)

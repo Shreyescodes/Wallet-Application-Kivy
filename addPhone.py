@@ -28,7 +28,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDLabel
 from win32pdhquery import Query
 
-Window.size = (400, 600)
+
 KV = '''
 <AddPhoneScreen>:
     Screen:
@@ -208,6 +208,7 @@ class AddPhoneScreen(Screen):
 
     def go_back(self):
         self.manager.current = 'dashboard'
+        self.ids.search_text_card.text = ''
 
     def fetch_and_update_addPhone(self):
         store = JsonStore('user_data.json').get('user')['value']

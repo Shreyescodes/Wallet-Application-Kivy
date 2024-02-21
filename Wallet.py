@@ -215,6 +215,7 @@ class AddMoneyScreen(Screen):
 
     def go_back(self):
         self.manager.current = 'dashboard'
+        self.ids.balance.text = ''
 
     def __init__(self, **kwargs):
         super(AddMoneyScreen, self).__init__(**kwargs)
@@ -253,6 +254,7 @@ class AddMoneyScreen(Screen):
                 self.menu.open()
             else:
                 toast("No accounts found")
+                self.ids.balance.text = ''
 
         except Exception as e:
             print(f"Error fetching bank names: {e}")
@@ -276,7 +278,8 @@ class AddMoneyScreen(Screen):
                 self.account_number = account[0]
                 print(self.account_number)
             else:
-                toast("Account not found")
+                toast("Account not found", duration=5)
+                self.ids.balance.text = ''
 
             self.menu.dismiss()
 
@@ -330,9 +333,10 @@ class AddMoneyScreen(Screen):
                     transaction_status="Wallet-Topup"
                 )
                 # Show a success toast
-                toast("Money added successfully.")
+                toast("Money added successfully.",duration=5)
                 self.manager.current = 'dashboard'
                 self.manager.show_balance()
+                self.ids.balance.text = ''
 
             except Exception as e:
                 print(f"Error adding money: {e}")

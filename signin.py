@@ -71,17 +71,19 @@ Builder.load_string(KV)
 class SignInScreen(Screen):
     def go_back(self):
         self.manager.current = 'landing'
+        self.ids.input_text.text = ''
+        self.ids.password_input.text = ''
 
-    def __init__(self, **kwargs):
-        super(SignInScreen, self).__init__(**kwargs)
-        EventLoop.window.bind(on_keyboard=self.on_key)
-
-    def on_key(self, window, key, scancode, codepoint, modifier):
-        # 27 is the key code for the back button on Android
-        if key in [27, 9]:
-            self.go_back()
-            return True  # Indicates that the key event has been handled
-        return False
+    # def __init__(self, **kwargs):
+    #     super(SignInScreen, self).__init__(**kwargs)
+    #     EventLoop.window.bind(on_keyboard=self.on_key)
+    #
+    # def on_key(self, key):
+    #     # 27 is the key code for the back button on Android
+    #     if key in [27, 9]:
+    #         self.go_back()
+    #         return True  # Indicates that the key event has been handled
+    #     return False
 
     def sign_in(self, input_text, password):
         date = datetime.now()

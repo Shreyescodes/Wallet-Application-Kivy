@@ -251,6 +251,7 @@ kv_string = '''
                         on_release: root.show_currency_menu()    
         
                     MDTextField:
+                        id: name
                         mode: "rectangle"
                         hint_text: " Beneficiary Name"
                         pos_hint: {'center_x': .5}
@@ -310,6 +311,7 @@ kv_string = '''
                         line_color_normal: app.theme_cls.primary_color
         
                     MDTextField:
+                        id:purpose
                         mode: "rectangle"
                         hint_text: " Enter Purpose"
                         pos_hint: {'center_x': .5}
@@ -334,6 +336,11 @@ class TransferScreen(Screen):
 
     def go_back(self):
         self.manager.current = 'dashboard'
+        self.ids.purpose.text=''
+        self.ids.amount_field.text = ''
+        self.ids.name.text = ''
+        self.ids.mobile_no_field.text = ''
+        self.ids.test_money.active = False
 
     def __init__(self, **kwargs):
         super(TransferScreen, self).__init__(**kwargs)
@@ -408,13 +415,28 @@ class TransferScreen(Screen):
                     transaction_type="Credit",
                     transaction_status="success"
                 )
-                toast("Money added successfully.")
+                toast("Money added successfully.",duration=5)
                 self.manager.current = 'dashboard'
                 self.manager.show_balance()
+                self.ids.purpose.text = ''
+                self.ids.amount_field.text = ''
+                self.ids.name.text = ''
+                self.ids.mobile_no_field.text = ''
+                self.ids.test_money.active = False
             else:
                 toast("you dont have a balance in this currency type")
+                self.ids.purpose.text = ''
+                self.ids.amount_field.text = ''
+                self.ids.name.text = ''
+                self.ids.mobile_no_field.text = ''
+                self.ids.test_money.active = False
         except Exception as e:
             toast("an error occurred")
+            self.ids.purpose.text = ''
+            self.ids.amount_field.text = ''
+            self.ids.name.text = ''
+            self.ids.mobile_no_field.text = ''
+            self.ids.test_money.active = False
             print(e)
 
     def show_not_registered_dialog(self):
@@ -430,6 +452,11 @@ class TransferScreen(Screen):
             ]
         )
         dialog.open()
+        self.ids.purpose.text = ''
+        self.ids.amount_field.text = ''
+        self.ids.name.text = ''
+        self.ids.mobile_no_field.text = ''
+        self.ids.test_money.active = False
 
 
     def check_reg(self, phone):

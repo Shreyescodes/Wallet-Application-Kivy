@@ -26,7 +26,7 @@ from kivy.uix.scrollview import ScrollView
 from anvil.tables import app_tables
 from kivy.core.window import Window
 
-Window.size = (400, 600)
+
 
 navigation_helper = """
 <DashBoardScreen>:
