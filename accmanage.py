@@ -1,5 +1,6 @@
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.factory import Factory
 from kivy.lang import Builder
 from kivymd.uix.screen import Screen
 from kivy.metrics import dp
@@ -7,7 +8,7 @@ from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.list import OneLineListItem
 from anvil.tables import app_tables
 from kivymd.uix.spinner import MDSpinner
-
+from addAccount import AddAccountScreen
 KV = '''
 <AccmanageScreen>:
     BoxLayout:
@@ -58,6 +59,7 @@ class AccmanageScreen(Screen):
         self.ids.account_details_container.remove_widget(self.loading_spinner)
 
     def nav_account(self):
+        self.manager.add_widget(Factory.AddAccountScreen(name='addaccount'))
         self.manager.current = 'addaccount'
 
     def update_details(self):

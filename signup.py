@@ -1,5 +1,6 @@
 import anvil
 from anvil.tables import app_tables
+from kivy.factory import Factory
 from kivy.lang import Builder
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
@@ -15,7 +16,7 @@ KV = '''
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
             title: 'Sign Up            '
             elevation: 2
-            
+
 
         ScrollView:
 
@@ -97,12 +98,12 @@ KV = '''
                 Widget:
                     size_hint_y: None
                     height: '2dp'    
-               
-                
+
+
                 BoxLayout:
                     orientation: 'horizontal'
                     size_hint_y: None
-                    
+
                     height: self.minimum_height
                     spacing: dp(20) 
                     Widget:
@@ -124,9 +125,9 @@ KV = '''
                         theme_text_color: "Custom"
                         text_color: 0.117, 0.459, 0.725, 1
                         #on_touch_down: root.manager.current = 'signin' if self.collide_point(*args[1].pos) else False
- 
-                    
-          
+
+
+
 '''
 Builder.load_string(KV)
 
@@ -134,22 +135,16 @@ Builder.load_string(KV)
 class SignUpScreen(Screen):
 
     def go_back(self):
+        self.manager.add_widget(Factory.LandingScreen(name='landing'))
         self.manager.current = 'landing'
-        self.ids.address.text = ''
-        self.ids.pan_card.text = ''
-        self.ids.aadhar_card.text = ''
-        self.ids.phone_no.text = ''
-        self.ids.password.text = ''
-        self.ids.username.text = ''
-        self.ids.gmail.text = ''
+
     def __init__(self, **kwargs):
         super(SignUpScreen, self).__init__(**kwargs)
         EventLoop.window.bind(on_keyboard=self.on_key)
 
-
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android
-        if key in [27,9]:
+        if key in [27, 9]:
             self.go_back()
             return True  # Indicates that the key event has been handled
         return False
@@ -168,7 +163,7 @@ class SignUpScreen(Screen):
         # self.transactions(phone_no)
         try:
             if self.is_phone_number_registered(phone_no):
-                Snackbar(text="Phone number already exists. Choose another.").open()
+                Snackbar("Phone number already exists. Choose another.").open()
                 return
 
             else:  # Add user data to the 'login' collection in Anvil
@@ -187,7 +182,6 @@ class SignUpScreen(Screen):
                 # Show a popup with a success message
                 dialog = MDDialog(
                     title="Alert",
-                    text="Successfully signed up.",
                     buttons=[
                         MDFlatButton(
                             text="OK",
@@ -195,7 +189,9 @@ class SignUpScreen(Screen):
                         )
                     ]
                 )
+                dialog.text = f"Successfully signed up."
                 dialog.open()
+
                 self.ids.address.text = ''
                 self.ids.pan_card.text = ''
                 self.ids.aadhar_card.text = ''
@@ -212,5 +208,5 @@ class SignUpScreen(Screen):
         return user is not None
 
     def dismiss_and_navigate(self):
-        #self.manager.add_widget(Factory.SignInScreen(name='signin'))
+        self.manager.add_widget(Factory.SignInScreen(name='signin'))
         self.manager.current = 'signin'

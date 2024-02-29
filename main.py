@@ -30,7 +30,7 @@ class ScreenManagement(ScreenManager):
         Clock.schedule_once(self.connect_to_anvil,3)
 
     def connect_to_anvil(self,dt):
-        client = anvil.server.connect("server_QVP7TBTIZPTLZZTXO5LN7GBD-2QQVRBJQQ5M7D6YM")
+        client = anvil.server.connect("server_7JA6PVL5DBX5GSBY357V7WVW-TLZI2SSXOVZCVYDM")
         Clock.schedule_once(self.check_login_status, 5)
 
     def check_login_status(self, dt):
