@@ -1,8 +1,6 @@
 from kivy.lang import Builder
-from kivymd.app import MDApp
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
-from kivy.core.window import Window
 KV = '''
 <HelpScreen>:
     Screen:

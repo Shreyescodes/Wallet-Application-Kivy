@@ -1,7 +1,9 @@
+from kivy.factory import Factory
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen, ScreenManager
-from kivy.uix.image import AsyncImage
 from kivymd.app import MDApp
+from signin import SignInScreen
+from signup import SignUpScreen
 Builder.load_string(
     """
 <LandingScreen>:
@@ -43,7 +45,7 @@ Builder.load_string(
 
             MDRectangleFlatButton:
                 text: 'Login'
-                on_release: root.manager.current = 'signin'
+                on_release: root.nav_sign_in()
                 size_hint: (0.5, 1)
                 width: dp(50)
                 pos_hint: {'center_x': 0.5, 'y': 0.7}  # Adjust the value as needed
@@ -53,7 +55,7 @@ Builder.load_string(
 
             MDRectangleFlatButton:
                 text: 'Signup'
-                on_press: root.manager.current = 'signup'
+                on_press: root.nav_sign_up()
                 size_hint: (0.5, 1)
                 width: dp(50)
                 pos_hint: {'center_x': 0.5, 'y': 0.7}  # Adjust the value as needed
@@ -126,12 +128,15 @@ Builder.load_string(
 
 
 class LandingScreen(Screen):
-    pass
+    def nav_sign_in(self):
+        self.manager.add_widget(Factory.SignInScreen(name='signin'))
+        self.manager.current = 'signin'
 
-
+    def nav_sign_up(self):
+        self.manager.add_widget(Factory.SignUpScreen(name='signup'))
+        self.manager.current = 'signup'
 class WalletApp(MDApp):
     def build(self):
         screen_manager = ScreenManager()
         screen_manager.add_widget(LandingScreen(name='landing'))
         return screen_manager
-

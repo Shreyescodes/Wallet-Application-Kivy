@@ -1,11 +1,9 @@
 from logging import root
-from kivy.app import App
+from kivy.factory import Factory
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.screen import Screen
-from kivy.uix.camera import Camera
 from kivy.base import EventLoop
-from kivy.core.window import Window
 
 KV = """
 <Profile>:
@@ -155,8 +153,8 @@ class Profile(Screen):
         self.email_editing = False  # Set email_editing flag to False
 
     def edit_profile(self):
+        self.manager.add_widget(Factory.EditUser(name='edituser'))
         edit_screen = self.manager.get_screen('edituser')
-
         store = JsonStore('user_data.json').get('user')['value']
 
         edit_screen.ids.username.text = store["username"]

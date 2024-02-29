@@ -3,18 +3,10 @@ from kivymd.app import MDApp
 from datetime import datetime
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivymd.uix.card import MDCard
-from kivymd.uix.textfield import MDTextField
-from kivymd.uix.button import MDFlatButton, MDRaisedButton
-from kivy.properties import StringProperty
-from kivy.metrics import dp
 import requests
 from kivy.storage.jsonstore import JsonStore
-from kivymd.uix.menu import MDDropdownMenu
 from kivymd.toast import toast
-from kivymd.uix.list import OneLineListItem
 from kivy.base import EventLoop
-from kivy.core.window import Window
 from kivymd.uix.menu import MDDropdownMenu
 
 Builder.load_string(
@@ -253,11 +245,12 @@ class AddMoneyScreen(Screen):
                 )
                 self.menu.open()
             else:
-                toast("No accounts found")
+                toast("No accounts found",duration=3)
                 self.ids.balance.text = ''
 
         except Exception as e:
             print(f"Error fetching bank names: {e}")
+            self.ids.balance.text = ''
 
         finally:
             # No need to close a connection in Firebase Realtime Database
@@ -278,7 +271,7 @@ class AddMoneyScreen(Screen):
                 self.account_number = account[0]
                 print(self.account_number)
             else:
-                toast("Account not found", duration=5)
+                toast("Account not found",duration=5)
                 self.ids.balance.text = ''
 
             self.menu.dismiss()
@@ -340,12 +333,12 @@ class AddMoneyScreen(Screen):
 
             except Exception as e:
                 print(f"Error adding money: {e}")
-                toast("An error occurred. Please try again.")
-
+                toast("An error occurred. Please try again.",duration=5)
+                self.ids.balance.text = ''
         else:
             # Show an error toast
-            toast("Invalid amount. Please enter an amount between 500 and 100000.")
-
+            toast("Invalid amount. Please enter an amount between 500 and 100000.",duration=5)
+            self.ids.balance.text = ''
     def currency_rate(self, currency_type, money):
         # Set API Endpoint and access key (replace 'API_KEY' with your actual API key)
         endpoint = 'convert'

@@ -1,12 +1,9 @@
-import requests
 from kivy.lang import Builder
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
-from kivy.core.window import Window
 from anvil.tables import app_tables
-from kivymd.uix.snackbar import Snackbar
 
 KV = """
 <EditUser>

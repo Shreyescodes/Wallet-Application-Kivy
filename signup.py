@@ -5,9 +5,7 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
 from kivymd.uix.snackbar import Snackbar
-import requests
 from kivy.base import EventLoop
-from kivy.core.window import Window
 KV = '''
 <SignUpScreen>:
     BoxLayout:
@@ -144,17 +142,17 @@ class SignUpScreen(Screen):
         self.ids.password.text = ''
         self.ids.username.text = ''
         self.ids.gmail.text = ''
-    # def __init__(self, **kwargs):
-    #     super(SignUpScreen, self).__init__(**kwargs)
-    #     EventLoop.window.bind(on_keyboard=self.on_key)
-    #
-    #
-    # def on_key(self, window, key, scancode, codepoint, modifier):
-    #     # 27 is the key code for the back button on Android
-    #     if key in [27,9]:
-    #         self.go_back()
-    #         return True  # Indicates that the key event has been handled
-    #     return False
+    def __init__(self, **kwargs):
+        super(SignUpScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27,9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def signup(self):
         current_screen = self.manager.get_screen('signup')
@@ -198,6 +196,13 @@ class SignUpScreen(Screen):
                     ]
                 )
                 dialog.open()
+                self.ids.address.text = ''
+                self.ids.pan_card.text = ''
+                self.ids.aadhar_card.text = ''
+                self.ids.phone_no.text = ''
+                self.ids.password.text = ''
+                self.ids.username.text = ''
+                self.ids.gmail.text = ''
         except Exception as e:
             print(e)
 
@@ -207,4 +212,5 @@ class SignUpScreen(Screen):
         return user is not None
 
     def dismiss_and_navigate(self):
+        #self.manager.add_widget(Factory.SignInScreen(name='signin'))
         self.manager.current = 'signin'

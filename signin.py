@@ -1,18 +1,14 @@
 import re
 import sqlite3
 from datetime import datetime
-
-import requests
 from anvil.tables import app_tables
-from docutils.nodes import row
-from kivy.app import App
+from kivy.factory import Factory
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
-from kivy.core.window import Window
 
 KV = """
 <SignInScreen>:
@@ -74,16 +70,16 @@ class SignInScreen(Screen):
         self.ids.input_text.text = ''
         self.ids.password_input.text = ''
 
-    # def __init__(self, **kwargs):
-    #     super(SignInScreen, self).__init__(**kwargs)
-    #     EventLoop.window.bind(on_keyboard=self.on_key)
-    #
-    # def on_key(self, key):
-    #     # 27 is the key code for the back button on Android
-    #     if key in [27, 9]:
-    #         self.go_back()
-    #         return True  # Indicates that the key event has been handled
-    #     return False
+    def __init__(self, **kwargs):
+        super(SignInScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def sign_in(self, input_text, password):
         date = datetime.now()
@@ -112,7 +108,11 @@ class SignInScreen(Screen):
                     print(user_data)
                     # Show popup for successful login
                     self.show_popup("Login Successful")
+
+                    for screen in self.manager.screens:
+                        self.manager.remove_widget(screen)
                     # App.get_running_app().authenticated_user_number = row['phone']
+                    self.manager.add_widget(Factory.DashBoardScreen(name='dashboard'))
                     self.manager.current = 'dashboard'
 
                     # Save user data to JsonStore (if needed)
@@ -168,3 +168,5 @@ class SignInScreen(Screen):
             ]
         )
         dialog.open()
+        self.ids.input_text.text = ''
+        self.ids.password_input.text = ''

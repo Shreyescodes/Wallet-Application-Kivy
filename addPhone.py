@@ -1,33 +1,24 @@
-import self
-from datetime import datetime, date
 from datetime import datetime
 from kivy.core.window import Window
+from kivy.factory import Factory
+from kivy.graphics import Color
 from kivy.metrics import dp
-from kivy.properties import StringProperty, NumericProperty
+from kivy.properties import StringProperty
 from kivy.storage.jsonstore import JsonStore
+from kivy.uix.anchorlayout import AnchorLayout
 from kivymd.toast import toast
 from kivy.clock import Clock
+from kivy.graphics import RoundedRectangle
 from kivy.uix.screenmanager import Screen
 from kivymd.uix.label import MDLabel
-from kivymd.uix.card import MDCard
-from kivymd.uix.list import MDList, OneLineListItem
-from kivy.uix.boxlayout import BoxLayout
 from anvil.tables import app_tables
 from kivy.uix.label import Label
-from kivy.uix.scrollview import ScrollView
 from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.widget import Widget
+from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
-from kivymd.uix.label import MDLabel
-from kivymd.uix.list import OneLineListItem
 from kivymd.uix.textfield import MDTextField
-from kivymd.uix.toolbar import MDTopAppBar
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.label import MDLabel
-from win32pdhquery import Query
-
 
 KV = '''
 <AddPhoneScreen>:
@@ -85,10 +76,7 @@ KV = '''
                         font_style:"H6"
                         size_hint_y:None
                         height: self.texture_size[1]
-                # MDBottomNavigation:
-                #     spacing: dp(5)
-                # #     text_color_active: get_color_from_hex("F5F5F5")
-                #     md_bg_color: (1,1,1,1)
+
 <UserDetailsScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -105,8 +93,6 @@ KV = '''
             MDList:
                 id: transaction_list_mdlist
 
-
-
         BoxLayout:
             orientation: 'vertical'
             size_hint_y: None
@@ -120,7 +106,6 @@ KV = '''
                 size: dp(200), dp(60)
                 pos_hint: {'center_x': 0.5}  # Position on top
                 opacity: 0  # Initially invisible   
-
 
             BoxLayout:
                 orientation: 'horizontal'
@@ -149,25 +134,6 @@ KV = '''
                     md_bg_color: "#148EFE"
                     radius: [15]
 
-                # BoxLayout:
-                #     orientation: 'horizontal'
-                #     size_hint_y: None
-                #     height: dp(66)
-                #     padding: dp(3)
-                #     spacing: dp(5)
-                #     MDTextField:
-                #         hint_text: "Message..."
-                #         mode: "round"
-                #         height: dp(1) 
-                #         text_color: 0, 0, 0, 1   # Set text color to black
-                #         line_color_normal: app.theme_cls.primary_color
-                #         
-                #             
-                #         MDIconButton:
-                #             icon: "send"
-                #             pos_hint: {'center_y': 0.5}
-                #             on_release: root.deduct_and_transfer(self.text)
-
                 CustomMDTextField:
                     id: my_text_field
                     hint_text: "Message..."
@@ -181,23 +147,6 @@ KV = '''
                     on_text: root.add_another_textfield(self.text)
                     on_text_validate: root.deduct_and_transfer(self.text)
 
-
-                # MDTextField:
-                #     hint_text: "Message..."
-                #     icon_right: "send"
-                #         on_release: root.deduct_and_transfer(self.text)
-                #     height: dp(1)  # Adjust height as needed
-                #     mode: "round"
-                #     padding: dp(5), dp(5)
-                #     text_color: 0, 0, 0, 1  # Black text color    
-                #     line_color_normal: app.theme_cls.primary_color
-                #     on_text: root.add_another_textfield(self.text)
-                #     #on_text_validate: root.deduct_and_transfer(self.text)
-
-
-
-
-
 '''
 
 Builder.load_string(KV)
@@ -205,14 +154,13 @@ Builder.load_string(KV)
 
 class AddPhoneScreen(Screen):
     top_app_bar_title = "Phone Transfer"
+    current_user_phone = ""
 
     def go_back(self):
         self.manager.current = 'dashboard'
-        self.ids.search_text_card.text = ''
 
     def fetch_and_update_addPhone(self):
         store = JsonStore('user_data.json').get('user')['value']
-        # Update labels in ComplaintScreen
         addPhone_screen = self.get_screen('addphone')
         addPhone_screen.ids.contact_label.text = store["phone"]
         addPhone_screen.current_user_phone = str(store["phone"])
@@ -241,6 +189,7 @@ class AddPhoneScreen(Screen):
         phone_number = self.ids.search_text_card.text
         if phone_number:
             username = self.ids.search_result_item.text
+            self.manager.add_widget(Factory.UserDetailsScreen(name='userdetails'))
             self.manager.current = 'userdetails'
             user_details_screen = self.manager.get_screen('userdetails')
             user_details_screen.username = username
@@ -260,9 +209,24 @@ class AddPhoneScreen(Screen):
             else:
                 print(f"User with phone number {number} not found in the database")
 
-            # # Pass the current user's phone number and the searched user's phone number to the UserDetailsScreen
-            # user_details_screen.current_user_phone = str(app_tables.wallet_users.get(phone=number))
-            # user_details_screen.searched_user_phone = self.on_search_text_entered()
+
+class RoundedMDLabel(MDLabel):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.radius = [20, ]
+        with self.canvas.before:
+            self.rect_color = Color(rgba=(0.7686, 0.8902, 1, 1))
+            self.rect = RoundedRectangle(pos=self.pos, size=self.size)
+
+    def on_size(self, *args):
+        self.rect.size = self.size
+        self.rect.pos = self.pos
+
+    def on_pos(self, *args):
+        self.rect.pos = self.pos
+
+    def on_md_bg_color(self, instance, value):
+        self.rect_color.rgba = value[:4]
 
 
 class CustomMDTextField(MDTextField):
@@ -277,14 +241,14 @@ class CustomMDTextField(MDTextField):
 class UserDetailsScreen(Screen):
     username = ""
     phone_number = StringProperty('')
-    current_user_phone = ""
+    current_user_phone = 0
     searched_user_phone = ""
     transaction_list_mdlist = None
 
     def on_enter(self, sender=None):
         # Convert phone numbers to integers
         global message, color, align
-        current_user_phone = int(self.current_user_phone)
+        current_user_phone = JsonStore('user_data.json').get('user')['value']['phone']
         print(f'current_user_phone:{self.current_user_phone}')
         searched_user_phone = int(self.searched_user_phone)
         print(f'searched_user_phone:{self.searched_user_phone}')
@@ -299,21 +263,19 @@ class UserDetailsScreen(Screen):
             phone=current_user_phone,
             receiver_phone=searched_user_phone,
             transaction_type='Debit'
-
         )
 
         # Convert LiveObjectProxy results to lists
         user_data_1_list = list(user_data_1)
         user_data_2_list = list(user_data_2)
 
-        # Combine the lists
         user_data = user_data_1_list + user_data_2_list
-        # Sort the transaction data based on date in descending order
+
         user_data.sort(key=lambda x: x['date'])
 
         self.ids.transaction_list_mdlist.clear_widgets()
 
-        # Iterate over the transaction data and display as chat-like messages
+        # Iterate over the transaction data and display
         for transaction in user_data:
             sender = transaction['phone']
             receiver = transaction['receiver_phone']
@@ -322,78 +284,106 @@ class UserDetailsScreen(Screen):
 
             # Check if date is not None before formatting
             if date is not None:
-                # Extract only the date part from the datetime object
-                date_str = date.strftime('%Y-%m-%d')  # Format the date as desired
+                date_str = date.strftime('%b %d, %Y %I:%M %p')  # Format the date as desired
+                date_only = date.strftime('%b %d, %Y')
             else:
                 date_str = "Unknown Date"
+                date_only = "Unknown Date"
 
-            # Retrieve the username associated with the searched user phone
             searched_user_data = app_tables.wallet_users.get(phone=searched_user_phone)
             searched_username = searched_user_data['username'] if searched_user_data else 'Unknown User'
 
             date_label = Label(
                 text=date_str,
-                font_size=18,
-                color=(0.5, 0.5, 0.5, 1),  # Black color for date
+                font_size=16,
+                color=(0.3, 0.3, 0.3, 1),
                 size_hint_y=None,
                 height=dp(40),
-                halign='center'  # Center align the date label
+                halign='center'
             )
             self.ids.transaction_list_mdlist.add_widget(date_label)
 
+            # Add a spacer widget for some space between date_label and message_container
+            spacer_top = BoxLayout(size_hint=(1, None), height=dp(85))
+            self.ids.transaction_list_mdlist.add_widget(spacer_top)
+
             # Initialize message and color variables
             message = ""
-            color = (0, 0, 0, 1)  # Default color
+            color = (0, 0, 0, 1)
 
             # Determine the direction of the message based on sender and receiver
             if sender == current_user_phone:
+                formatted_fund = "{:,.0f}".format(fund)
                 message = f"Payment to {searched_username}\n" \
-                          f"₹{fund}"
-                color = (0, 0, 0, 1)  # Blue for outgoing messages
+                          f"₹{fund}\n" \
+                          f"Paid on {date_only}  "
+
+                background_color = [0.7686, 0.8902, 1, 1]  # [0.8, 0.925, 0.729, 1]
+                text_color = (0, 0, 0, 1)
                 align = 'right'
-            elif sender == searched_user_phone:
+
+            else:
+                formatted_fund = "{:,.0f}".format(fund)
                 message = f"Payment to you\n" \
-                          f"₹{fund}"
-                color = (0, 0, 0, 1)  # Green for incoming messages
+                          f"₹{fund}\n" \
+                          f"Paid on {date_only}  "
+
+                background_color = [0.7686, 0.8902, 1, 1]  # [0.8, 1, 0.8, 1]
+                text_color = (0, 0, 0, 1)
                 align = 'left'
+
+            # Inside the loop where you construct the message_label, split the message into parts
+            parts = message.split('\n')
+
+            message_container = AnchorLayout(anchor_x=('right' if align == 'right' else 'left'), anchor_y='center')
 
             message_layout = MDBoxLayout(
                 orientation="vertical",
-                size_hint_y=None,
-                height=dp(100),
-                padding=[10, 5],
-                spacing=2,
-                pos_hint={'center_x': 0.5}
+                size_hint=(None, None),
+                size=(dp(170), dp(100)),
+                padding=[10, 10],
+                spacing=100,
             )
 
-            # Create label for transaction message
-            message_label = MDLabel(
-                text=message,
-                font_size=20,
-                size_hint_y=None,
-                height=self.calculate_label_height(message),  # Calculate the height based on the message length
-                halign=align,
-                padding=dp(5),
-                valign="middle",  # Center the text vertically
-                theme_text_color="Custom",  # Use custom text color
-                text_color=color,  # Set the color based on sender
-                # md_bg_color=(0.8, 0.8, 0.8, 1)  # Background color for the message box
-            )
+            message_label = RoundedMDLabel()
+            message_label.text = message
+            message_label.font_size = 20
+            message_label.md_bg_color = background_color
+            message_label.size_hint_y = None
+            message_label.height = message_label.texture_size[1] + dp(120)
+            message_label.halign = align
+            # message_label.padding = dp(5)
+            message_label.valign = "middle"
+            message_label.theme_text_color = "Custom"
+            message_label.text_color = text_color
 
-            # message_label.bind(
-            #     texture_size=lambda label, size: setattr(message_label, "md_bg_color",("#C4E3FF")))
+            message_label.markup = True
+            formatted_text = f"[size=18]{parts[0]}[/size]"
+            for part in parts[1:]:
+                formatted_text += f"\n"
+                if part.startswith('₹'):
+                    formatted_text += f"\n[size=30]{part}[/size]"
+                else:
+                    formatted_text += f"\n[size=16]{part}[/size]"
+
+            message_label.text = formatted_text
 
             # Add the message label to the message layout
             message_layout.add_widget(message_label)
 
+            # Add the message layout to the message container
+            message_container.add_widget(message_layout)
+
             # Add the message layout to the transaction list
-            self.ids.transaction_list_mdlist.add_widget(message_layout)
+            self.ids.transaction_list_mdlist.add_widget(message_container)
+
+            # Add another spacer widget for some space between message_container and next date_label
+            spacer_bottom = BoxLayout(size_hint=(1, None), height=dp(55))
+            self.ids.transaction_list_mdlist.add_widget(spacer_bottom)
 
     def calculate_label_height(self, text):
-        # Calculate the height of the label based on the length of the text
-        # You can adjust this method based on your requirements
         lines = text.count("\n") + 1
-        return dp(40) * lines  # Adjust the height as needed
+        return dp(40) * lines
 
     def add_another_textfield(self, text):
         if text:
@@ -424,8 +414,6 @@ class UserDetailsScreen(Screen):
                 current_user_data['balance'] -= amount
                 current_user_data.update()
                 print(f'{amount} deduced from {int(self.current_user_phone)}')
-                # else:
-                #     print("Error: More than one row matched for current user")
 
                 app_tables.wallet_users_transaction.add_row(
                     receiver_phone=int(self.searched_user_phone),
@@ -447,8 +435,6 @@ class UserDetailsScreen(Screen):
                     searched_user_data['balance'] += amount
                     searched_user_data.update()
                     print(f'{amount} added to {int(self.searched_user_phone)}')
-                    # else:
-                    #     print("Error: More than one row matched for searched user")
 
                     app_tables.wallet_users_transaction.add_row(
                         receiver_phone=int(self.current_user_phone),
@@ -482,10 +468,7 @@ class UserDetailsScreen(Screen):
 
 class WalletApp(MDApp):
     def build(self):
-        # Initialize screen manager
         screen_manager = ScreenManager()
-
-        # Add screens to the screen manager
         screen_manager.add_widget(AddPhoneScreen(name='add_phone'))
         screen_manager.add_widget(UserDetailsScreen(name='user_details'))
         return screen_manager
@@ -493,11 +476,3 @@ class WalletApp(MDApp):
 
 if __name__ == '__main__':
     WalletApp().run()
-
-
-
-
-
-
-
-

@@ -1,94 +1,3 @@
-# import requests
-# from kivy.lang import Builder
-# from kivy.storage.jsonstore import JsonStore
-# from kivymd.uix.button import MDFlatButton
-# from kivymd.uix.dialog import MDDialog
-# from kivymd.uix.screen import Screen
-# from kivymd.uix.snackbar import Snackbar
-
-# KV_STRING = '''
-# <AddAccountScreen>
-#     name: 'addaccount'
-#     BoxLayout:
-#         orientation: 'vertical'
-#         spacing: dp(10)
-#         # padding: dp(10)
-#         pos_hint: {'top': 1}
-
-#         MDTopAppBar:
-#             title: 'Add Account'
-#             elevation: 3
-#             left_action_items: [['arrow-left', lambda x: root.go_back()]]
-#             md_bg_color: "#1e75b9"
-#             specific_text_color: "#ffffff"
-#             size_hint_y: None  # Disable automatic height adjustment
-#             height: dp(56)  # Set the desired height of the MDTopAppBar
-
-#         ScrollView:
-#             BoxLayout:
-#                 orientation: 'vertical'
-#                 spacing: dp(5)
-#                 padding: dp(20)
-
-#                 # Profile Details
-#                 MDTextField:
-#                     id: account_holder_name
-#                     hint_text: "Account Holder's Name"
-#                     mode: "rectangle"
-#                     multiline: False
-
-#                 MDTextField:
-#                     id: account_number
-#                     hint_text: "Account Number"
-#                     mode: "rectangle"
-#                     multiline: False
-
-#                 MDTextField:
-#                     id: confirm_account_number
-#                     hint_text: "Confirm Account Number"
-#                     mode: "rectangle"
-#                     multiline: False
-
-#                 MDTextField:
-#                     id: bank_name
-#                     hint_text: "Bank Name"
-#                     mode: "rectangle"
-#                     multiline: False
-
-#                 MDTextField:
-#                     id: branch_name
-#                     hint_text: "Branch Name"
-#                     mode: "rectangle"
-#                     multiline: False
-
-#                 MDTextField:
-#                     id: ifsc_code
-#                     hint_text: "IFSC Code"
-#                     mode: "rectangle"
-#                     multiline: False
-
-#                 MDTextField:
-#                     id: account_type
-#                     hint_text: "Account Type"
-#                     mode: "rectangle"
-#                     multiline: False
-
-#                 Widget:
-#                     size_hint_y: None
-#                     height: '5dp'    
-
-#                 MDRaisedButton:
-#                     #id: edit_save_button
-#                     text: "Submit"
-#                     size_hint: None, None
-#                     size: dp(150), dp(50)
-#                     pos_hint: {'center_x': 0.5}
-#                     on_release: root.add_account()
-                      
-# '''
-# Builder.load_string(KV_STRING)
-
-import requests
 from kivy.lang import Builder
 from kivymd.toast import toast
 from kivymd.uix.button import MDFlatButton
@@ -97,7 +6,6 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
 from kivymd.uix.snackbar import Snackbar
 from kivy.base import EventLoop
-from kivy.core.window import Window
 from anvil.tables import app_tables
 KV = """
 <AddAccountScreen>
@@ -180,23 +88,14 @@ Builder.load_string(KV)
 class AddAccountScreen(Screen):
     def go_back(self):
         self.manager.current = 'accmanage'
-        self.ids.account_holder_name.text = ''
-        self.ids.account_number.text = ''
-        self.ids.confirm_account_number.text = ''
-        self.ids.bank_name.text = ''
-        self.ids.branch_name.text = ''
-        self.ids.ifsc_code.text = ''
-        self.ids.account_type.text = ''
-
 
     def __init__(self, **kwargs):
         super(AddAccountScreen, self).__init__(**kwargs)
         EventLoop.window.bind(on_keyboard=self.on_key)
 
-
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android
-        if key in [27,9]:
+        if key in [27, 9]:
             self.go_back()
             return True  # Indicates that the key event has been handled
         return False

@@ -1,14 +1,15 @@
 from datetime import datetime
-
 from anvil.tables import app_tables
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
 from kivymd.toast import toast
+from kivymd.uix.label import MDLabel
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
-from kivy.core.window import Window
-
 Builder.load_string(
     """
 <WithdrawScreen>:
@@ -176,6 +177,7 @@ Builder.load_string(
 """
 )
 
+
 class WithdrawScreen(Screen):
     def __init__(self, **kwargs):
         super(WithdrawScreen, self).__init__(**kwargs)
@@ -186,6 +188,7 @@ class WithdrawScreen(Screen):
         self.ids.bank_dropdown.text = "Select bank account"  # Reset the bank dropdown text
         self.update_balance_label(self.ids.options_button.text)  # Update the balance label
         self.manager.current = 'dashboard'
+
     def on_key(self, window, key, scancode, codepoint, modifier):
         if key in [27, 9]:
             self.go_back()
@@ -280,17 +283,15 @@ class WithdrawScreen(Screen):
                 transaction_type="Debit"
             )
 
-            # success_message = f"Withdrawal successful."
-            # self.manager.show_success_popup(success_message)
             toast("Withdrawal successful.", duration=5)
             self.manager.current = 'dashboard'
             self.manager.show_balance()
             self.ids.amount_textfield.text = ""
         except Exception as e:
             print(f"Error withdrawing money: {e}")
+            self.ids.amount_textfield.text = ""
             self.show_error_popup("An error occurred. Please try again.")
             self.ids.amount_textfield.text = ""
-
     def update_amount(self, amount):
         self.ids.amount_textfield.text = str(amount)
 
@@ -350,3 +351,20 @@ class WithdrawScreen(Screen):
         phone_no = store.get('user')['value']["phone"]
         total_balance = self.manager.get_total_balance(phone_no, currency)
         self.ids.balance_lbl.text = f'Balance: {total_balance} {currency}'
+
+    def show_error_popup(self, message):
+        content = BoxLayout(orientation='vertical', spacing='10dp')
+        content.add_widget(MDLabel(text=message, halign='center'))
+
+        ok_button = Button(text='OK', size_hint=(None, None), size=('150dp', '50dp'))
+        ok_button.bind(on_press=lambda *args: popup.dismiss())
+        content.add_widget(ok_button)
+
+        popup = Popup(
+            title='Error',
+            content=content,
+            size_hint=(None, None),
+            size=('300dp', '200dp'),
+            auto_dismiss=True
+        )
+        popup.open()

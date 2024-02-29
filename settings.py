@@ -1,9 +1,12 @@
 from kivy.base import EventLoop
+from kivy.factory import Factory
 from kivy.lang import Builder
-from kivymd.app import MDApp
 from kivymd.uix.screen import Screen
 from kivy.storage.jsonstore import JsonStore
-
+from paysetting import PaysettingScreen
+from addPhone import UserDetailsScreen
+from accmanage import AccmanageScreen
+from Wallet import AddMoneyScreen
 KV = '''
 <SettingsScreen>:
     Screen:
@@ -32,7 +35,7 @@ KV = '''
 
                             OneLineIconListItem:
                                 text: "Payment Settings"
-                                on_release: root.manager.nav_paysetting()
+                                on_release: root.nav_paysetting()
                                 IconLeftWidget:
                                     icon: "wallet"
                                     theme_text_color: 'Custom'
@@ -61,7 +64,6 @@ KV = '''
 '''
 Builder.load_string(KV)
 
-
 class SettingsScreen(Screen):
     def go_back(self):
         self.manager.current = 'dashboard'
@@ -78,10 +80,9 @@ class SettingsScreen(Screen):
         return False
 
     def edit_profile(self):
+        self.manager.add_widget(Factory.EditUser(name='edituser'))
         edit_screen = self.manager.get_screen('edituser')
-
         store = JsonStore('user_data.json').get('user')['value']
-
         edit_screen.ids.username.text = store["username"]
         edit_screen.ids.email.text = store["email"]
         edit_screen.ids.phone.text = str(store["phone"])
@@ -90,3 +91,19 @@ class SettingsScreen(Screen):
         edit_screen.ids.pan.text = store["pan"]
         edit_screen.ids.address.text = store["address"]
         self.manager.current = 'edituser'
+
+    def nav_paysetting(self):
+        self.manager.add_widget(Factory.PaysettingScreen(name='paysetting'))
+        self.manager.current = 'paysetting'
+
+    def nav_accmanage(self):
+        self.manager.add_widget(Factory.AccmanageScreen(name='accmanage'))
+        self.manager.current = 'accmanage'
+
+    def nav_userdetails(self):
+        self.manager.add_widget(Factory.UserDetailsScreen(name='userdetails'))
+        self.manager.current = 'userdetails'
+
+    def Add_Money(self):
+        self.manager.add_widget(Factory.AddMoneyScreen(name='Wallet'))
+        self.manager.current = 'Wallet'

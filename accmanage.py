@@ -1,13 +1,12 @@
+from kivy.clock import Clock
+from kivy.core.window import Window
 from kivy.lang import Builder
 from kivymd.uix.screen import Screen
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.gridlayout import GridLayout
 from kivy.metrics import dp
 from kivy.storage.jsonstore import JsonStore
-from kivymd.app import MDApp
 from kivymd.uix.list import OneLineListItem
-
 from anvil.tables import app_tables
+from kivymd.uix.spinner import MDSpinner
 
 KV = '''
 <AccmanageScreen>:
@@ -40,8 +39,23 @@ class AccmanageScreen(Screen):
         self.manager.current = 'dashboard'
 
     def on_pre_enter(self, *args):
-        # Called before the screen is displayed, update the details here
-        self.update_details()
+        # Called before the screen is displayed, show loading animation
+        self.show_loading_animation()
+        # Use Clock.schedule_once to simulate loading and update details after a delay
+        Clock.schedule_once(lambda dt: self.update_details(), 2)
+
+    def show_loading_animation(self):
+        # Create and add an MDSpinner to the layout
+        self.loading_spinner = MDSpinner(
+            size_hint=(None, None),  # Use relative sizing for better scaling
+            size=(dp(46), dp(46)),  # Adjust size as needed
+            pos=(Window.width / 2 - dp(46) / 2, Window.height / 2 - dp(46) / 2)
+        )
+        self.ids.account_details_container.add_widget(self.loading_spinner)
+
+    def hide_loading_animation(self):
+        # Remove the loading MDSpinner from the layout
+        self.ids.account_details_container.remove_widget(self.loading_spinner)
 
     def nav_account(self):
         self.manager.current = 'addaccount'
@@ -64,5 +78,7 @@ class AccmanageScreen(Screen):
                 list_item = OneLineListItem(text=bank_name)
                 account_details_container.add_widget(list_item)
 
+            self.hide_loading_animation()
         except Exception as e:
             print(f"Error updating details: {e}")
+            self.hide_loading_animation()

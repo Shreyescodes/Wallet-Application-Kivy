@@ -1,11 +1,10 @@
 import base64
 import io
 import traceback
-from datetime import datetime
+from kivy.clock import Clock
+from kivy.factory import Factory
 from kivy.uix.image import Image
 import qrcode
-import requests
-from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
@@ -18,15 +17,22 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
-from kivy.uix.image import AsyncImage
-from kivymd.uix.button import MDIconButton
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.scrollview import ScrollView
 from anvil.tables import app_tables
 from kivy.core.window import Window
-
-
+from addPhone import AddPhoneScreen
+from transfer import TransferScreen
+from withdraw import WithdrawScreen
+from accmanage import AccmanageScreen
+from addAccount import AddAccountScreen
+from complaint import ComplaintScreen
+from help import HelpScreen
+from settings import SettingsScreen
+from transaction import Transaction
+from viewprofile import Profile
+from Wallet import AddMoneyScreen
+from loadingScreen import loadingScreen
 
 navigation_helper = """
 <DashBoardScreen>:
@@ -672,6 +678,12 @@ class DashBoardScreen(Screen):
         return store["username"]
 
     def nav_addPhone(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
+        Clock.schedule_once(lambda dt: self.show_addphone_screen(), 2)
+
+    def show_addphone_screen(self):
+        self.manager.add_widget(Factory.AddPhoneScreen(name='addphone'))
         self.manager.current = 'addphone'
 
     def fetch_and_update_addPhone(self):
@@ -688,6 +700,7 @@ class DashBoardScreen(Screen):
         aadhaar = store["aadhar"]
         address = store["address"]
         pan = store["pan"]
+        self.manager.add_widget(Factory.Profile(name='profile'))
         profile_screen = self.manager.get_screen('profile')
         profile_screen.ids.username_label.text = f"Username:{username}"  # Assuming username is at index 1
         profile_screen.ids.email_label.text = f"Email:{gmail}"  # Assuming email is at index 0
@@ -695,17 +708,9 @@ class DashBoardScreen(Screen):
         profile_screen.ids.aadhaar_label.text = f"Aadhar:{aadhaar}"
         profile_screen.ids.pan_label.text = f"Pan no:{pan}"
         profile_screen.ids.address_label.text = f"Address:{address}"
+        self.manager.add_widget(Factory.Profile(name='profile'))
         # Navigate to the 'Profile' screen
         self.manager.current = 'profile'
-
-    def nav_topup(self):
-        phone = JsonStore('user_data.json').get('user')['value']["phone"]
-        account_details = self.account_details_exist(phone)
-        if account_details:
-            self.manager.current = 'topup'
-
-        else:
-            self.show_add_account_dialog()
 
     def account_details_exist(self, phone):
         try:
@@ -715,22 +720,34 @@ class DashBoardScreen(Screen):
             return False
 
     def nav_withdraw(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
         account_details = self.account_details_exist(phone)
         if account_details:
-            self.manager.current = 'withdraw'
+            Clock.schedule_once(lambda dt: self.show_withdraw_screen(), 2)
 
         else:
             self.show_add_account_dialog()
+
+    def show_withdraw_screen(self):
+        self.manager.add_widget(Factory.WithdrawScreen(name='withdraw'))
+        self.manager.current = 'withdraw'
 
     def nav_transfer(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
         account_details = self.account_details_exist(phone)
         if account_details:
-            self.manager.current = 'transfer'
+            Clock.schedule_once(lambda dt: self.show_transfer_screen(), 2)
 
         else:
             self.show_add_account_dialog()
+
+    def show_transfer_screen(self):
+        self.manager.add_widget(Factory.TransferScreen(name='transfer'))
+        self.manager.current = 'transfer'
 
     def show_add_account_dialog(self):
         dialog = MDDialog(
@@ -751,9 +768,15 @@ class DashBoardScreen(Screen):
 
     def go_to_transaction(self):
         self.on_start()
+        Clock.schedule_once(lambda dt: self.show_transaction_screen(), 2)
+
+    def show_transaction_screen(self):
+        self.manager.add_widget(Factory.Transaction(name='transaction'))
         self.manager.current = 'transaction'
 
     def on_start(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
         self.get_transaction_history()
 
     def get_transaction_history(self):
@@ -763,7 +786,7 @@ class DashBoardScreen(Screen):
             phone = store['phone']
             # Query the 'transactions' table to fetch the transaction history
             transactions = list(app_tables.wallet_users_transaction.search(phone=phone))
-
+            self.manager.add_widget(Factory.Transaction(name='transaction'))
             trans_screen = self.manager.get_screen('transaction')
             trans_screen.ids.transaction_list.clear_widgets()
 
@@ -771,49 +794,38 @@ class DashBoardScreen(Screen):
 
             for transaction in sorted(filter(lambda x: x['date'] is not None, transactions), key=lambda x: x['date'],
                                       reverse=True):
-                # transaction_item = f"{transaction['fund']}₹\n" \
-                #                    f"{transaction['transaction_type']}\n"
-                #
-                # trans_screen.ids.transaction_list.add_widget(OneLineListItem(text=transaction_item))
                 transaction_datetime = transaction['date']
-                # Convert datetime object to string
                 transaction_date_str = transaction_datetime.strftime('%Y-%m-%d')
                 transaction_date = transaction_date_str.split(' ')[0]
+                transactions_text = f"{transaction['receiver_phone']}"
+                fund_text = f"{transaction['fund']}"
 
-                transactions = f"{transaction['receiver_phone']}\n" \
-                    # f"{transaction['transaction_status']}"
-
-                # Add header for each date
                 if transaction_date != current_date:
                     current_date = transaction_date
                     header_text = f"[b]{transaction_date}[/b]"
                     trans_screen.ids.transaction_list.add_widget(
                         OneLineListItem(text=header_text, theme_text_color='Custom', text_color=[0, 0, 0, 1]))
 
-                # Create a BoxLayout to hold both transaction details and amount label
                 transaction_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(36))
 
                 # Add transaction details
-                transaction_item_widget = OneLineListItem(text=transactions, theme_text_color='Custom',
-                                                          text_color=[0, 0, 0, 1])
-                transaction_container.add_widget(transaction_item_widget)
+                transaction_label = MDLabel(text=f"{transactions_text}", theme_text_color='Custom',
+                                            text_color=[0, 0, 0, 1], halign='left', padding=(15, 15))
+                transaction_container.add_widget(transaction_label)
 
-                # Add spacing between transaction details and amount
                 transaction_container.add_widget(Widget(size_hint_x=None, width=dp(20)))
 
-                # Determine the color and sign based on the transaction type
                 if transaction['transaction_type'] == 'Credit':
                     fund_color = [0, 0.5, 0, 1]
                     sign = '+'
                 else:
                     fund_color = [1, 0, 0, 1]
                     sign = '-'
-                # Add the amount label on the right side for each transaction
-                fund_label = MDLabel(text=f"{sign}₹{transaction['fund']}", theme_text_color='Custom',
-                                     text_color=fund_color, halign='right', padding=(15, 15))
+
+                fund_label = MDLabel(text=f"{sign}₹{fund_text}", theme_text_color='Custom', text_color=fund_color,
+                                     halign='right', padding=(15, 15))
                 transaction_container.add_widget(fund_label)
 
-                # Add the container to the transaction list
                 trans_screen.ids.transaction_list.add_widget(transaction_container)
         except Exception as e:
             print(f"Error getting transaction history: {e} ,{traceback.format_exc()}")
@@ -895,20 +907,47 @@ class DashBoardScreen(Screen):
     def nav_addContact(self):
         self.manager.current = 'addcontact'
 
-    def nav_navbar(self):
-        self.manager.current = 'navbar'
-
     def Add_Money(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
+        Clock.schedule_once(lambda dt: self.show_addmoney_screen(), 2)
+
+    def show_addmoney_screen(self):
+        self.manager.add_widget(Factory.AddMoneyScreen(name='Wallet'))
         self.manager.current = 'Wallet'
 
     def bank_account(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
+        Clock.schedule_once(lambda dt: self.show_bankaccount_screen(), 2)
+
+    def show_bankaccount_screen(self):
+        self.manager.add_widget(Factory.AccmanageScreen(name='accmanage'))
         self.manager.current = 'accmanage'
 
     def nav_settings(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
+        Clock.schedule_once(lambda dt: self.show_settings_screen(), 2)
+
+    def show_settings_screen(self):
+        self.manager.add_widget(Factory.SettingsScreen(name='settings'))
         self.manager.current = 'settings'
 
     def nav_help(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
+        Clock.schedule_once(lambda dt: self.show_help_screen(), 2)
+
+    def show_help_screen(self):
+        self.manager.add_widget(Factory.HelpScreen(name='help'))
         self.manager.current = "help"
 
     def nav_complaint(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
+        Clock.schedule_once(lambda dt: self.show_complaint_screen(), 2)
+
+    def show_complaint_screen(self):
+        self.manager.add_widget(Factory.ComplaintScreen(name='complaint'))
         self.manager.current = "complaint"

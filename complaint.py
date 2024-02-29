@@ -5,7 +5,6 @@ from kivymd.uix.dialog import MDDialog
 from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
-from kivy.core.window import Window
 
 KV = """
 <ComplaintScreen>
@@ -107,8 +106,8 @@ KV = """
                         width: "100dp"  # Adjust the width as needed
                         
                     MDTextField:
-                        id:description
-                        multiline: True        
+                        multiline: True 
+                        id:description       
                 
                 MDRectangleFlatButton:
                     text: "Submit"
@@ -124,10 +123,9 @@ Builder.load_string(KV)
 class ComplaintScreen(Screen):
     def go_back(self):
         self.manager.current = 'dashboard'
-        self.ids.description.text=''
+        self.ids.description.text = ''
         self.ids.specific_issue.text = ''
         self.ids.issue.text = ''
-
 
     def __init__(self, **kwargs):
         super(ComplaintScreen, self).__init__(**kwargs)
@@ -149,6 +147,9 @@ class ComplaintScreen(Screen):
     def Submit(self):
         self.show_popup("Your Report has been submited. \nOur Technical Executive will respond you shortly.")
         self.manager.current = 'dashboard'
+        self.ids.description.text = ''
+        self.ids.specific_issue.text = ''
+        self.ids.issue.text = ''
 
     def show_popup(self, text):
         dialog = MDDialog(
@@ -163,3 +164,6 @@ class ComplaintScreen(Screen):
             ]
         )
         dialog.open()
+        self.ids.description.text = ''
+        self.ids.specific_issue.text = ''
+        self.ids.issue.text = ''

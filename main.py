@@ -1,178 +1,75 @@
-import sqlite3
 import anvil
-import requests
 from anvil.tables import app_tables
-from kivy.lang import Builder
+from kivy.clock import Clock
 from kivy.storage.jsonstore import JsonStore
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
-from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
-from kivymd.toast import toast
-from kivymd.uix.label import MDLabel
-from kivy.metrics import dp
-from kivymd.uix.list import OneLineListItem
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.widget import Widget
 from kivymd.uix.label import MDLabel
 from landing import LandingScreen
-from signup import SignUpScreen
-from signin import SignInScreen
 from dashboard import DashBoardScreen
-from viewprofile import Profile
-from editprofile import EditUser
-from topup import Topup
-from withdraw import WithdrawScreen
-from transfer import TransferScreen
-from addAccount import AddAccountScreen
-from transaction import Transaction
-from addContact import AddContactScreen
-from paysetting import PaysettingScreen
-from navbar import NavbarScreen
-from accmanage import AccmanageScreen
-from settings import SettingsScreen
+from kivy.factory import Factory
+from kivy.uix.screenmanager import ScreenManager, NoTransition
 from help import HelpScreen
+from settings import SettingsScreen
 from contactus import ContactUsScreen
-from complaint import ComplaintScreen
-from addPhone import AddPhoneScreen
-from Wallet import AddMoneyScreen
-from addPhone import UserDetailsScreen
-
-Builder.load_string(
-    """
-<ScreenManagement>:
-    LandingScreen:
-        name: 'landing'
-        manager: root
-
-    SignUpScreen:
-        name: 'signup'
-        manager: root  
-
-    SignInScreen:
-        name: 'signin'
-        manager: root 
-
-    DashBoardScreen:
-        name: 'dashboard'
-        manager: root
-
-    Profile:
-        name:'profile'
-        manager: root  
-
-    EditUser:
-        name: 'edituser'
-        manager: root
-
-    SettingsScreen:
-        name: 'settings'
-        manager: root   
-
-    AccmanageScreen:
-        name: 'accmanage'
-        manager: root    
-
-    ContactUsScreen:
-        name: 'contactus'
-        manager: root    
-
-    AddAccountScreen:
-        name:'addaccount'
-        manager: root
-
-    AddContactScreen:
-        name:'addcontact'
-        manager: root   
-
-    ComplaintScreen:
-        name:'complaint'
-        manager: root    
-
-    AddPhoneScreen:
-        name:'addphone'
-        manager: root   
-
-    PaysettingScreen:
-        name:'paysetting'
-        manager: root         
-
-    NavbarScreen:
-        name:'navbar'
-        manager: root   
-
-    HelpScreen:
-        name:'help'
-        manager: root      
-
-    Transaction:
-        name: 'transaction'
-        manager: root
-
-    Topup:
-        name:'topup'
-        manager: root 
-
-    WithdrawScreen:
-        name: 'withdraw'
-        manager: root  
-
-    TransferScreen:
-        name:'transfer'
-        manager:root 
-
-    AddMoneyScreen:
-        name:'Wallet'
-        manager: root
-
-    UserDetailsScreen:
-        name:'userdetails'
-        manager:root                   
-"""
-)
-
+from loadingScreen import loadingScreen
 
 class ScreenManagement(ScreenManager):
     current_user_data = None  # Class attribute to store the current user data
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.connect_to_server()
+        super(ScreenManagement, self).__init__(**kwargs)
+        self.transition = NoTransition()
+        self.show_loading_screen()
 
-    def connect_to_server(self):
-        if self.is_internet_connected():
-            # If internet is connected, connect to the Anvil server
-            self.anvil_server_connected = True
-            self.client = anvil.server.connect("server_7JA6PVL5DBX5GSBY357V7WVW-TLZI2SSXOVZCVYDM")
-        else:
-            # If no internet, use local database or show a popup
-            self.anvil_server_connected = False
-            toast("no internet connection", duration=3)
-            # self.show_no_internet_popup()
-            # Connect to local database (replace this with your local database code)
+    def show_loading_screen(self):
+        self.clear_widgets()
+        self.add_widget(Factory.loadingScreen(name='loading'))
+        Clock.schedule_once(self.connect_to_anvil,3)
 
-    def is_internet_connected(self):
-        try:
-            # Try to make a simple HTTP request to a known server (e.g., Anvil's server)
-            response = requests.get("https://anvil.works")
-            return response.status_code == 200
-        except requests.ConnectionError:
-            return False
+    def connect_to_anvil(self,dt):
+        client = anvil.server.connect("server_QVP7TBTIZPTLZZTXO5LN7GBD-2QQVRBJQQ5M7D6YM")
+        Clock.schedule_once(self.check_login_status, 5)
 
-    # checking users login status
-    def check_login_status(self):
+    def check_login_status(self, dt):
         store = JsonStore('user_data.json')
+        self.remove_widget(self.get_screen('loading'))
         if 'user' in store:
-            ScreenManagement.current_user_data = store.get('user')['value']
-            self.current = 'dashboard'
+            self.add_widget(Factory.DashBoardScreen(name='dashboard'))
+            self.current = "dashboard"
             self.get_username()
             self.fetch_and_update_navbar()
             self.fetch_and_update_complaint()
             self.fetch_and_update_addPhone()
             self.show_balance()
+            # ... add other screens as needed
         else:
-            self.current = 'landing'
+            self.add_widget(Factory.LandingScreen(name='landing'))
+            self.current = "landing"
+
+    # def connect_to_server(self):
+    #     if self.is_internet_connected():
+    #         # If internet is connected, connect to the Anvil server
+    #         self.anvil_server_connected = True
+    #         self.client = anvil.server.connect("server_QVP7TBTIZPTLZZTXO5LN7GBD-2QQVRBJQQ5M7D6YM")
+    #     else:
+    #         # If no internet, use local database or show a popup
+    #         self.anvil_server_connected = False
+    #         toast("no internet connection", duration=3)
+    #         # self.show_no_internet_popup()
+    #         # Connect to local database (replace this with your local database code)
+    #
+    # def is_internet_connected(self):
+    #     try:
+    #         # Try to make a simple HTTP request to a known server (e.g., Anvil's server)
+    #         response = requests.get("https://anvil.works")
+    #         return response.status_code == 200
+    #     except requests.ConnectionError:
+    #         return False
+
+    # checking users login statu
 
     def logout(self):
         # Remove the stored user data when logging out
@@ -185,7 +82,12 @@ class ScreenManagement(ScreenManager):
         except Exception as e:
             print(f"Error deleting JSON file: {e}")
 
-        self.current = 'signin'
+        # Clear all screens
+        for screen in self.screens:
+            self.remove_widget(screen)
+
+        # Navigate to the landing page
+        self.add_widget(Factory.LandingScreen(name='landing'))
 
     def get_username(self):
         store = JsonStore('user_data.json')
@@ -206,17 +108,19 @@ class ScreenManagement(ScreenManager):
         self.current = 'complaint'
 
     def fetch_and_update_complaint(self):
-        store = JsonStore('user_data.json').get('user')['value']
-        # Update labels in ComplaintScreen
-        complaint_screen = self.get_screen('complaint')
-        complaint_screen.ids.email_label.text = store["email"]
+        # store = JsonStore('user_data.json').get('user')['value']
+        # # Update labels in ComplaintScreen
+        # complaint_screen = self.get_screen('complaint')
+        # complaint_screen.ids.email_label.text = store["email"]
+        pass
 
     def fetch_and_update_addPhone(self):
-        store = JsonStore('user_data.json').get('user')['value']
-        # Update labels in ComplaintScreen
-        addPhone_screen = self.get_screen('addphone')
-        # addPhone_screen.ids.contact_label.text = store["phone"]
-        addPhone_screen.current_user_phone = str(store["phone"])
+        # store = JsonStore('user_data.json').get('user')['value']
+        # # Update labels in ComplaintScreen
+        # addPhone_screen = self.get_screen('addphone')
+        # # addPhone_screen.ids.contact_label.text = store["phone"]
+        # addPhone_screen.current_user_phone = str(store["phone"])
+        pass
 
     def nav_account(self):
         self.current = 'addaccount'
@@ -230,10 +134,10 @@ class ScreenManagement(ScreenManager):
             # 'user' key found, proceed with retrieving data
             phone = store.get('user')['value']["phone"]
             currency = "INR"
-            #balance_scr.ids.balance_lbl.text = f"{self.get_total_balance(phone, currency)} INR"
+            # balance_scr.ids.balance_lbl.text = f"{self.get_total_balance(phone, currency)} INR"
         else:
             # 'user' key not found, show an appropriate message
-            #balance_scr.ids.balance_lbl.text = "User data not found. Please log in."
+            # balance_scr.ids.balance_lbl.text = "User data not found. Please log in."
             pass
 
     def get_total_balance(self, phone, currency_type):
@@ -247,26 +151,12 @@ class ScreenManagement(ScreenManager):
             print(f"Error fetching data from anvil Database: {e}")
             return 0
 
-    def convert_to_currency(self, amount, target_currency):
-        # Replace this with your actual currency conversion logic or API call
-        # This is a simplified example, assuming 1 USD = 75 INR for conversion
-        exchange_rate_inr_to_usd = 0.013  # Replace with actual exchange rates
-        exchange_rate_inr_to_pound = 0.0098  # Replace with actual exchange rates
-        exchange_rate_inr_to_euros = 0.0111  # Replace with actual exchange rates
-
-        if target_currency == 'USD':
-            return amount * exchange_rate_inr_to_usd
-        elif target_currency == 'GBP':
-            return amount * exchange_rate_inr_to_pound
-        elif target_currency == 'EUR':
-            return amount * exchange_rate_inr_to_euros
-        else:
-            return amount  # Default to the original amount if the target currency is not supported
-
     def nav_settings(self):
+        self.add_widget(Factory.SettingsScreen(name='settings'))
         self.current = 'settings'
 
     def nav_help(self):
+        self.add_widget(Factory.HelpScreen(name='help'))
         self.current = 'help'
 
     # def show_success_popup(self, message):
@@ -288,6 +178,7 @@ class ScreenManagement(ScreenManager):
     #     self.current = 'dashboard'
 
     def nav_contactus(self):
+        self.add_widget(Factory.ContactUsScreen(name='contactus'))
         self.current = 'contactus'
 
     def show_error_popup(self, message):
@@ -307,9 +198,6 @@ class ScreenManagement(ScreenManager):
         )
         popup.open()
 
-    def nav_paysetting(self):
-        self.current = 'paysetting'
-
     def nav_accmanage(self):
         self.current = 'accmanage'
 
@@ -323,74 +211,74 @@ class ScreenManagement(ScreenManager):
 class WalletApp(MDApp):
     def build(self):
         self.scr_mgr = ScreenManagement()
-        self.scr_mgr.check_login_status()
-        self.createTables()
+        # self.scr_mgr.check_login_status()
+        # self.createTables()
         return self.scr_mgr
 
-    def createTables(self):
-        # Connect to SQLite database (or create it if it doesn't exist)
-        conn = sqlite3.connect('wallet_database.db')
-        cursor = conn.cursor()
-
-        # Create the wallet_users table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS wallet_users (
-                phone INTEGER PRIMARY KEY,
-                username TEXT,
-                email TEXT,
-                password TEXT,
-                confirm_email BOOLEAN,
-                aadhar_number INTEGER,
-                pan TEXT,
-                address TEXT,
-                usertype TEXT,
-                banned BOOLEAN,
-                balance_limit INTEGER,
-                daily_limit INTEGER,
-                last_login DATE
-            )
-        ''')
-
-        # Create the wallet_users_account table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS wallet_users_account (
-                phone INTEGER,
-                account_number INTEGER,
-                account_holder_name TEXT,
-                bank_name TEXT,
-                branch_name TEXT,
-                ifsc_code TEXT,
-                account_type TEXT,
-                FOREIGN KEY (phone) REFERENCES wallet_users(phone)
-            )
-        ''')
-
-        # Create the wallet_users_balance table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS wallet_users_balance (
-                phone INTEGER,
-                currency_type TEXT,
-                balance INTEGER,
-                PRIMARY KEY (phone, currency_type),
-                FOREIGN KEY (phone) REFERENCES wallet_users(phone)
-            )
-        ''')
-
-        # Create the wallet_users_transaction table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS wallet_users_transaction (
-                phone INTEGER,
-                date DATETIME,
-                fund INTEGER,
-                transaction_type TEXT,
-                transaction_status TEXT,
-                FOREIGN KEY (phone) REFERENCES wallet_users(phone)
-            )
-        ''')
-
-        # Commit the changes and close the connection
-        conn.commit()
-        conn.close()
+    # def createTables(self):
+    #     # Connect to SQLite database (or create it if it doesn't exist)
+    #     conn = sqlite3.connect('wallet_database.db')
+    #     cursor = conn.cursor()
+    #
+    #     # Create the wallet_users table
+    #     cursor.execute('''
+    #         CREATE TABLE IF NOT EXISTS wallet_users (
+    #             phone INTEGER PRIMARY KEY,
+    #             username TEXT,
+    #             email TEXT,
+    #             password TEXT,
+    #             confirm_email BOOLEAN,
+    #             aadhar_number INTEGER,
+    #             pan TEXT,
+    #             address TEXT,
+    #             usertype TEXT,
+    #             banned BOOLEAN,
+    #             balance_limit INTEGER,
+    #             daily_limit INTEGER,
+    #             last_login DATE
+    #         )
+    #     ''')
+    #
+    #     # Create the wallet_users_account table
+    #     cursor.execute('''
+    #         CREATE TABLE IF NOT EXISTS wallet_users_account (
+    #             phone INTEGER,
+    #             account_number INTEGER,
+    #             account_holder_name TEXT,
+    #             bank_name TEXT,
+    #             branch_name TEXT,
+    #             ifsc_code TEXT,
+    #             account_type TEXT,
+    #             FOREIGN KEY (phone) REFERENCES wallet_users(phone)
+    #         )
+    #     ''')
+    #
+    #     # Create the wallet_users_balance table
+    #     cursor.execute('''
+    #         CREATE TABLE IF NOT EXISTS wallet_users_balance (
+    #             phone INTEGER,
+    #             currency_type TEXT,
+    #             balance INTEGER,
+    #             PRIMARY KEY (phone, currency_type),
+    #             FOREIGN KEY (phone) REFERENCES wallet_users(phone)
+    #         )
+    #     ''')
+    #
+    #     # Create the wallet_users_transaction table
+    #     cursor.execute('''
+    #         CREATE TABLE IF NOT EXISTS wallet_users_transaction (
+    #             phone INTEGER,
+    #             date DATETIME,
+    #             fund INTEGER,
+    #             transaction_type TEXT,
+    #             transaction_status TEXT,
+    #             FOREIGN KEY (phone) REFERENCES wallet_users(phone)
+    #         )
+    #     ''')
+    #
+    #     # Commit the changes and close the connection
+    #     conn.commit()
+    #     conn.close()
 
 
 if __name__ == '__main__':
