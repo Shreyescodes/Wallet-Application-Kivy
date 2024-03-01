@@ -89,7 +89,7 @@ Builder.load_string(KV)
 
 class EditUser(Screen):
     def go_back(self):
-        self.manager.current = 'settings'
+        self.manager.current = 'dashboard'
 
     def __init__(self, **kwargs):
         super(EditUser, self).__init__(**kwargs)

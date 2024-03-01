@@ -52,7 +52,7 @@ kv_string = '''
                         on_release: root.show_currency_menu()    
         
                     MDTextField:
-                        id:name
+                        id: name
                         mode: "rectangle"
                         hint_text: " Beneficiary Name"
                         pos_hint: {'center_x': .5}

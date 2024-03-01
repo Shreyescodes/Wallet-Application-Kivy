@@ -33,6 +33,8 @@ from transaction import Transaction
 from viewprofile import Profile
 from Wallet import AddMoneyScreen
 from loadingScreen import loadingScreen
+from qrscanner import QRCodeScannerScreen
+from checkbalance import BalanceScreen
 
 navigation_helper = """
 <DashBoardScreen>:
@@ -376,6 +378,7 @@ navigation_helper = """
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
+                                on_release: root.nav_Scanner()
                                 # elevation: 1        
                                 MDBoxLayout:
                                     orientation: "vertical"
@@ -456,6 +459,7 @@ navigation_helper = """
                             orientation: "horizontal"
                             size_hint_y :0.1
                             md_bg_color: "#C4E3FF"
+                            on_release: root.nav_check_balance()
                             Image:
                                 source: "images/balance.png"
                                 size_hint: (0.5, 0.5)
@@ -708,7 +712,6 @@ class DashBoardScreen(Screen):
         profile_screen.ids.aadhaar_label.text = f"Aadhar:{aadhaar}"
         profile_screen.ids.pan_label.text = f"Pan no:{pan}"
         profile_screen.ids.address_label.text = f"Address:{address}"
-        self.manager.add_widget(Factory.Profile(name='profile'))
         # Navigate to the 'Profile' screen
         self.manager.current = 'profile'
 
@@ -951,3 +954,21 @@ class DashBoardScreen(Screen):
     def show_complaint_screen(self):
         self.manager.add_widget(Factory.ComplaintScreen(name='complaint'))
         self.manager.current = "complaint"
+
+    def nav_Scanner(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
+        Clock.schedule_once(lambda dt: self.show_scanner_screen(), 2)
+
+    def show_scanner_screen(self):
+        self.manager.add_widget(Factory.QRCodeScannerScreen(name='qrscanner'))
+        self.manager.current = "qrscanner"
+
+    def nav_check_balance(self):
+        self.manager.add_widget(Factory.loadingScreen(name='loading'))
+        self.manager.current = "loading"
+        Clock.schedule_once(lambda dt: self.show_check_balance_screen(), 2)
+
+    def show_check_balance_screen(self):
+        self.manager.add_widget(Factory.BalanceScreen(name='checkbalance'))
+        self.manager.current = "checkbalance"

@@ -7,6 +7,7 @@ from paysetting import PaysettingScreen
 from addPhone import UserDetailsScreen
 from accmanage import AccmanageScreen
 from Wallet import AddMoneyScreen
+from editprofile import EditUser
 KV = '''
 <SettingsScreen>:
     Screen:
