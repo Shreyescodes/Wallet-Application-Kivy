@@ -34,10 +34,10 @@ Builder.load_string('''
             size_hint:(0.8,0.1)
             pos_hint:{'center_x':0.5}
             color: (0, 0, 1, 1)
-        # Camera:
-        #     id:camera
-        #     resolution: (640, 480)
-        #     play: True
+        Camera:
+            id:camera
+            resolution: (640, 480)
+            play: True
 ''')
 
 
@@ -45,66 +45,87 @@ class QRCodeScannerScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         EventLoop.window.bind(on_back_pressed=self.go_back)
-        # self.camera = Camera(resolution=(640, 480))
 
     def on_enter(self):
+        # return super().on_enter(*args)
+
         self.start_qr_scan()
 
     def go_back(self):
         self.manager.current = 'dashboard'
-        self.stop_qr_scan()
+        #self.manager.remove_widget(self)
+        #self.ids.camera.play = False
 
     def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
         if key in [27, 9]:
             self.go_back()
-            return True
+            return True  # Indicates that the key event has been handled
         return False
 
     def on_leave(self, *args):
-        self.stop_qr_scan()
+        Clock.unschedule(self.check_for_qr_code)
+        #self.manager.remove_widget(self)
+        self.ids.camera.play = False
 
     def start_qr_scan(self):
-        self.camera = Camera(resolution=(640, 480), play=True)
-        self.add_widget(self.camera)
+
+        # # Create a Camera widget
+        # self.camera = Camera(resolution=(640, 480), play=True)
+        # self.add_widget(self.camera)
+
+        # Schedule the QR code scanning function to be called repeatedly
         Clock.schedule_interval(self.check_for_qr_code, 1.0 / 30.0)
 
-    def stop_qr_scan(self):
-        Clock.unschedule(self.check_for_qr_code)
-        self.camera.play = False
-        self.remove_widget(self.camera)
-        self.camera.texture = None
-
     def check_for_qr_code(self, dt):
-        frame = np.frombuffer(self.camera.texture.pixels, dtype=np.uint8)
-        frame = frame.reshape((self.camera.texture.height, self.camera.texture.width, 4))
+        # Capture a frame from the camera
+        frame = np.frombuffer(self.ids.camera.texture.pixels, dtype=np.uint8)
+        frame = frame.reshape((self.ids.camera.texture.height, self.ids.camera.texture.width, 4))
 
+        # Convert the frame to grayscale
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2GRAY)
+
+        # Create a QRCodeDetector object
         qr_detector = cv2.QRCodeDetector()
+
+        # Decode the QR code from the captured frame
         value, pts, qr_code = qr_detector.detectAndDecode(gray_frame)
 
+        print(value)
+        # Update the label with the scanned QR code value
         if value:
-            self.stop_qr_scan()
+            self.ids.camera.play = False
+            self.ids.qr_label.text = f'Scanned QR code: {value}'
+            Clock.unschedule(self.check_for_qr_code)
             logged_user = JsonStore('user_data.json').get('user')['value']['phone']
             if logged_user != int(value):
                 try:
+                    # anvil.server.connect("server_QVP7TBTIZPTLZZTXO5LN7GBD-2QQVRBJQQ5M7D6YM")
                     user = app_tables.wallet_users.get(phone=int(value))
                     self.username = user['username']
                     if user:
                         print(self.username)
+
                     else:
                         print(f"No user found with phone number: {value}")
                 except Exception as e:
                     print(f"Error: {e}")
+
+                    # self.scanning=False
+                # global username
                 self.manager.add_widget(Factory.TransferScreen(name='transfer'))
                 self.manager.current = 'transfer'
                 details = self.manager.get_screen('transfer')
                 details.ids.name.text = self.username
                 details.ids.mobile_no_field.text = value
+                self.manager.remove_widget(self)
                 print('im ended')
             else:
                 self.ids.qr_label.text = 'Scanned QR code will be displayed here'
                 self.manager.add_widget(Factory.DashBoardScreen(name='dashboard'))
                 self.manager.current = 'dashboard'
+                self.manager.remove_widget(self)
+
 
 # class MyScreenManager(ScreenManager):
 #     pass

@@ -41,6 +41,7 @@ KV = """
                 helper_text_mode: "on_focus"
                 multiline: False
                 required: True
+                # fill_color: 255//1, 0, 0, 0.5 
 
             MDTextField:
                 id: password_input

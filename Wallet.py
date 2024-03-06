@@ -1,13 +1,25 @@
 from anvil.tables import app_tables
+from kivy.factory import Factory
 from kivymd.app import MDApp
 from datetime import datetime
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivymd.uix.card import MDCard
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.button import MDFlatButton, MDRaisedButton
+from kivy.properties import StringProperty
+from kivy.metrics import dp
 import requests
 from kivy.storage.jsonstore import JsonStore
-from kivymd.toast import toast
-from kivy.base import EventLoop
 from kivymd.uix.menu import MDDropdownMenu
+from kivymd.toast import toast
+from kivymd.uix.list import OneLineListItem
+from kivy.base import EventLoop
+from kivy.core.window import Window
+from kivymd.uix.menu import MDDropdownMenu
+from kivy.core.window import Window
+
+Window.clearcolor = (1, 1, 1, 1)
 
 Builder.load_string(
     """
@@ -17,7 +29,7 @@ Builder.load_string(
         orientation: 'vertical'
         size_hint_y: 0.1
         pos_hint: {"top":1}
-         
+
         MDTopAppBar:
             title: 'Add Money'
             elevation: 3
@@ -32,7 +44,7 @@ Builder.load_string(
         size_hint_y: 0.25 
         pos_hint: {"top":0.86} 
         #md_bg_color: "fefe16" 
-        
+
         MDCard:
             orientation: 'vertical'
             size_hint: 0.9, None  # 90% of parent width
@@ -42,11 +54,11 @@ Builder.load_string(
             radius: [20, 20, 20, 20]
             padding: dp(20)
             spacing: dp(20)
-            md_bg_color: "#148EFE"
+            md_bg_color: "#d7ecfa"
             MDLabel:
                 text: 'Total Wallet Balance'
                 theme_text_color: "Custom"  # Disable theme color
-                text_color: 1, 1, 1, 1
+                text_color: 0,0,0,1
                 halign: 'left'  # Align text to the left
                 valign: 'top'  # Align text to the top
                 size_hint_y: None
@@ -58,27 +70,36 @@ Builder.load_string(
                 spacing: dp(10)
                 adaptive_height: True
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5} 
-                    
-                MDTextField:
+
+                MDLabel:
                     id: balance_lbl
                     text: 'Balance'
                     halign: 'center'
+                    valign:'middle'
                     readonly: True
                     size_hint_y: None
-                    height: dp(25)  # Adjust height as needed
+                    height: dp(43)  # Adjust height as needed
                     mode: "fill"
                     fill_mode: True
                     radius: [15, 15, 15, 15]  # Rounded edges
                     padding: dp(5), dp(5)
                     theme_text_color: "Custom"
-                    text_color: 0, 0, 0, 1  # Black text color
-                  
-                    
+                    text_color:0,0,0,1  # Black text color
+
+                    canvas.before:
+                        Color:
+                            rgba: 1,1,1,1
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+
+
+
                 MDIconButton:
                     id: options_button
                     icon: "currency-inr"
                     pos_hint: {'center_y':0.5}
-                    md_bg_color: 0.7, 0.7, 0.7, 1  # Blue background color
+                    md_bg_color: "#b0d9f9"  # Blue background color
                     theme_text_color: "Custom"
                     text_color: 0, 0, 0, 1  # White text color
                     on_release: root.show_currency_options(self) 
@@ -87,7 +108,7 @@ Builder.load_string(
         size_hint_y: 0.5 
         pos_hint: {"top":0.60} 
         #md_bg_color: "fe1616"
-        
+
         MDCard:
             orientation: 'vertical'
             size_hint: 0.9, None  # 90% of parent width
@@ -96,7 +117,7 @@ Builder.load_string(
             elevation: 1
             radius: [20, 20, 20, 20]
             padding: dp(20)
-            md_bg_color: "#148EFE"
+            md_bg_color: "#d7ecfa"
 
             MDLabel:
                 text: 'Add Money to Wallet'
@@ -106,38 +127,39 @@ Builder.load_string(
                 height: self.texture_size[1]
                 pos_hint: {'center_y': 0.1}  # Align label to the left side of the MDCard
                 theme_text_color: "Custom"  # Disable theme color
-                text_color: 1, 1, 1, 1
+                text_color: 0,0,0,1
             MDBoxLayout:
                 padding: dp(5)
                 spacing: dp(10)  # Adjust the spacing as needed
                 adaptive_height: True
+                theme_text_color: "Custom"
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}  # This will create a 10dp gap
-                
+
                 MDTextField:
                     id: balance
                     halign: 'center'
+                    readonly: False
                     size_hint_y: None
                     height: dp(25)  # Adjust height as needed
                     mode: "fill"
                     fill_mode: True
                     radius: [15, 15, 15, 15]  # Rounded edges
                     padding: dp(5), dp(5)
+                    fill_color_normal: 1,1,1,1  
                     theme_text_color: "Custom"
-                    text_color: 0, 0, 0, 1  # Black text color
-                    pos_hint: {'center_y': 0.5}
-                    spacing: dp(5)
-                
+
                 MDRectangleFlatButton:
                     id: currency_dropdown
                     text: "Select Currency"
                     theme_text_color: "Custom"  # Disable theme color
-                    text_color: 1, 1, 1, 1
+                    text_color: 0,0,0,1
                     line_color: 1, 1, 1, 1  # Black border color
                     size_hint: None, None
                     size: dp(100), dp(48)
                     pos_hint: {"center_x": 0.5, "center_y": 0.45}
                     on_release: root.currencyDropdown()
-    
+                    md_bg_color:"#b0d9f9"
+
             MDSeparator:
                 height: dp(1)
 
@@ -145,42 +167,43 @@ Builder.load_string(
                 padding: dp(10)
                 spacing: dp(10)
                 adaptive_height: True
-                
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
                 MDFlatButton:
                     text: '+100'
                     size_hint: 1, None  # Set the size_hint_x to 1 to fill the width
                     height: dp(40)
                     width: dp(64)
-                    md_bg_color: 0.85, 0.85, 0.85, 1
+                    md_bg_color: "#e5f3ff" # white background
                     on_release: root.update_balance(100)
-                    
+
                 MDFlatButton:
                     text: '+200'
                     size_hint: 1, None  # Set the size_hint_x to 1 to fill the width
                     width: dp(64)
                     height: dp(40)
-                    md_bg_color: 0.85, 0.85, 0.85, 1
+                    md_bg_color: "#e5f3ff"
                     on_release: root.update_balance(200)
                 MDFlatButton:
                     text: '+500'
                     size_hint: 1, None
                     width: dp(64)
                     height: dp(40)
-                    md_bg_color: 0.85, 0.85, 0.85, 1
+                    md_bg_color: "#e5f3ff"
                     on_release: root.update_balance(500)
                 MDFlatButton:
                     text: '+1000'
                     0size_hint: 1, None
                     width: dp(64)
                     height: dp(40)
-                    md_bg_color: 0.85, 0.85, 0.85, 1
+                    md_bg_color: "#e5f3ff"
                     on_release: root.update_balance(1000)
             MDRectangleFlatButton:
                 id: bank_dropdown
                 text: "select bank account"
                 #theme_text_color: "Custom"  # Disable theme color
-                text_color: 1, 1, 1, 1
+                md_bg_color:"#b0d9f9"
+                text_color: 0,0,0,1
                 line_color: 1, 1, 1, 1  # white border color
                 size_hint: None, None
                 on_release: root.dropdown()
@@ -193,13 +216,13 @@ Builder.load_string(
                 MDRaisedButton:
                     text: 'Proceed to add'
                     theme_text_color: "Custom"  # Disable theme color
-                    text_color: 20/255, 142/255, 254/255, 1
-                    md_bg_color: "#ffffff"
+                    text_color: 1,1,1,1       #20/255, 142/255, 254/255, 1
+                    md_bg_color: "#148EFE"
                     size_hint: 1, None  # Set the size_hint_x to 1 to fill the width
                     height: dp(50)
                     on_press: root.add_money()
 
-       
+
 """)
 
 
@@ -207,7 +230,6 @@ class AddMoneyScreen(Screen):
 
     def go_back(self):
         self.manager.current = 'dashboard'
-        self.ids.balance.text = ''
 
     def __init__(self, **kwargs):
         super(AddMoneyScreen, self).__init__(**kwargs)
@@ -245,12 +267,10 @@ class AddMoneyScreen(Screen):
                 )
                 self.menu.open()
             else:
-                toast("No accounts found",duration=3)
-                self.ids.balance.text = ''
+                toast("No accounts found")
 
         except Exception as e:
             print(f"Error fetching bank names: {e}")
-            self.ids.balance.text = ''
 
         finally:
             # No need to close a connection in Firebase Realtime Database
@@ -271,8 +291,7 @@ class AddMoneyScreen(Screen):
                 self.account_number = account[0]
                 print(self.account_number)
             else:
-                toast("Account not found",duration=5)
-                self.ids.balance.text = ''
+                toast("Account not found")
 
             self.menu.dismiss()
 
@@ -280,9 +299,10 @@ class AddMoneyScreen(Screen):
             print(f"Error fetching account number: {e}")
 
     def add_money(self):
-        wallet_scr = self.manager.get_screen('Wallet')
+        wallet_scr = self.manager.get_screen('addmoney')
         money = wallet_scr.ids.balance.text
         amount = float(money)
+        print(amount)
         # print("amount " + amount)
         bank_name = wallet_scr.ids.bank_dropdown.text
         date = datetime.now()
@@ -326,19 +346,18 @@ class AddMoneyScreen(Screen):
                     transaction_status="Wallet-Topup"
                 )
                 # Show a success toast
-                toast("Money added successfully.",duration=5)
+                toast("Money added successfully.")
                 self.manager.current = 'dashboard'
                 self.manager.show_balance()
-                self.ids.balance.text = ''
 
             except Exception as e:
                 print(f"Error adding money: {e}")
-                toast("An error occurred. Please try again.",duration=5)
-                self.ids.balance.text = ''
+                toast("An error occurred. Please try again.")
+
         else:
             # Show an error toast
-            toast("Invalid amount. Please enter an amount between 500 and 100000.",duration=5)
-            self.ids.balance.text = ''
+            toast("Invalid amount. Please enter an amount between 500 and 100000.")
+
     def currency_rate(self, currency_type, money):
         # Set API Endpoint and access key (replace 'API_KEY' with your actual API key)
         endpoint = 'convert'
@@ -432,7 +451,7 @@ class AddMoneyScreen(Screen):
             print(f"Error fetching currencies: {e}")
 
     def selected_currency(self, currency):
-        wallet_scr = self.manager.get_screen('Wallet')
+        wallet_scr = self.manager.get_screen('addmoney')
         wallet_scr.ids.currency_dropdown.text = currency
         self.menu.dismiss()
         print(currency)

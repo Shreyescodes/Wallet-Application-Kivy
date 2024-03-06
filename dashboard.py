@@ -1,13 +1,17 @@
 import base64
 import io
 import traceback
+from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.factory import Factory
 from kivy.uix.image import Image
 import qrcode
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.label import Label
+from kivy.uix.modalview import ModalView
 from kivy.uix.popup import Popup
+from kivy.uix.progressbar import ProgressBar
 from kivy.uix.widget import Widget
 from kivymd.material_resources import dp
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -682,13 +686,53 @@ class DashBoardScreen(Screen):
         return store["username"]
 
     def nav_addPhone(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
-        Clock.schedule_once(lambda dt: self.show_addphone_screen(), 2)
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 
-    def show_addphone_screen(self):
-        self.manager.add_widget(Factory.AddPhoneScreen(name='addphone'))
-        self.manager.current = 'addphone'
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., adding a phone)
+        Clock.schedule_once(lambda dt: self.show_addphone_screen(modal_view), 1)
+
+    def show_addphone_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the AddPhoneScreen
+        addphone_screen = Factory.AddPhoneScreen(name='addphone')
+
+        # Add the AddPhoneScreen to the existing ScreenManager
+        sm.add_widget(addphone_screen)
+
+        # Switch to the AddPhoneScreen
+        sm.current = 'addphone'
 
     def fetch_and_update_addPhone(self):
         store = JsonStore('user_data.json').get('user')['value']
@@ -697,6 +741,14 @@ class DashBoardScreen(Screen):
         addPhone_screen.ids.contact_label.text = store["phone"]
 
     def profile_view(self):
+        # Show loading animation
+        self.show_loading_screen()
+
+        # Schedule fetching and updating profile data
+        Clock.schedule_once(lambda dt: self.fetch_and_update_profile(), 1)
+
+    def fetch_and_update_profile(self):
+        # Get user data from the JsonStore
         store = JsonStore('user_data.json').get('user')['value']
         username = store["username"]
         gmail = store["email"]
@@ -704,16 +756,66 @@ class DashBoardScreen(Screen):
         aadhaar = store["aadhar"]
         address = store["address"]
         pan = store["pan"]
-        self.manager.add_widget(Factory.Profile(name='profile'))
+
+        # Add the Profile screen to the ScreenManager if not added already
+        if 'profile' not in self.manager.screen_names:
+            self.manager.add_widget(Factory.Profile(name='profile'))
+
+        # Get the instance of the 'Profile' screen
         profile_screen = self.manager.get_screen('profile')
-        profile_screen.ids.username_label.text = f"Username:{username}"  # Assuming username is at index 1
-        profile_screen.ids.email_label.text = f"Email:{gmail}"  # Assuming email is at index 0
-        profile_screen.ids.contact_label.text = f"Mobile No:{phone}"
-        profile_screen.ids.aadhaar_label.text = f"Aadhar:{aadhaar}"
-        profile_screen.ids.pan_label.text = f"Pan no:{pan}"
-        profile_screen.ids.address_label.text = f"Address:{address}"
+
+        # Update the labels with user data
+        profile_screen.ids.username_label.text = f"Username: {username}"
+        profile_screen.ids.email_label.text = f"Email: {gmail}"
+        profile_screen.ids.contact_label.text = f"Mobile No: {phone}"
+        profile_screen.ids.aadhaar_label.text = f"Aadhar: {aadhaar}"
+        profile_screen.ids.pan_label.text = f"Pan no: {pan}"
+        profile_screen.ids.address_label.text = f"Address: {address}"
+
+        # Dismiss the loading animation
+        self.dismiss_loading_screen()
+
         # Navigate to the 'Profile' screen
         self.manager.current = 'profile'
+
+    def show_loading_screen(self):
+        # Create a modal view for the loading animation
+        self.modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
+
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Create a progress bar for the loading animation
+        loading_progress = ProgressBar()
+
+        # Add the components to the box layout
+        box_layout.add_widget(loading_label)
+        box_layout.add_widget(loading_progress)
+
+        # Add the box layout to the modal view
+        self.modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        self.modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+    def dismiss_loading_screen(self):
+        # Dismiss the loading animation modal view
+        if self.modal_view:
+            self.modal_view.dismiss()
 
     def account_details_exist(self, phone):
         try:
@@ -723,34 +825,116 @@ class DashBoardScreen(Screen):
             return False
 
     def nav_withdraw(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
+
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Perform the actual action (e.g., checking account details and navigating)
+        Clock.schedule_once(lambda dt: self.show_withdraw_screen(modal_view), 1)
+
+    def show_withdraw_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Get phone number from JsonStore
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
+
+        # Check if account details exist
         account_details = self.account_details_exist(phone)
+
         if account_details:
-            Clock.schedule_once(lambda dt: self.show_withdraw_screen(), 2)
+            # Create a new instance of the WithdrawScreen
+            withdraw_screen = Factory.WithdrawScreen(name='withdraw')
 
+            # Add the WithdrawScreen to the existing ScreenManager
+            sm.add_widget(withdraw_screen)
+
+            # Switch to the WithdrawScreen
+            sm.current = 'withdraw'
         else:
+            # If account details do not exist, show the add account dialog
             self.show_add_account_dialog()
-
-    def show_withdraw_screen(self):
-        self.manager.add_widget(Factory.WithdrawScreen(name='withdraw'))
-        self.manager.current = 'withdraw'
 
     def nav_transfer(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
+
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Perform the actual action (e.g., checking account details and navigating)
+        Clock.schedule_once(lambda dt: self.show_transfer_screen(modal_view), 1)
+
+    def show_transfer_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Get phone number from JsonStore
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
+
+        # Check if account details exist
         account_details = self.account_details_exist(phone)
+
         if account_details:
-            Clock.schedule_once(lambda dt: self.show_transfer_screen(), 2)
+            # Create a new instance of the TransferScreen
+            transfer_screen = Factory.TransferScreen(name='transfer')
 
+            # Add the TransferScreen to the existing ScreenManager
+            sm.add_widget(transfer_screen)
+
+            # Switch to the TransferScreen
+            sm.current = 'transfer'
         else:
+            # If account details do not exist, show the add account dialog
             self.show_add_account_dialog()
-
-    def show_transfer_screen(self):
-        self.manager.add_widget(Factory.TransferScreen(name='transfer'))
-        self.manager.current = 'transfer'
 
     def show_add_account_dialog(self):
         dialog = MDDialog(
@@ -770,17 +954,69 @@ class DashBoardScreen(Screen):
         dialog.open()
 
     def go_to_transaction(self):
+        # Call on_start to show the loading animation
         self.on_start()
-        Clock.schedule_once(lambda dt: self.show_transaction_screen(), 2)
+
+        # Schedule the transition to the transaction screen
+        Clock.schedule_once(lambda dt: self.show_transaction_screen(), 1)
 
     def show_transaction_screen(self):
-        self.manager.add_widget(Factory.Transaction(name='transaction'))
-        self.manager.current = 'transaction'
+        # Dismiss the loading animation
+        self.dismiss_loading_screen()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the Transaction screen
+        transaction_screen = Factory.Transaction(name='transaction')
+
+        # Add the Transaction screen to the existing ScreenManager
+        sm.add_widget(transaction_screen)
+
+        # Switch to the Transaction screen
+        sm.current = 'transaction'
 
     def on_start(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
-        self.get_transaction_history()
+        # Show the loading animation
+        self.show_loading_screen()
+
+        # Perform the actual action (e.g., getting transaction history)
+        Clock.schedule_once(lambda dt: self.get_transaction_history(), 1)
+
+    def show_loading_screen(self):
+        # Create a modal view for the loading animation
+        self.modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
+
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        self.modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        self.modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+    def dismiss_loading_screen(self):
+        # Dismiss the loading animation modal view
+        if self.modal_view:
+            self.modal_view.dismiss()
 
     def get_transaction_history(self):
         try:
@@ -806,15 +1042,17 @@ class DashBoardScreen(Screen):
                 if transaction_date != current_date:
                     current_date = transaction_date
                     header_text = f"[b]{transaction_date}[/b]"
-                    trans_screen.ids.transaction_list.add_widget(
-                        OneLineListItem(text=header_text, theme_text_color='Custom', text_color=[0, 0, 0, 1]))
+                    list1 = OneLineListItem(text=header_text, height=dp(15), theme_text_color='Custom',
+                                            text_color=[0, 0, 0, 1], divider=None, bg_color="#e5f3ff", )
+
+                    trans_screen.ids.transaction_list.add_widget(list1)
 
                 transaction_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(36))
 
                 # Add transaction details
-                transaction_label = MDLabel(text=f"{transactions_text}", theme_text_color='Custom',
-                                            text_color=[0, 0, 0, 1], halign='left', padding=(15, 15))
-                transaction_container.add_widget(transaction_label)
+                transaction_item_widget = OneLineListItem(text=f"{transactions_text}", theme_text_color='Custom',
+                                                          text_color=[0, 0, 0, 1], divider=None)
+                transaction_container.add_widget(transaction_item_widget)
 
                 transaction_container.add_widget(Widget(size_hint_x=None, width=dp(20)))
 
@@ -868,21 +1106,6 @@ class DashBoardScreen(Screen):
         self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
         self.menu.dismiss()
 
-    def convert_currency(self, amount, to_currency):
-        # Implement your currency conversion logic here
-        # You may use an external API or a predefined exchange rate table
-
-        # For simplicity, let's assume a basic conversion formula
-        exchange_rate = {
-            "USD": 0.014,  # Example exchange rates, replace with actual rates
-            "EUROS": 0.012,
-            "INR": 1.0,
-            "POUND": 0.011
-        }
-
-        converted_amount = amount * exchange_rate.get(to_currency, 1.0)
-        return round(converted_amount, 2)  # Round to two decimal places
-
     def generate_qr_code(self):
         phone = JsonStore('user_data.json').get('user')['value']["phone"]
         qr_code = qrcode.QRCode(
@@ -911,64 +1134,344 @@ class DashBoardScreen(Screen):
         self.manager.current = 'addcontact'
 
     def Add_Money(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
-        Clock.schedule_once(lambda dt: self.show_addmoney_screen(), 2)
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 
-    def show_addmoney_screen(self):
-        self.manager.add_widget(Factory.AddMoneyScreen(name='Wallet'))
-        self.manager.current = 'Wallet'
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., showing the add money screen)
+        Clock.schedule_once(lambda dt: self.show_addmoney_screen(modal_view), 1)
+
+    def show_addmoney_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the screen for adding money
+        add_money_screen = Factory.AddMoneyScreen(name='addmoney')
+
+        # Add the screen for adding money to the existing ScreenManager
+        sm.add_widget(add_money_screen)
+
+        # Switch to the screen for adding money
+        sm.current = 'addmoney'
 
     def bank_account(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
-        Clock.schedule_once(lambda dt: self.show_bankaccount_screen(), 2)
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 
-    def show_bankaccount_screen(self):
-        self.manager.add_widget(Factory.AccmanageScreen(name='accmanage'))
-        self.manager.current = 'accmanage'
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., opening the bank account screen)
+        Clock.schedule_once(lambda dt: self.show_bankaccount_screen(modal_view), 1)
+
+    def show_bankaccount_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the AccmanageScreen
+        accmanage_screen = Factory.AccmanageScreen(name='accmanage')
+
+        # Add the AccmanageScreen to the existing ScreenManager
+        sm.add_widget(accmanage_screen)
+
+        # Switch to the AccmanageScreen
+        sm.current = 'accmanage'
 
     def nav_settings(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
-        Clock.schedule_once(lambda dt: self.show_settings_screen(), 2)
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 
-    def show_settings_screen(self):
-        self.manager.add_widget(Factory.SettingsScreen(name='settings'))
-        self.manager.current = 'settings'
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., opening the settings screen)
+        Clock.schedule_once(lambda dt: self.show_settings_screen(modal_view), 1)
+
+    def show_settings_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the SettingsScreen
+        settings_screen = Factory.SettingsScreen(name='settings')
+
+        # Add the SettingsScreen to the existing ScreenManager
+        sm.add_widget(settings_screen)
+
+        # Switch to the SettingsScreen
+        sm.current = 'settings'
 
     def nav_help(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
-        Clock.schedule_once(lambda dt: self.show_help_screen(), 2)
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 
-    def show_help_screen(self):
-        self.manager.add_widget(Factory.HelpScreen(name='help'))
-        self.manager.current = "help"
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., opening the help screen)
+        Clock.schedule_once(lambda dt: self.show_help_screen(modal_view), 1)
+
+    def show_help_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the HelpScreen
+        help_screen = Factory.HelpScreen(name='help')
+
+        # Add the HelpScreen to the existing ScreenManager
+        sm.add_widget(help_screen)
+
+        # Switch to the HelpScreen
+        sm.current = 'help'
 
     def nav_complaint(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
-        Clock.schedule_once(lambda dt: self.show_complaint_screen(), 2)
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 
-    def show_complaint_screen(self):
-        self.manager.add_widget(Factory.ComplaintScreen(name='complaint'))
-        self.manager.current = "complaint"
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., opening the complaint screen)
+        Clock.schedule_once(lambda dt: self.show_complaint_screen(modal_view), 1)
+
+    def show_complaint_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the ComplaintScreen
+        complaint_screen = Factory.ComplaintScreen(name='complaint')
+
+        # Add the ComplaintScreen to the existing ScreenManager
+        sm.add_widget(complaint_screen)
+
+        # Switch to the ComplaintScreen
+        sm.current = 'complaint'
 
     def nav_Scanner(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
-        Clock.schedule_once(lambda dt: self.show_scanner_screen(), 2)
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 
-    def show_scanner_screen(self):
-        self.manager.add_widget(Factory.QRCodeScannerScreen(name='qrscanner'))
-        self.manager.current = "qrscanner"
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., opening QR scanner)
+        Clock.schedule_once(lambda dt: self.show_scanner_screen(modal_view), 1)
+
+    def show_scanner_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the QRCodeScannerScreen
+        qr_scanner_screen = Factory.QRCodeScannerScreen(name='qrscanner')
+
+        # Add the QRCodeScannerScreen to the existing ScreenManager
+        sm.add_widget(qr_scanner_screen)
+
+        # Switch to the QRCodeScannerScreen
+        sm.current = 'qrscanner'
 
     def nav_check_balance(self):
-        self.manager.add_widget(Factory.loadingScreen(name='loading'))
-        self.manager.current = "loading"
-        Clock.schedule_once(lambda dt: self.show_check_balance_screen(), 2)
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 
-    def show_check_balance_screen(self):
-        self.manager.add_widget(Factory.BalanceScreen(name='checkbalance'))
-        self.manager.current = "checkbalance"
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., checking balance)
+        Clock.schedule_once(lambda dt: self.show_check_balance_screen(modal_view), 1)
+
+    def show_check_balance_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the BalanceScreen
+        balance_screen = Factory.BalanceScreen(name='checkbalance')
+
+        # Add the BalanceScreen to the existing ScreenManager
+        sm.add_widget(balance_screen)
+
+        # Switch to the BalanceScreen
+        sm.current = 'checkbalance'

@@ -1,8 +1,10 @@
 import anvil
 from anvil.tables import app_tables
+from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.button import Button
+from kivy.uix.modalview import ModalView
 from kivy.uix.popup import Popup
 from kivymd.app import MDApp
 from kivy.uix.boxlayout import BoxLayout
@@ -13,8 +15,8 @@ from kivy.factory import Factory
 from kivy.uix.screenmanager import ScreenManager, NoTransition
 from help import HelpScreen
 from settings import SettingsScreen
-from contactus import ContactUsScreen
 from loadingScreen import loadingScreen
+from contactus import ContactUsScreen
 
 class ScreenManagement(ScreenManager):
     current_user_data = None  # Class attribute to store the current user data
@@ -27,9 +29,9 @@ class ScreenManagement(ScreenManager):
     def show_loading_screen(self):
         self.clear_widgets()
         self.add_widget(Factory.loadingScreen(name='loading'))
-        Clock.schedule_once(self.connect_to_anvil,3)
+        Clock.schedule_once(self.connect_to_anvil, 3)
 
-    def connect_to_anvil(self,dt):
+    def connect_to_anvil(self, dt):
         client = anvil.server.connect("server_7JA6PVL5DBX5GSBY357V7WVW-TLZI2SSXOVZCVYDM")
         Clock.schedule_once(self.check_login_status, 5)
 
@@ -155,27 +157,23 @@ class ScreenManagement(ScreenManager):
         self.add_widget(Factory.SettingsScreen(name='settings'))
         self.current = 'settings'
 
-    def nav_help(self):
-        self.add_widget(Factory.HelpScreen(name='help'))
-        self.current = 'help'
+    def show_success_popup(self, message):
+        content = BoxLayout(orientation='vertical', spacing='10dp')
+        content.add_widget(MDLabel(text=message, halign='center'))
 
-    # def show_success_popup(self, message):
-    #     content = BoxLayout(orientation='vertical', spacing='10dp')
-    #     content.add_widget(MDLabel(text=message, halign='center'))
-    #
-    #     ok_button = Button(text='OK', size_hint=(None, None), size=('150dp', '50dp'))
-    #     ok_button.bind(on_press=lambda *args: popup.dismiss())
-    #     content.add_widget(ok_button)
-    #
-    #     popup = Popup(
-    #         title='Success',
-    #         content=content,
-    #         size_hint=(None, None),
-    #         size=('300dp', '200dp'),
-    #         auto_dismiss=True
-    #     )
-    #     popup.open()
-    #     self.current = 'dashboard'
+        ok_button = Button(text='OK', size_hint=(None, None), size=('150dp', '50dp'))
+        ok_button.bind(on_press=lambda *args: popup.dismiss())
+        content.add_widget(ok_button)
+
+        popup = Popup(
+            title='Success',
+            content=content,
+            size_hint=(None, None),
+            size=('300dp', '200dp'),
+            auto_dismiss=True
+        )
+        popup.open()
+        self.current = 'dashboard'
 
     def nav_contactus(self):
         self.add_widget(Factory.ContactUsScreen(name='contactus'))

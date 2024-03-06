@@ -11,7 +11,7 @@ KV = '''
                     title: 'Help & Support'
                     elevation: 3
                     left_action_items: [['arrow-left', lambda x: root.go_back()]]
-                    md_bg_color: "#1e75b9"
+                    md_bg_color: "#148EFE"
                     specific_text_color: "#ffffff"
                 # Scrollable part
                 ScrollView:
@@ -52,7 +52,7 @@ Builder.load_string(KV)
 
 class HelpScreen(Screen):
     def go_back(self):
-        self.manager.current = 'settings'
+        self.manager.current = 'dashboard'
 
     def __init__(self, **kwargs):
         super(HelpScreen, self).__init__(**kwargs)

@@ -5,6 +5,7 @@ from kivymd.uix.dialog import MDDialog
 from kivy.storage.jsonstore import JsonStore
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
+from kivy.core.window import Window
 
 KV = """
 <ComplaintScreen>
@@ -15,7 +16,7 @@ KV = """
             title: 'Report a bug'
             elevation: 3
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
-            md_bg_color: "#1e75b9"
+            md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"
             pos_hint: {'top': 1}
 
@@ -27,7 +28,7 @@ KV = """
                 size_hint_y: None
                 height: self.minimum_height
                 pos_hint: {'top': 1, 'center_x': 0.5}
-                
+
                 #1
                 BoxLayout:
                     orientation: "horizontal" 
@@ -43,12 +44,12 @@ KV = """
                         height:"18dp"
                         size_hint_x: None
                         width: "100dp"  # Adjust the width as needed
-                        
+
                     MDTextField:
                         id: email_label
                         multiline: False
                         readonly: True
-            
+
                 #2
                 BoxLayout:
                     orientation: "horizontal" 
@@ -64,9 +65,8 @@ KV = """
                         height:"18dp"
                         size_hint_x: None
                         width: "100dp"  # Adjust the width as needed
-                        
+
                     MDTextField:
-                        id:issue
                         multiline: False
 
                 #3
@@ -84,11 +84,10 @@ KV = """
                         height:"18dp"
                         size_hint_x: None
                         width: "100dp"  # Adjust the width as needed
-                        
+
                     MDTextField:
-                        id:specific_issue
                         multiline: False   
-                            
+
                 #4
                 BoxLayout:
                     orientation: "horizontal" 
@@ -104,11 +103,10 @@ KV = """
                         height:"18dp"
                         size_hint_x: None
                         width: "100dp"  # Adjust the width as needed
-                        
+
                     MDTextField:
-                        multiline: True 
-                        id:description       
-                
+                        multiline: True        
+
                 MDRectangleFlatButton:
                     text: "Submit"
                     on_release: root.Submit()
@@ -123,9 +121,6 @@ Builder.load_string(KV)
 class ComplaintScreen(Screen):
     def go_back(self):
         self.manager.current = 'dashboard'
-        self.ids.description.text = ''
-        self.ids.specific_issue.text = ''
-        self.ids.issue.text = ''
 
     def __init__(self, **kwargs):
         super(ComplaintScreen, self).__init__(**kwargs)
@@ -147,9 +142,6 @@ class ComplaintScreen(Screen):
     def Submit(self):
         self.show_popup("Your Report has been submited. \nOur Technical Executive will respond you shortly.")
         self.manager.current = 'dashboard'
-        self.ids.description.text = ''
-        self.ids.specific_issue.text = ''
-        self.ids.issue.text = ''
 
     def show_popup(self, text):
         dialog = MDDialog(
@@ -164,6 +156,3 @@ class ComplaintScreen(Screen):
             ]
         )
         dialog.open()
-        self.ids.description.text = ''
-        self.ids.specific_issue.text = ''
-        self.ids.issue.text = ''

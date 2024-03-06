@@ -1,12 +1,14 @@
 from kivy.lang import Builder
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
+
 KV = '''
 <Transaction>:
     Screen:
         BoxLayout:
             orientation: 'vertical'
-            spacing: dp(20) 
+            spacing: dp(20)
+            pos_hint:{'top':1}
 
             MDTopAppBar:
                 title: 'Transaction History'
@@ -15,31 +17,39 @@ KV = '''
                 md_bg_color: "#148EFE"
                 specific_text_color: "#ffffff"
                 pos_hint: {'top': 1}
-            # # Scrollable part
-            # ScrollView:
-            #     MDList:
-            #         id: transaction_list
-            
-            MDCard:
-                orientation: "vertical"
-                size_hint: None, None
-                size: "300dp", "30dp"
-                md_bg_color: "#C4E3FF"
-                radius: [dp(15), dp(15), dp(15), dp(15)]
-                pos_hint: {"center_x": 0.5}
 
-                MDLabel:
-                    text: "Search Transaction"
-                    theme_text_color: "Custom"
-                    text_color: 0, 0, 0, 1
-                    font_size: "15sp"
-                    halign: "center"
-                    size_hint_y: None
-                    height: self.texture_size[1] + dp(10)  # Adjust height based on text size
-     
-            ScrollView:
-                MDList:
-                    id: transaction_list
+            BoxLayout:
+                orientation: 'vertical'
+                spacing: dp(20)
+                padding: dp(5),0,dp(5),0
+
+
+                # # Scrollable part
+                # ScrollView:
+                #     MDList:
+                #         id: transaction_list
+
+                MDCard:
+                    orientation: "vertical"
+                    size_hint: None, None
+                    size: "300dp", "30dp"
+                    md_bg_color: "#C4E3FF"
+                    radius: [dp(15), dp(15), dp(15), dp(15)]
+                    pos_hint: {"center_x": 0.5}
+
+                    MDLabel:
+                        text: "Search Transaction"
+                        theme_text_color: "Custom"
+                        text_color: 0, 0, 0, 1
+                        font_size: "15sp"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1] + dp(10)  # Adjust height based on text size
+
+                ScrollView:
+                    effect_kludge: True
+                    MDList:
+                        id: transaction_list
 
 
 
@@ -60,11 +70,9 @@ class Transaction(Screen):
         super(Transaction, self).__init__(**kwargs)
         EventLoop.window.bind(on_keyboard=self.on_key)
 
-
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android
-        if key in [27,9]:
+        if key in [27, 9]:
             self.go_back()
             return True  # Indicates that the key event has been handled
         return False
-

@@ -2,14 +2,12 @@ from datetime import datetime
 from anvil.tables import app_tables
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.popup import Popup
 from kivymd.toast import toast
-from kivymd.uix.label import MDLabel
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
+from kivy.core.window import Window
+
 Builder.load_string(
     """
 <WithdrawScreen>:
@@ -41,39 +39,50 @@ Builder.load_string(
                     radius: [10, 10, 10, 10]
                     padding: dp(20)
                     spacing: dp(20)
-                    md_bg_color: 0.7961, 0.9019, 0.9412, 1
-    
+                    md_bg_color: "#d7ecfa"        #0.7961, 0.9019, 0.9412, 1
+
                     MDLabel:
                         text: 'Total Wallet Balance'
                         halign: 'left'
                         valign: 'top'
                         size_hint_y: None
                         height: self.texture_size[1]
-    
+
                     MDBoxLayout:
                         padding: dp(10)
                         spacing: dp(10)
                         adaptive_height: True
-    
-                        MDTextField:
+
+                        MDLabel:
                             id: balance_lbl
+                            text: 'Balance'
                             halign: 'center'
-                            mode: "rectangle"
-                            hint_text: "Balance"
-                            size_hint_x: 0.8
+                            valign:'middle'
                             readonly: True
-                            md_bg_color: 0.7961, 0.9019, 0.9412, 1
-                            text_color: 0, 0, 0, 1
-                            line_color: 0.5, 0.5, 0.5, 1
-    
+                            size_hint_y: None
+                            height: dp(43)  # Adjust height as needed
+                            mode: "fill"
+                            fill_mode: True
+                            radius: [15, 15, 15, 15]  # Rounded edges
+                            padding: dp(5), dp(5)
+                            theme_text_color: "Custom"
+                            text_color:0,0,0,1  # Black text color
+
+                            canvas.before:
+                                Color:
+                                    rgba: 1,1,1,1
+                                RoundedRectangle:
+                                    pos: self.pos
+                                    size: self.size
+
                         MDIconButton:
                             id: options_button
                             icon: "currency-inr"
-                            md_bg_color: "#148EFE"
+                            md_bg_color: "#b0d9f9"
                             theme_text_color: "Custom"
                             text_color: 0, 0, 0, 1
                             on_release: root.show_currency_options(self)
-    
+
                 MDLabel:
                     text: "Send Money from Wallet to Bank"
                     halign: 'center'
@@ -81,23 +90,23 @@ Builder.load_string(
                     size_hint_y: None
                     height: dp(40)
                     bold: True 
-    
+
                 MDBoxLayout:
                     padding: dp(10)
                     spacing: dp(20)
                     adaptive_height: True
-    
+
                     MDRectangleFlatButton:
                         id: bank_dropdown
                         radius:40,40,40,40
                         text: 'Select bank account'
                         size_hint_x: 1
                         height: dp(50)
-                        md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                        md_bg_color:"#b0d9f9"     #0.7961, 0.9019, 0.9412, 1
                         on_release: root.fetch_bank_names()
                         text_color: 0, 0, 0, 1
                         line_color: 1, 1, 1, 1
-    
+
                 MDBoxLayout:
                     padding: dp(5)
                     spacing: dp(10)
@@ -115,51 +124,55 @@ Builder.load_string(
                         hint_text: "Enter amount"
                         size_hint_x: 1
                         line_color: 0.5, 0.5, 0.5, 1
-    
+
                 MDSeparator:
                     height: dp(1)
-    
+
                 MDBoxLayout:
-                    padding: dp(10)
-                    spacing: dp(10)
+                    padding: dp(10) #(dp(27),dp(10),dp(24),dp(10))
+                    spacing: dp(20)
                     adaptive_height: True
-    
+                    adaptive_width: True
+                    # orientation: 'horizontal'
+                    pos_hint: {'center_x': 0.5}
+
+
                     MDFlatButton:
                         text: '+100'
                         size_hint_x: None
                         width: dp(64)
                         height: dp(40)
-                        md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                        md_bg_color:"#d7ecfa"    #0.7961, 0.9019, 0.9412, 1
                         on_release: root.update_amount(100)
-    
+
                     MDFlatButton:
                         text: '+200'
                         size_hint_x: None
                         width: dp(64)
                         height: dp(40)
-                        md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                        md_bg_color: "#d7ecfa"     #0.7961, 0.9019, 0.9412, 1
                         on_release: root.update_amount(200)
-    
+
                     MDFlatButton:
                         text: '+500'
                         size_hint_x: None
                         width: dp(64)
                         height: dp(40)
-                        md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                        md_bg_color: "#d7ecfa"       #0.7961, 0.9019, 0.9412, 1
                         on_release: root.update_amount(500)
-    
+
                     MDFlatButton:
                         text: '+1000'
                         size_hint_x: None
                         width: dp(64)
                         height: dp(40)
-                        md_bg_color: 0.7961, 0.9019, 0.9412, 1
+                        md_bg_color: "#d7ecfa"         #0.7961, 0.9019, 0.9412, 1
                         on_release: root.update_amount(1000)
-    
+
                 MDBoxLayout:
                     padding: dp(10)
                     adaptive_height: True
-    
+
                     MDRaisedButton:
                         text: 'Proceed '
                         md_bg_color: 20/255, 142/255, 254/255, 1
@@ -255,13 +268,13 @@ class WithdrawScreen(Screen):
         selected_bank = wdrw_scr.ids.bank_dropdown.text
 
         if not selected_bank or not amount or not currency:
-            self.show_error_popup("Please fill in all fields.")
+            self.manager.show_error_popup("Please fill in all fields.")
             return
 
         try:
             amount = float(amount)
         except ValueError:
-            self.show_error_popup("Invalid amount. Please enter a valid number.")
+            self.manager.show_error_popup("Invalid amount. Please enter a valid number.")
             return
 
         try:
@@ -283,15 +296,13 @@ class WithdrawScreen(Screen):
                 transaction_type="Debit"
             )
 
-            toast("Withdrawal successful.", duration=5)
-            self.manager.current = 'dashboard'
+            success_message = f"Withdrawal successful."
+            self.manager.show_success_popup(success_message)
             self.manager.show_balance()
-            self.ids.amount_textfield.text = ""
         except Exception as e:
             print(f"Error withdrawing money: {e}")
-            self.ids.amount_textfield.text = ""
-            self.show_error_popup("An error occurred. Please try again.")
-            self.ids.amount_textfield.text = ""
+            self.manager.show_error_popup("An error occurred. Please try again.")
+
     def update_amount(self, amount):
         self.ids.amount_textfield.text = str(amount)
 
@@ -351,20 +362,3 @@ class WithdrawScreen(Screen):
         phone_no = store.get('user')['value']["phone"]
         total_balance = self.manager.get_total_balance(phone_no, currency)
         self.ids.balance_lbl.text = f'Balance: {total_balance} {currency}'
-
-    def show_error_popup(self, message):
-        content = BoxLayout(orientation='vertical', spacing='10dp')
-        content.add_widget(MDLabel(text=message, halign='center'))
-
-        ok_button = Button(text='OK', size_hint=(None, None), size=('150dp', '50dp'))
-        ok_button.bind(on_press=lambda *args: popup.dismiss())
-        content.add_widget(ok_button)
-
-        popup = Popup(
-            title='Error',
-            content=content,
-            size_hint=(None, None),
-            size=('300dp', '200dp'),
-            auto_dismiss=True
-        )
-        popup.open()
