@@ -39,7 +39,7 @@ from Wallet import AddMoneyScreen
 from loadingScreen import loadingScreen
 from qrscanner import QRCodeScannerScreen
 from checkbalance import BalanceScreen
-
+from selftransfer import SelftransferScreen
 navigation_helper = """
 <DashBoardScreen>:
     MDNavigationLayout:
@@ -318,7 +318,7 @@ navigation_helper = """
                                 pos_hint_y: None
                                 pos_hint_x:  None
                                 # elevation: 1
-                                on_release: root.nav_transfer()  
+                                on_release: root.nav_self_transfer()  
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
@@ -932,6 +932,62 @@ class DashBoardScreen(Screen):
 
             # Switch to the TransferScreen
             sm.current = 'transfer'
+        else:
+            # If account details do not exist, show the add account dialog
+            self.show_add_account_dialog()
+
+    def nav_self_transfer(self):
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
+
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Perform the actual action (e.g., checking account details and navigating)
+        Clock.schedule_once(lambda dt: self.show_self_transfer_screen(modal_view), 1)
+
+    def show_self_transfer_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Get phone number from JsonStore
+        phone = JsonStore('user_data.json').get('user')['value']["phone"]
+
+        # Check if account details exist
+        account_details = self.account_details_exist(phone)
+
+        if account_details:
+            # Create a new instance of the TransferScreen
+            transfer_screen = Factory.SelftransferScreen(name='self_transfer')
+
+            # Add the TransferScreen to the existing ScreenManager
+            sm.add_widget(transfer_screen)
+
+            # Switch to the TransferScreen
+            sm.current = 'self_transfer'
         else:
             # If account details do not exist, show the add account dialog
             self.show_add_account_dialog()
