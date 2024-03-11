@@ -1,4 +1,5 @@
 import anvil
+import requests
 from anvil.tables import app_tables
 from kivy.animation import Animation
 from kivy.clock import Clock
@@ -17,6 +18,7 @@ from help import HelpScreen
 from settings import SettingsScreen
 from loadingScreen import loadingScreen
 from contactus import ContactUsScreen
+from noInternetScreen import NoInternetPage
 
 class ScreenManagement(ScreenManager):
     current_user_data = None  # Class attribute to store the current user data
@@ -32,8 +34,22 @@ class ScreenManagement(ScreenManager):
         Clock.schedule_once(self.connect_to_anvil, 3)
 
     def connect_to_anvil(self, dt):
-        client = anvil.server.connect("server_7JA6PVL5DBX5GSBY357V7WVW-TLZI2SSXOVZCVYDM")
-        Clock.schedule_once(self.check_login_status, 5)
+        try:
+            # Check for internet connection
+            requests.get("http://www.google.com", timeout=5)
+
+            # If there is an internet connection, connect to Anvil server
+            client = anvil.server.connect("server_7JA6PVL5DBX5GSBY357V7WVW-TLZI2SSXOVZCVYDM")
+
+            # Schedule the login status check after 5 seconds
+            Clock.schedule_once(self.check_login_status, 5)
+
+        except requests.ConnectionError:
+            # If no internet connection, navigate to the no-internet page
+            self.add_widget(Factory.NoInternetPage(name='no_internet'))
+            self.current = 'no_internet'
+
+
 
     def check_login_status(self, dt):
         store = JsonStore('user_data.json')
