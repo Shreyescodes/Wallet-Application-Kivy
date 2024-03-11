@@ -147,6 +147,7 @@ import anvil
 from anvil.tables import app_tables
 from kivy.app import App
 from kivy.factory import Factory
+from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -158,8 +159,6 @@ from kivymd.uix.toolbar import MDTopAppBar
 import cv2
 import numpy as np
 from kivy.base import EventLoop
-from kivy.lang.builder import Builder
-from pyzbar.pyzbar import decode  # Using pyzbar for faster and more robust decoding
 
 Builder.load_string('''
 <QRCodeScannerScreen>:
@@ -228,12 +227,9 @@ class QRCodeScannerScreen(Screen):
 
             # Decode QR code using pyzbar
             try:
-                decoded_objects = decode(gray_frame)
-                if decoded_objects:
-                    # Handle successful QR code detection
-                    data = decoded_objects[0].data.decode('utf-8')
-                    # self.ids.qr_label.text = f'Scanned QR Code: {data}'
-                    # Implement your further actions based on the scanned data (e.g., navigate to a screen, process information)
+                detector = cv2.QRCodeDetector()
+                data, points, _ = detector.detectAndDecode(gray_frame)
+                if data:
                     user = app_tables.wallet_users.get(phone=int(data))
                     if user:
                         print(user["phone"])
