@@ -13,12 +13,12 @@ from addPhone import UserDetailsScreen
 from accmanage import AccmanageScreen
 from Wallet import AddMoneyScreen
 from editprofile import EditUser
-
+from reset import ResetPassword
 KV = '''
 <SettingsScreen>:
     Screen:
         MDScreen:
-            BoxLayout:
+            MDBoxLayout:
                 orientation: "vertical"
                 MDTopAppBar:
                     title: 'Settings'
@@ -26,50 +26,131 @@ KV = '''
                     left_action_items: [['arrow-left', lambda x: root.go_back()]]
                     md_bg_color: "#148EFE"
                     specific_text_color: "#ffffff"
-                # Scrollable part
-                ScrollView:
-                
-                    BoxLayout: 
+                MDBoxLayout: 
+                    size_hint_y: None
+                    #height: dp(215)
+                    pos_hint: {'center_x': 0.45, 'y': 220}        
+
+                    BoxLayout:
+                        orientation: "vertical"
                         size_hint_y: None
-                        height: dp(215)
-                        pos_hint: {'center_x': 0.45, 'y': 220}        
+                        height: self.minimum_height
+                        spacing: '5dp'
 
-                        BoxLayout:
-                            orientation: "vertical"
-                            size_hint_y: None
-                            height: self.minimum_height
-                            spacing: '4dp'
-
-                            OneLineIconListItem:
-                                text: "Payment Settings"
-                                on_release: root.nav_paysetting()
-                                IconLeftWidget:
-                                    icon: "wallet"
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")  
-                            OneLineIconListItem:
-                                text: "Help & Support"
-                                on_release: root.nav_help()
-                                IconLeftWidget:
-                                    icon: "help-circle" 
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb") 
-                            OneLineIconListItem:
-                                text: "Profile Settings"
-                                on_release: root.edit_profile()  
-                                IconLeftWidget:
-                                    icon: "account-cog"
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")     
-                            OneLineIconListItem:
-                                text: "App info"
-                                IconLeftWidget:
-                                    icon: "information-outline" 
-                                    theme_text_color: 'Custom'
-                                    text_color: get_color_from_hex("#3489eb")                  
-                        
+                        OneLineIconListItem:
+                            text: "Payment Settings"
+                            on_release: root.nav_paysetting()
+                            IconLeftWidget:
+                                icon: "wallet"
+                                theme_text_color: 'Custom'
+                                text_color: get_color_from_hex("#3489eb")  
+                        OneLineIconListItem:
+                            text: "Help & Support"
+                            on_release: root.nav_help()
+                            IconLeftWidget:
+                                icon: "help-circle" 
+                                theme_text_color: 'Custom'
+                                text_color: get_color_from_hex("#3489eb") 
+                        OneLineIconListItem:
+                            text: "Profile Settings"
+                            on_release: root.edit_profile()  
+                            IconLeftWidget:
+                                icon: "account-cog"
+                                theme_text_color: 'Custom'
+                                text_color: get_color_from_hex("#3489eb")
+                                           
+                        OneLineIconListItem:
+                            text: "App info"
+                            IconLeftWidget:
+                                icon: "information-outline" 
+                                theme_text_color: 'Custom'
+                                text_color: get_color_from_hex("#3489eb") 
+                                                                       
+                        OneLineIconListItem:
+                            text: "Change password"
+                            on_release: root.edit_profile()  
+                            IconLeftWidget:
+                                icon: "shield-edit"
+                                theme_text_color: 'Custom'
+                                text_color: get_color_from_hex("#3489eb")          
 '''
-Builder.load_string(KV)
+kv = """
+<SettingsScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+        size_hint_y: 1
+        MDBoxLayout:
+            orientation: "vertical"
+            md_bg_color:"#148EFE"
+            size_hint_y: 0.05
+            pos_hint:{"top":1}
+            MDTopAppBar:
+                title: 'Settings'
+                elevation: 0
+                left_action_items: [['arrow-left', lambda x: root.go_back()]]
+                md_bg_color: "#148EFE"
+                specific_text_color: "#ffffff" 
+                pos_hint:{"top":1}   
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint_y: 0.5
+            pos_hint:{"top":0.95}
+            
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: '5dp'
+                size_hint_y: 0.9
+                MDBoxLayout:
+                    orientation: "vertical"
+                    OneLineIconListItem:
+                        text: "Payment Settings"
+                        on_release: root.nav_paysetting()
+                        IconLeftWidget:
+                            icon: "wallet"
+                            theme_text_color: 'Custom'
+                            text_color: get_color_from_hex("#3489eb")  
+                    OneLineIconListItem:
+                        text: "Help & Support"
+                        on_release: root.nav_help()
+                        IconLeftWidget:
+                            icon: "help-circle" 
+                            theme_text_color: 'Custom'
+                            text_color: get_color_from_hex("#3489eb") 
+                    OneLineIconListItem:
+                        text: "Profile Settings"
+                        on_release: root.edit_profile()  
+                        IconLeftWidget:
+                            icon: "account-cog"
+                            theme_text_color: 'Custom'
+                            text_color: get_color_from_hex("#3489eb")
+                                       
+                    OneLineIconListItem:
+                        text: "App info"
+                        IconLeftWidget:
+                            icon: "information-outline" 
+                            theme_text_color: 'Custom'
+                            text_color: get_color_from_hex("#3489eb") 
+                                                                   
+                    OneLineIconListItem:
+                        text: "Change password"
+                        on_release: root.nav_reset()  
+                        IconLeftWidget:
+                            icon: "shield-edit"
+                            theme_text_color: 'Custom'
+                            text_color: get_color_from_hex("#3489eb")
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_y:0.3
+                
+                            
+            MDBoxLayout:
+                orientation: "vertical"
+    
+                     
+                   
+    
+"""
+Builder.load_string(kv)
 
 
 class SettingsScreen(Screen):
@@ -290,3 +371,52 @@ class SettingsScreen(Screen):
 
         # Switch to the HelpScreen
         sm.current = 'help'
+
+    def nav_reset(self):
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
+
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., opening the help screen)
+        Clock.schedule_once(lambda dt: self.show_reset_screen(modal_view), 1)
+
+    def show_reset_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the HelpScreen
+        reset_screen = Factory.ResetPassword(name='reset')
+
+        # Add the HelpScreen to the existing ScreenManager
+        sm.add_widget(reset_screen)
+
+        # Switch to the HelpScreen
+        sm.current = 'reset'

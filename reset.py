@@ -1,0 +1,124 @@
+import anvil
+from anvil.tables import app_tables
+from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivymd.app import MDApp
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.button import MDRaisedButton, MDFlatButton
+
+KV = """
+<ResetPassword>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: "20dp"
+        MDTopAppBar:
+            title: "Change Password"
+            left_action_items: [["arrow-left", lambda x: root.go_back()]]  # Back button
+            background_color: (173, 216, 230)  # Light blue color
+        BoxLayout:
+            orientation: "vertical"
+            spacing: "20dp"
+            padding: "20dp"
+
+            MDTextField:
+                id: old_password_input
+                hint_text: "Enter old password"
+                password: True
+                max_text_length: 20
+                multiline: False
+                size_hint_y: None
+                mode: "rectangle"
+                height: "48dp"
+                radius: [20, 20, 20, 20]
+            MDTextField:
+                id: new_password_input
+                hint_text: "Enter new password"
+                password: True
+                max_text_length: 20
+                multiline: False
+                size_hint_y: None
+                mode: "rectangle"
+                height: "48dp"
+                radius: [20, 20, 20, 20]
+            MDTextField:
+                id: confirm_password_input
+                hint_text: "Enter new password again"
+                password: True
+                max_text_length: 20
+                multiline: False
+                size_hint_y: None
+                mode: "rectangle"
+                height: "48dp"
+                radius: [20, 20, 20, 20]
+
+            BoxLayout:
+                orientation: "vertical"
+                padding: "20dp"
+                MDRaisedButton:
+                    text: "Submit"  
+                    size_hint_y: None
+                    height: "48dp"
+                    pos_hint:{"center_x":0.5}
+                    on_release: root.submit_password()
+"""
+
+Builder.load_string(KV)
+
+
+class ResetPassword(Screen):
+    def go_back(self):
+        self.manager.current = 'settings'
+    def submit_password(self, instance):
+        # Get the current user's phone number from the stored user data
+        current_user_password = self.manager.current_user_data["password"]
+
+        # Get the user from the Anvil app_tables.wallet_users
+        user = app_tables.wallet_users.get(password=current_user_password)
+
+        if user:
+            # Get the decrypted password from the user's data
+            decrypted_password = anvil.server.call('load_secret_data', current_user_password,
+                                                   self.old_password_input.text)
+
+            if decrypted_password == self.old_password_input.text:
+                # Previous password is correct, update with the new password
+                new_encrypted_password = anvil.server.call("save_secret_data", self.new_password_input.text)
+                user.update(password=new_encrypted_password)
+
+                # Show a success pop-up
+                dialog = MDDialog(
+                    title="Success",
+                    text="Password updated successfully!",
+                    buttons=[
+                        MDFlatButton(
+                            text="OK",
+                            on_release=lambda *args: (dialog.dismiss(), self.go_back())
+                        )
+                    ]
+                )
+                dialog.open()
+            else:
+                # Show an error pop-up for incorrect previous password
+                self.show_error_popup("Incorrect previous password. Please try again.")
+        else:
+            # Handle the case where the user is not found
+            print("User not found.")
+
+    def show_error_popup(self, error_text):
+        # Show an error pop-up
+        dialog = MDDialog(
+            title="Error",
+            text=error_text,
+            buttons=[
+                MDFlatButton(
+                    text="OK",
+                    on_release=lambda *args: dialog.dismiss()
+                )
+            ]
+        )
+        dialog.open()

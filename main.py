@@ -19,7 +19,6 @@ from settings import SettingsScreen
 from loadingScreen import loadingScreen
 from contactus import ContactUsScreen
 from noInternetScreen import NoInternetPage
-
 class ScreenManagement(ScreenManager):
     current_user_data = None  # Class attribute to store the current user data
 

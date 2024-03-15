@@ -41,6 +41,7 @@ from qrscanner import QRCodeScannerScreen
 from checkbalance import BalanceScreen
 from selftransfer import SelftransferScreen
 from referfriend import ReferFriendScreen
+from autotopup import AutoTopupScreen
 navigation_helper = """
 <DashBoardScreen>:
     MDNavigationLayout:
@@ -256,6 +257,7 @@ navigation_helper = """
                                 pos_hint_y: None
                                 pos_hint_x:  None
                                 # elevation: 1 
+                                on_release: root.nav_auto_topup()
                                      
                                 MDBoxLayout:
                                     orientation: "vertical"
@@ -579,19 +581,6 @@ navigation_helper = """
                         MDCard:
                             orientation: "horizontal"
                             size_hint_y :0.1
-                            Image:
-                                source: "images/topup.png"
-                                size_hint: (0.4, 0.4)
-                                pos_hint:{"center_x":0.1}
-                            MDLabel:
-                                text: "Auto topup"
-                                theme_text_color: "Custom"  # Disable theme color
-                                text_color: 0, 0, 0, 1
-                                font_size: "15sp"
-                                pos_hint:{"center_y":0.2}   
-                        MDCard:
-                            orientation: "horizontal"
-                            size_hint_y :0.1
                             on_release: root.nav_settings()  
                             Image:
                                 source: "images/setting.png"
@@ -602,7 +591,22 @@ navigation_helper = """
                                 theme_text_color: "Custom"  # Disable theme color
                                 text_color: 0, 0, 0, 1
                                 font_size: "15sp"
-                                pos_hint:{"center_y":0.2}         
+                                pos_hint:{"center_y":0.2} 
+                                
+                        MDCard:
+                            orientation: "horizontal"
+                            size_hint_y :0.1
+                            on_release: root.nav_auto_topup()
+                            Image:
+                                source: "images/topup.png"
+                                size_hint: (0.4, 0.4)
+                                pos_hint:{"center_x":0.1}
+                            MDLabel:
+                                text: "Auto topup"
+                                theme_text_color: "Custom"  # Disable theme color
+                                text_color: 0, 0, 0, 1
+                                font_size: "15sp"
+                                pos_hint:{"center_y":0.2}                   
                         MDCard:
                             orientation: "horizontal"
                             size_hint_y :0.1
@@ -1575,10 +1579,59 @@ class DashBoardScreen(Screen):
         sm = self.manager
 
         # Create a new instance of the screen for adding money
-        add_money_screen = Factory.ReferFriendScreen(name='refer')
+        refer_screen = Factory.ReferFriendScreen(name='refer')
 
         # Add the screen for adding money to the existing ScreenManager
-        sm.add_widget(add_money_screen)
+        sm.add_widget(refer_screen)
 
         # Switch to the screen for adding money
         sm.current = 'refer'
+
+    def nav_auto_topup(self):
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
+
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., showing the add money screen)
+        Clock.schedule_once(lambda dt: self.show_auto_topup(modal_view), 1)
+
+    def show_auto_topup(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the screen for adding money
+        auto_topup = Factory.AutoTopupScreen(name='auto_topup')
+
+        # Add the screen for adding money to the existing ScreenManager
+        sm.add_widget(auto_topup)
+
+        # Switch to the screen for adding money
+        sm.current = 'auto_topup'
