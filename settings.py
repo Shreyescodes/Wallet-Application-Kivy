@@ -175,7 +175,7 @@ class SettingsScreen(Screen):
         edit_screen.ids.username.text = store["username"]
         edit_screen.ids.email.text = store["email"]
         edit_screen.ids.phone.text = str(store["phone"])
-        edit_screen.ids.password.text = store["password"]
+        # edit_screen.ids.password.text = store["password"]
         edit_screen.ids.aadhaar.text = str(store["aadhar"])
         edit_screen.ids.pan.text = store["pan"]
         edit_screen.ids.address.text = store["address"]

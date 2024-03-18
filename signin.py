@@ -108,10 +108,10 @@ class SignInScreen(Screen):
                     user.update(last_login=date)
                     print(user_data)
                     # Show popup for successful login
-                    self.show_popup("Login Successful")
+                    # self.show_popup("Login Successful")
 
-                    for screen in self.manager.screens:
-                        self.manager.remove_widget(screen)
+                    # for screen in self.manager.screens:
+                    #     self.manager.remove_widget(screen)
                     # App.get_running_app().authenticated_user_number = row['phone']
                     self.manager.add_widget(Factory.DashBoardScreen(name='dashboard'))
                     self.manager.current = 'dashboard'

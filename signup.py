@@ -5,7 +5,7 @@ from kivy.lang import Builder
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
-from kivymd.uix.snackbar import Snackbar
+from kivymd.uix.snackbar import MDSnackbar
 from kivy.base import EventLoop
 KV = '''
 <SignUpScreen>:
@@ -163,7 +163,7 @@ class SignUpScreen(Screen):
         # self.transactions(phone_no)
         try:
             if self.is_phone_number_registered(phone_no):
-                Snackbar("Phone number already exists. Choose another.").open()
+                MDSnackbar("Phone number already exists. Choose another.").open()
                 return
 
             else:  # Add user data to the 'login' collection in Anvil
