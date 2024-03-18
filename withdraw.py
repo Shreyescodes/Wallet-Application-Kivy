@@ -362,3 +362,13 @@ class WithdrawScreen(Screen):
         phone_no = store.get('user')['value']["phone"]
         total_balance = self.manager.get_total_balance(phone_no, currency)
         self.ids.balance_lbl.text = f'Balance: {total_balance} {currency}'
+
+    def on_enter(self, *args):
+        #in this function it will display the balance as per the default currency selected in default currency settings
+        for icon_btn in self.options_button_icon_mapping:
+            if self.ids.options_button.icon == self.options_button_icon_mapping[icon_btn]:
+                store1 = JsonStore('user_data.json')
+                phone_no = store1.get('user')['value']["phone"]
+                total_balance = self.manager.get_total_balance(phone_no, icon_btn)
+                # Convert the total balance to the selected currency
+                self.ids.balance_lbl.text = f'balance: {total_balance}'
