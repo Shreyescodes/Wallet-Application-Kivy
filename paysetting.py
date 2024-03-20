@@ -111,7 +111,11 @@ class PaysettingScreen(Screen):
         "EUR": "currency-eur"
     }
         # print(self.ids.keys())
+        #setting the default currency icon based on currency selected
         phone = JsonStore("user_data.json").get('user')['value']['phone']
         data=app_tables.wallet_users.get(phone=phone)
-        currency_set=data['defaultcurrency']
-        self.ids.curr_icon.icon = options_button_icon_mapping[currency_set]
+        currency=data['defaultcurrency']
+        if currency:
+            self.ids.curr_icon.icon = options_button_icon_mapping[currency]
+        else:
+            self.ids.curr_icon.icon = options_button_icon_mapping['INR']

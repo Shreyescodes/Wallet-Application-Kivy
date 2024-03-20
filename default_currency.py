@@ -135,23 +135,23 @@ class DefaultCurrency(Screen):
                         else:
                             self.ids[values].md_bg_color = '#b0d9f9'
                             self.ids[values].elevation = 0
-                    sm=self.manager
+                    # sm=self.manager
                     #wallet details
-                    wallet_scr =Factory.AddMoneyScreen(name='addmoney')     
-                    sm.add_widget(wallet_scr)
-                    wallet_details = sm.get_screen('addmoney')
+                    # wallet_scr =Factory.AddMoneyScreen(name='addmoney')     
+                    # sm.add_widget(wallet_scr)
+                    # wallet_details = sm.get_screen('addmoney')
 
                     #withdraw details
-                    withdraw_scr = Factory.WithdrawScreen(name='withdraw')
-                    sm.add_widget(withdraw_scr)
-                    withdraw_details = sm.get_screen('withdraw')
+                    # withdraw_scr = Factory.WithdrawScreen(name='withdraw')
+                    # sm.add_widget(withdraw_scr)
+                    # withdraw_details = sm.get_screen('withdraw')
                     
                     #setting in wallet
-                    wallet_details.ids.options_button.icon = self.options_button_icon_mapping[money]
+                    # wallet_details.ids.options_button.icon = self.options_button_icon_mapping[money]
 
                     #setting in withdraw
-                    withdraw_details.ids.options_button.icon = self.options_button_icon_mapping[money]
-                    withdraw_details.ids.options_button.text= money
+                    # withdraw_details.ids.options_button.icon = self.options_button_icon_mapping[money]
+                    # withdraw_details.ids.options_button.text= money
 
                     #setting the currency in database to default
                     #updating user data with new currency
