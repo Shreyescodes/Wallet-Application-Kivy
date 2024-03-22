@@ -172,6 +172,7 @@ class SignUpScreen(Screen):
         # self.transactions(phone_no)
         try:
             if self.is_phone_number_registered(phone_no):
+
                 toast("Phone number already exists. Choose another.").open()
                 return
 

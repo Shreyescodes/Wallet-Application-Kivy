@@ -163,6 +163,7 @@ class SignInScreen(Screen):
 
             except Exception as e:
                 print(e)
+
     def show_popup(self, text):
         dialog = MDDialog(
             title="Alert",

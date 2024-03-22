@@ -8,6 +8,7 @@ from kivy.core.window import Window
 from anvil.tables import app_tables
 from kivymd.uix.snackbar import Snackbar
 from kivy.animation import Animation
+from kivy.factory import Factory
 KV = """
 <EditUser>
     BoxLayout:
@@ -77,20 +78,20 @@ KV = """
                     line_color_normal:"#148efe"
                     helper_text_color_focus:"#148efe"
 
-                MDTextField:
-                    id: password
-                    elevation: dp(2)
-                    text:""
-                    hint_text: "Password"
-                    helper_text: "Enter your password"
-                    icon_right: "lock"
-                    mode:'rectangle'
-                    radius:[21,21,21,21]
-                    hint_text_color_normal: "#148efe"
-                    text_color_normal:"#484848"
-                    icon_right_color_normal:"#148efe"
-                    line_color_normal:"#148efe"
-                    helper_text_color_focus:"#148efe"
+                # MDTextField:
+                #     id: password
+                #     elevation: dp(2)
+                #     text:""
+                #     hint_text: "Password"
+                #     helper_text: "Enter your password"
+                #     icon_right: "lock"
+                #     mode:'rectangle'
+                #     radius:[21,21,21,21]
+                #     hint_text_color_normal: "#148efe"
+                #     text_color_normal:"#484848"
+                #     icon_right_color_normal:"#148efe"
+                #     line_color_normal:"#148efe"
+                #     helper_text_color_focus:"#148efe"
 
                 MDTextField:
                     id: aadhaar
@@ -99,7 +100,7 @@ KV = """
                     hint_text: "Aadhaar Number"
                     helper_text: "Enter your Aadhaar number"
                     icon_right: "fingerprint"
-                    readonly: False  # Allow editing
+                    readonly: True  # Allow editing
                     mode:'rectangle'
                     radius:[21,21,21,21]
                     hint_text_color_normal: "#148efe"
@@ -115,7 +116,7 @@ KV = """
                     hint_text: "PAN Number"
                     helper_text: "Enter your PAN number"
                     icon_right: "credit-card"
-                    readonly: False  # Allow editing
+                    readonly: True  # Allow editing
                     mode:'rectangle'
                     radius:[21,21,21,21]
                     hint_text_color_normal: "#148efe"
@@ -151,7 +152,8 @@ Builder.load_string(KV)
 
 class EditUser(Screen):
     def go_back(self):
-        self.manager.current = 'profile'
+        self.manager.add_widget(Factory.SettingsScreen(name='settings'))
+        self.manager.current = 'settings'
 
     def __init__(self, **kwargs):
         super(EditUser, self).__init__(**kwargs)
@@ -178,7 +180,7 @@ class EditUser(Screen):
         phone = edit_scr.ids.phone.text
         username = edit_scr.ids.username.text
         email = edit_scr.ids.email.text
-        password = edit_scr.ids.password.text
+        # password = edit_scr.ids.password.text
         aadhar = edit_scr.ids.aadhaar.text
         pan = edit_scr.ids.pan.text
         address = edit_scr.ids.address.text
@@ -197,7 +199,7 @@ class EditUser(Screen):
                 user.update(
                     username=username,
                     email=email,
-                    password=password,
+                    # password=password,
                     aadhar=float(aadhar),
                     pan=pan,
                     address=address,

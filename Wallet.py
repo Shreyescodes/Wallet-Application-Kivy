@@ -458,6 +458,25 @@ class AddMoneyScreen(Screen):
         self.menu.dismiss()
         print(currency)
 
+    def on_enter(self, *args):
+        #in this function it will display the balance as per the default currency selected in default currency settings
+        # for icon_btn in self.options_button_icon_mapping:
+        store1 = JsonStore('user_data.json')
+        phone_no = store1.get('user')['value']["phone"]
+        user_data=app_tables.wallet_users.get(phone=phone_no)
+        user_data=app_tables.wallet_users.get(phone=phone_no)
+        user_default_currency = user_data['defaultcurrency']
+        if user_default_currency:
+            self.ids.options_button.icon = self.options_button_icon_mapping[user_default_currency]       
+            total_balance = self.manager.get_total_balance(phone_no, user_default_currency)
+            # Convert the total balance to the selected currency
+            self.ids.balance_lbl.text = f'balance: {total_balance}'
+        
+        #users data
+        users_default_account = user_data['default_account']
+        if users_default_account:
+            self.ids.bank_dropdown.text = users_default_account
+            self.test(users_default_account)
 
 class WalletApp(MDApp):
     def build(self):
