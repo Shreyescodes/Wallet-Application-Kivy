@@ -14,6 +14,8 @@ from accmanage import AccmanageScreen
 from Wallet import AddMoneyScreen
 from editprofile import EditUser
 from reset import ResetPassword
+from gguide import GuideScreen
+
 KV = '''
 <SettingsScreen>:
     Screen:
@@ -63,6 +65,7 @@ KV = '''
                                     text_color: get_color_from_hex("#3489eb")     
                             OneLineIconListItem:
                                 text: "App info"
+                                on_release: root.nav_guide_screen()
                                 IconLeftWidget:
                                     icon: "information-outline" 
                                     theme_text_color: 'Custom'
@@ -127,6 +130,7 @@ kv = """
                                        
                     OneLineIconListItem:
                         text: "App info"
+                        on_release: root.nav_guide_screen()
                         IconLeftWidget:
                             icon: "information-outline" 
                             theme_text_color: 'Custom'
@@ -421,3 +425,52 @@ class SettingsScreen(Screen):
 
         # Switch to the HelpScreen
         sm.current = 'reset'
+
+    def nav_guide_screen(self):
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
+
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
+
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
+
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., opening the help screen)
+        Clock.schedule_once(lambda dt: self.show_guide_screen(modal_view), 1)
+
+    def show_guide_screen(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the HelpScreen
+        guide_screen = Factory.GuideScreen(name='guide')
+
+        # Add the HelpScreen to the existing ScreenManager
+        sm.add_widget(guide_screen)
+
+        # Switch to the HelpScreen
+        sm.current = 'guide'

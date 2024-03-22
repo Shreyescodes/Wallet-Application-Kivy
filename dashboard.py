@@ -1,6 +1,7 @@
 import base64
 import io
 import traceback
+from kivy.utils import platform
 import qrcode
 from kivy.animation import Animation
 from kivy.clock import Clock
@@ -1516,6 +1517,24 @@ class DashBoardScreen(Screen):
         sm.current = 'complaint'
 
     def nav_Scanner(self):
+        # Check if the platform is Android
+        # if platform == 'android':
+        #     from android.permissions import request_permission, Permission
+        #     def callback(permissions, grant_results):
+        #         if all(grant_results):
+        #             self.show_scanner_modal()
+        #         else:
+        #             # Permission denied
+        #             # Handle permission denial here (e.g., display error message)
+        #             self.manager.current = "dashboard"
+        #             pass
+        #
+        #     request_permission(Permission.CAMERA, callback)
+        # else:
+        #     # For non-Android platforms, directly open the scanner modal
+        self.show_scanner_modal()
+
+    def show_scanner_modal(self):
         # Create a modal view for the loading animation
         modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 

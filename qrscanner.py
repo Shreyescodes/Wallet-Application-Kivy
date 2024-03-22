@@ -7,7 +7,6 @@ from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
 from kivy.app import App
 from kivymd.uix.label import MDLabel
-
 from kivymd.uix.screen import MDScreen
 from camera4kivy import Preview
 from PIL import Image as PILImage
