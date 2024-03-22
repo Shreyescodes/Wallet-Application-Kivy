@@ -26,7 +26,7 @@ Builder.load_string(
         orientation: 'vertical'
         size_hint_y: 0.1
         pos_hint: {"top":1}
-        
+
         MDTopAppBar:
             title: 'Auto Topup'
             elevation: 3
@@ -36,16 +36,16 @@ Builder.load_string(
             #pos_hint:{'top':1}
         MDBoxLayout:
             orientation: 'vertical'
-            
+
     MDBoxLayout:
         orientation: 'vertical'
         padding: dp(20)
-        pos_hint: {"top":1.35} 
-        
+        pos_hint: {"top":1.42} 
+
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.25 
-        pos_hint: {"top":1.0} 
+        pos_hint: {"top":1.09} 
         #md_bg_color: "fefe16" 
 
         MDRectangleFlatButton:
@@ -65,8 +65,8 @@ Builder.load_string(
         spacing: dp(20)
         #adaptive_height: True
         #pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        pos_hint: {"top":1.59}
-         
+        pos_hint: {"top":1.73}
+
         MDRaisedButton:
             id: toggle_card
             text: 'Minimum balance topup'
@@ -76,7 +76,7 @@ Builder.load_string(
             size_hint: 0.7, None  # Set the size_hint_x to 1 to fill the width
             size: dp(80), dp(5)
             on_press: root.toggle_card_visibility()
-                  
+
         MDRaisedButton:
             id: toggle_button
             text: 'Timely topup'
@@ -86,7 +86,7 @@ Builder.load_string(
             size_hint: 0.7, None  # Set the size_hint_x to 1 to fill the width
             height: dp(5)
             on_press: root.toggle_button_visibility()                    
-            
+
 """)
 
 
@@ -105,7 +105,7 @@ class AutoTopupScreen(Screen):
         self.box_layout = MDBoxLayout(
             orientation='vertical',
             padding=(dp(20), dp(20)),
-            pos_hint={"top": 1.35}
+            pos_hint={"top": 1.42}
         )
 
         self.switch = Switch(
@@ -231,7 +231,7 @@ class AutoTopupScreen(Screen):
             print(f"Error fetching currencies: {e}")
 
     def selected_currency(self, currency):
-        autotopup_scr = self.manager.get_screen('auto_topup')
+        autotopup_scr = self.manager.get_screen('autotopup')
         autotopup_scr.ids.currency_dropdown.text = currency
         self.menu.dismiss()
         print(currency)
@@ -252,7 +252,7 @@ class AutoTopupScreen(Screen):
             # Create and add AutoTopupCard widget if not already created
             self.auto_topup_card = AutoTopupCard()
             self.add_widget(self.auto_topup_card)
-            self.auto_topup_card.height = dp(285)
+            self.auto_topup_card.height = dp(230)
             self.auto_topup_card.opacity = 1
             self.auto_topup_card.is_visible = True
         else:
@@ -266,7 +266,7 @@ class AutoTopupScreen(Screen):
             # Create and add AutoTopupCard widget if not already created
             self.auto_topup_card = ScheduledTopupCard()
             self.add_widget(self.auto_topup_card)
-            self.auto_topup_card.height = dp(285)
+            self.auto_topup_card.height = dp(230)
             self.auto_topup_card.opacity = 1
             self.auto_topup_card.is_visible = True
         else:
@@ -287,12 +287,12 @@ class AutoTopupCard(MDCard):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
         self.size_hint = (0.9, None)
-        self.height = dp(350)
-        self.pos_hint = {"center_x": 0.5, "center_y": 0.3}
+        self.height = dp(250)
+        self.pos_hint = {"center_x": 0.5, "center_y": 0.55}
         self.elevation = 1
         self.radius = [20, 20, 20, 20]
         self.padding = dp(10)
-        self.spacing = dp(7)
+        self.spacing = dp(0)
         self.md_bg_color = [215 / 255, 236 / 255, 250 / 255, 1]  # Light blue background
 
         label_1 = MDLabel(text='When wallet balance goes below', halign='left', valign='top',
@@ -301,12 +301,12 @@ class AutoTopupCard(MDCard):
         label_1.height = label_1.texture_size[1]
         self.add_widget(label_1)
 
-        money_dropdown_box_layout = BoxLayout(padding=(0, dp(10), 0, dp(10)))  # Add padding top and bottom
-        money_dropdown = MDRectangleFlatButton(text="Select money", halign="center", padding=dp(2),
+        money_dropdown_box_layout = BoxLayout(padding=(0, dp(1), 0, dp(12)))  # Add padding top and bottom
+        money_dropdown = MDRectangleFlatButton(text="Select money", halign="center", padding=dp(5),
                                                size_hint=(0.5, None), size=(dp(100), dp(30)),
                                                pos_hint={"center_x": 0.5})
         money_dropdown.md_bg_color = (1, 1, 1, 1)  # Setting background color to white
-        money_dropdown.radius = [20, 20, 20, 20]
+        money_dropdown.radius = [10, 10, 10, 10]
         money_dropdown.text_color = (0, 0, 0, 1)
         money_dropdown.line_color = (1, 1, 1, 1)
         money_dropdown.bind(on_release=lambda x: self.moneyDropdown(money_dropdown))
@@ -319,28 +319,25 @@ class AutoTopupCard(MDCard):
         label_2.text_color = (0, 0, 0, 1)
         label_2.height = label_2.texture_size[1]
         self.add_widget(label_2)
-
-        box_layout_2 = MDBoxLayout(padding=dp(5), spacing=dp(10), adaptive_height=True,
-                                   pos_hint={'center_x': 0.5, 'center_y': 0.5})
-        self.add_widget(box_layout_2)
-
-        balance = MDTextField(halign='center', readonly=False, size_hint_y=None, height=dp(5))
+        balance_box_layout = BoxLayout(padding=(0, dp(8), 0, dp(3)))  # Add padding top and bottom
+        balance = MDTextField(halign='center', readonly=False, size_hint_y=None, height=dp(3))
         balance.mode = "fill"
+        balance.padding = dp(1)
         balance.fill_mode = True
         balance.radius = [10, 10, 10, 10]
         balance.fill_color_normal = "#ffffff"
         balance.theme_text_color = "Custom"
-
-        box_layout_2.add_widget(balance)
+        balance_box_layout.add_widget(balance)
+        self.add_widget(balance_box_layout)
         self.balance = balance  # Store a reference to the balance widget
 
-        box_layout_3 = MDBoxLayout(padding=dp(10), spacing=dp(10), adaptive_height=True,
+        box_layout_3 = MDBoxLayout(padding=dp(3), spacing=dp(18), adaptive_height=True,
                                    pos_hint={'center_x': 0.5, 'center_y': 0.5})
         self.add_widget(box_layout_3)
 
         self.add_buttons(box_layout_3)
 
-        box_layout_4 = MDBoxLayout(padding=dp(10), adaptive_height=True,
+        box_layout_4 = MDBoxLayout(padding=dp(3), adaptive_height=True,
                                    pos_hint={'center_x': 0.5, 'center_y': 0.5})
         self.add_widget(box_layout_4)
         self.add_proceed(box_layout_4)
@@ -506,12 +503,12 @@ class ScheduledTopupCard(MDCard):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
         self.size_hint = (0.9, None)
-        self.height = dp(270)
-        self.pos_hint = {"center_x": 0.5, "center_y": 0.3}
+        self.height = dp(250)
+        self.pos_hint = {"center_x": 0.5, "center_y": 0.55}
         self.elevation = 1
         self.radius = [20, 20, 20, 20]
         self.padding = dp(10)
-        self.spacing = dp(7)
+        self.spacing = dp(0)
         self.md_bg_color = [215 / 255, 236 / 255, 250 / 255, 1]  # Light blue background
 
         label_1 = MDLabel(text='When wallet balance automatically added', valign='top',
@@ -520,11 +517,12 @@ class ScheduledTopupCard(MDCard):
         label_1.height = label_1.texture_size[1]
         self.add_widget(label_1)
 
-        frequency_dropdown_box_layout = BoxLayout(padding=(0, dp(15), 0, dp(10)))  # Add padding top and bottom
+        frequency_dropdown_box_layout = BoxLayout(padding=(0, dp(1), 0, dp(12)))  # Add padding top and bottom
         frequency_dropdown = MDRectangleFlatButton(text="Select interval", halign="center", padding=dp(2),
                                                    size_hint=(0.5, None), size=(dp(100), dp(30)),
                                                    pos_hint={"center_x": 0.5})
         frequency_dropdown.md_bg_color = (1, 1, 1, 1)  # Setting background color to white
+        frequency_dropdown.radius = [10, 10, 10, 10]
         frequency_dropdown.text_color = (0, 0, 0, 1)
         frequency_dropdown.line_color = (1, 1, 1, 1)
         frequency_dropdown.bind(on_release=lambda x: self.frequencyDropdown(frequency_dropdown))
@@ -538,27 +536,25 @@ class ScheduledTopupCard(MDCard):
         label_2.height = label_2.texture_size[1]
         self.add_widget(label_2)
 
-        box_layout_2 = MDBoxLayout(padding=dp(5), spacing=dp(10), adaptive_height=True,
-                                   pos_hint={'center_x': 0.5, 'center_y': 0.5})
-        self.add_widget(box_layout_2)
-
-        balance = MDTextField(halign='center', readonly=False, size_hint_y=None, height=dp(35))
+        balance_box_layout = BoxLayout(padding=(0, dp(8), 0, dp(3)))
+        balance = MDTextField(halign='center', readonly=False, size_hint_y=None, height=dp(3))
         balance.mode = "fill"
+        balance.padding = dp(1)
         balance.fill_mode = True
         balance.radius = [10, 10, 10, 10]
         balance.fill_color_normal = "#ffffff"
         balance.theme_text_color = "Custom"
-
-        box_layout_2.add_widget(balance)
+        balance_box_layout.add_widget(balance)
+        self.add_widget(balance_box_layout)
         self.balance = balance  # Store a reference to the balance widget
 
-        box_layout_3 = MDBoxLayout(padding=dp(10), spacing=dp(10), adaptive_height=True,
+        box_layout_3 = MDBoxLayout(padding=dp(3), spacing=dp(18), adaptive_height=True,
                                    pos_hint={'center_x': 0.5, 'center_y': 0.5})
         self.add_widget(box_layout_3)
 
         self.add_buttons(box_layout_3)
 
-        box_layout_4 = MDBoxLayout(padding=dp(10), adaptive_height=True,
+        box_layout_4 = MDBoxLayout(padding=dp(3), adaptive_height=True,
                                    pos_hint={'center_x': 0.5, 'center_y': 0.5})
         self.add_widget(box_layout_4)
         self.add_proceed(box_layout_4)
@@ -645,7 +641,7 @@ class ScheduledTopupCard(MDCard):
                 # Calculate the time interval based on the frequency
                 if selected_frequency == "Every Week":
                     print(selected_frequency)
-                    interval_days = 1
+                    interval_days = 7
                 elif selected_frequency == "Every Month":
                     print(selected_frequency)
                     interval_days = 30
@@ -735,3 +731,17 @@ class ScheduledTopupCard(MDCard):
 
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
+
+# class WalletApp(MDApp):
+#     auto_topup_card = None  # Define the auto_topup_card attribute
+#
+#     def build(self):
+#         screen_manager = ScreenManager()
+#         auto_topup_screen = AutoTopupScreen(name='autotopup')
+#         screen_manager.add_widget(auto_topup_screen)
+#         return screen_manager
+#
+#
+# if __name__ == '__main__':
+#     WalletApp().run()
+

@@ -2,11 +2,12 @@ import anvil
 from anvil.tables import app_tables
 from kivy.factory import Factory
 from kivy.lang import Builder
+from kivymd.toast import toast
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
-from kivymd.uix.snackbar import Snackbar
 from kivy.base import EventLoop
+
 KV = '''
 <SignUpScreen>:
     BoxLayout:
@@ -24,67 +25,75 @@ KV = '''
                 size_hint_y: None
                 height: self.minimum_height
                 padding: "10dp"
-                spacing: "13dp"
+                spacing: "20dp"
                 orientation: 'vertical'
-                Widget:
-                    size_hint_y: None
-                    height: '5dp'
-                MDLabel:
-                    text: "Create An Account"
-                    halign: 'center'
-                    bold:True
-                    theme_text_color: "Primary"
-                Widget:
-                    size_hint_y: None
-                    height: '3dp'    
+                
+                MDTextField:
+                    mode: "rectangle"
+                    id: user_name
+                    hint_text: " Username"
+                    line_color_normal: (0.5, 0.5, 0.5, 1)
+                    # required: True
+                    
+                    
                 MDTextField:
                     mode: "rectangle"
                     id: gmail
-                    hint_text: " Gmail"
-                    line_color_normal: app.theme_cls.primary_color
+                    hint_text: " Email Address"
+                    line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-
-                MDTextField:
-                    mode: "rectangle"
-                    id: username
-                    hint_text: " Username"
-                    line_color_normal: app.theme_cls.primary_color
-                    # required: True
-
+                    
+                    
                 MDTextField:
                     mode: "rectangle"
                     id: password
                     hint_text: " Password"
                     password: True
-                    line_color_normal: app.theme_cls.primary_color
+                    line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    
+                MDTextField:
+                    mode: "rectangle"
+                    id: re_password
+                    hint_text: " Retype your password"
+                    password: True
+                    line_color_normal: (0.5, 0.5, 0.5, 1)
+                    # required: True
+                                
 
                 MDTextField:
                     mode: "rectangle"
                     id: phone_no
                     hint_text: " Phone Number"
-                    line_color_normal: app.theme_cls.primary_color
+                    line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
 
                 MDTextField:
                     mode: "rectangle"
                     id: aadhar_card
                     hint_text: " Aadhar Card Number"
-                    line_color_normal: app.theme_cls.primary_color
+                    line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
 
                 MDTextField:
                     mode: "rectangle"
                     id: pan_card
                     hint_text: " PAN Card Number"
-                    line_color_normal: app.theme_cls.primary_color
+                    line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
 
                 MDTextField:
                     mode: "rectangle"
-                    id: address
-                    hint_text: " Address"
-                    line_color_normal: app.theme_cls.primary_color
+                    id: address_1
+                    hint_text: " Address Line 1"
+                    line_color_normal: (0.5, 0.5, 0.5, 1)
+                    # required: True
+                    
+                MDTextField:
+                    mode: "rectangle"
+                    id: address_2
+                    hint_text: " Address Line 2"
+                    line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
                 Widget:
                     size_hint_y: None
@@ -152,18 +161,18 @@ class SignUpScreen(Screen):
     def signup(self):
         current_screen = self.manager.get_screen('signup')
         gmail = current_screen.ids.gmail.text
-        username = current_screen.ids.username.text
+        username = current_screen.ids.user_name.text
         password = current_screen.ids.password.text
         phone_no = current_screen.ids.phone_no.text
         aadhar_card = current_screen.ids.aadhar_card.text
         pan_card = current_screen.ids.pan_card.text
-        address = current_screen.ids.address.text
+        address = f"{current_screen.ids.address_1.text}+, {current_screen.ids.address_2.text}"
         # self.account_details(phone_no)
         # self.add_money(phone_no)
         # self.transactions(phone_no)
         try:
             if self.is_phone_number_registered(phone_no):
-                Snackbar("Phone number already exists. Choose another.").open()
+                toast("Phone number already exists. Choose another.").open()
                 return
 
             else:  # Add user data to the 'login' collection in Anvil

@@ -1,50 +1,46 @@
-from kivymd.app import MDApp
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.clock import Clock
-import cv2
-import numpy as np
-from kivy.base import EventLoop
-from kivy.lang.builder import Builder
+from kivy.factory import Factory
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty
+from kivy.clock import mainthread, Clock
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.modalview import ModalView
+from kivy.uix.screenmanager import Screen
+from kivy.app import App
+from kivymd.uix.label import MDLabel
 
-Builder.load_string('''
-<QRCodeScannerScreen>:
+from kivymd.uix.screen import MDScreen
+from camera4kivy import Preview
+from PIL import Image as PILImage
+from pyzbar.pyzbar import decode
+
+Builder.load_string("""
+<ScanScreen>:
     BoxLayout:
         orientation: 'vertical'
-        size: root.width, root.height
         MDTopAppBar:
-            id: topbar
-            elevation: 3
-            left_action_items: [['arrow-left', lambda x:root.go_back()]]
-            md_bg_color: "#1e75b9"
-            specific_text_color: "#ffffff"
-            pos_hint: {'top': 1}
-        MDLabel:
-            id: qr_label
-            text: 'Scan QR Code'
-            size_hint:(0.8,0.1)
-            pos_hint:{'center_x':0.5}
-            color: (0, 0, 1, 1)
-        Camera:
-            id:camera
-            resolution: (1280, 720)  # Adjust resolution as needed
-            play: True
-            # Set rotation to 180 for horizontal flip, 270 for vertical flip (adjust accordingly)
-            rotation: 270
-''')
+            title: "Scan QR Code"
+            left_action_items: [["arrow-left", lambda x: root.go_back()]]
+            elevation: 2
+        
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: None
+            height: root.height - dp(56)  # Adjust for top app bar height
+            
+            ScanAnalyze:
+                id: preview
+                aspect_ratio: '16:9'
+                extracted_data: root.got_result
+""")
 
 
-class QRCodeScannerScreen(Screen):
-    def __init__(self, **kwargs):
-        super(QRCodeScannerScreen, self).__init__(**kwargs)
-        EventLoop.window.bind(on_back_pressed=self.go_back)
-        self.last_frame = None  # Store last captured frame for optimization
-        Clock.schedule_interval(self.check_for_qr_code, 1.0 / 30.0)  # Schedule QR code detection
-
-    def on_enter(self):
-        self.start_qr_scan()
-
+class ScanScreen(MDScreen):
     def go_back(self):
+        self.ids.preview.disconnect_camera()
         self.manager.current = 'dashboard'
+
+    def on_kv_post(self, obj):
+        self.ids.preview.connect_camera(enable_analyze_pixels=True, default_zoom=0.0)
 
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android
@@ -52,48 +48,62 @@ class QRCodeScannerScreen(Screen):
             self.go_back()
             return True  # Indicates that the key event has been handled
         return False
+    @mainthread
+    def got_result(self, result):
+        decoded_data = result.data.decode('utf-8')  # Decode bytes to string
+        print("Decoded Data:", decoded_data)
+        self.nav_to_transfer(decoded_data)
 
-    def on_leave(self, *args):
-        Clock.unschedule(self.check_for_qr_code)
+    def nav_to_transfer(self, data):
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
 
-    def check_for_qr_code(self, dt):
-        # Capture frame from the camera
-        frame = np.frombuffer(self.ids.camera.texture.pixels, dtype=np.uint8)
-        frame = frame.reshape((self.ids.camera.texture.height, self.ids.camera.texture.width, 4))
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
 
-        # Check if frame has changed significantly to avoid unnecessary processing
-        if self.last_frame is None or not np.array_equal(frame, self.last_frame):
-            self.last_frame = frame
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
+        )
 
-            # Convert frame to grayscale for QR code detection
-            gray_frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2GRAY)
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
 
-            # Decode QR code using pyzbar
-            try:
-                detector = cv2.QRCodeDetector()
-                data, points, _ = detector.detectAndDecode(gray_frame)
-                if data:
-                    # Handle successful QR code detection
-                    self.ids.qr_label.text = f'Scanned QR Code: {data}'
-                    # Implement your further actions based on the scanned data (e.g., navigate to a screen, process information)
-                    Clock.unschedule(self.check_for_qr_code)  # Stop scheduling after successful detection (optional)
-            except Exception as e:
-                # Handle potential errors
-                print(f"Error decoding QR code: {e}")
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
 
-    def start_qr_scan(self):
-        pass  # No need for continuous scanning, use the button press instead
+        # Open the modal view
+        modal_view.open()
 
+        # Perform the actual action (e.g., checking account details and navigating)
+        Clock.schedule_once(lambda dt: self.show_transfer_screen(modal_view, data), 1)
 
-class QRCodeScannerApp(MDApp):
-    def build(self):
-        screen_manager = ScreenManager()
-
-        # Add screens to the screen manager
-        screen_manager.add_widget(QRCodeScannerScreen(name='qr_code_scanner'))
-
-        return screen_manager
+    def show_transfer_screen(self, modal_view, data):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+        self.ids.preview.disconnect_camera()
+        # Retrieve the screen manager
+        self.manager.add_widget(Factory.TransferScreen(name='transfer'))
+        transfer_scr = self.manager.get_screen('transfer')
+        transfer_scr.ids.mobile_no_field.text = data
+        self.manager.current = 'transfer'
 
 
-if __name__ == '__main__':
-    QRCodeScannerApp().run()
+class ScanAnalyze(Preview):
+    extracted_data = ObjectProperty(None)
+
+    def analyze_pixels_callback(self, pixels, image_size, image_pos, scale, mirror):
+        pimage = PILImage.frombytes(mode='RGBA', size=image_size, data=pixels)
+        list_of_all_barcodes = decode(pimage)
+
+        if list_of_all_barcodes:
+            if self.extracted_data:
+                self.extracted_data(list_of_all_barcodes[0])
+            else:
+                print("Not found")

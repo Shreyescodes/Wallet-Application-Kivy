@@ -1,11 +1,11 @@
 import base64
 import io
 import traceback
+import qrcode
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.factory import Factory
 from kivy.uix.image import Image
-import qrcode
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
@@ -37,11 +37,13 @@ from transaction import Transaction
 from viewprofile import Profile
 from Wallet import AddMoneyScreen
 from loadingScreen import loadingScreen
-from qrscanner import QRCodeScannerScreen
 from checkbalance import BalanceScreen
 from selftransfer import SelftransferScreen
 from referfriend import ReferFriendScreen
 from autotopup import AutoTopupScreen
+from qrscanner import ScanScreen
+from newQR import QRCodeScreen
+
 navigation_helper = """
 <DashBoardScreen>:
     MDNavigationLayout:
@@ -120,7 +122,7 @@ navigation_helper = """
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
-                                size: "70dp", "70dp"
+                                size: "90dp", "90dp"
                                 md_bg_color: "#ffffff"
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
@@ -131,31 +133,37 @@ navigation_helper = """
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
-                                    height: "70dp"
-                                    spacing: dp(-12)
+                                    height: "60dp"
+                                    #spacing: dp(-12)
                                     
                                     Image:
                                         source: "images/money-transfer.png"
-                                        size_hint: (0.3, 1)
+                                        size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                    
+                                        
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "30dp"   
                                     MDLabel:
                                         text: "Transfer"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                                         
                                         
                                     MDLabel:
                                         text: "Money"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                                         
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
-                                size: "70dp", "70dp"
+                                size: "90dp", "90dp"
                                 md_bg_color: "#ffffff"
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
@@ -165,29 +173,35 @@ navigation_helper = """
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
-                                    height: "70dp"
+                                    height: "60dp"
                                     spacing: dp(-12)
                                     
                                     Image:
                                         source: "images/wallet.png"
-                                        size_hint: (0.3, 1)
+                                        size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                    
+                                        
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "30dp"    
                                     MDLabel:
                                         text: "Your"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                                         
                                     MDLabel:
                                         text: "Wallet"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"    
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
-                                size: "70dp", "70dp"
+                                size: "90dp", "90dp"
                                 md_bg_color: "#ffffff"
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
@@ -197,28 +211,33 @@ navigation_helper = """
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
-                                    height: "70dp"
+                                    height: "60dp"
                                     spacing: dp(-12)
                                     
                                     Image:
                                         source: "images/cash-withdrawal.png"
-                                        size_hint: (0.3, 1)
+                                        size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                    
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "30dp"    
                                     MDLabel:
                                         text: "Withdraw"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                                     MDLabel:
                                         text: "  Money"
                                         color: 20/255, 142/255, 254/255,1 
-                                        font_size: "14sp" 
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"  
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
-                                size: "70dp", "70dp"
+                                size: "90dp", "90dp"
                                 md_bg_color: "#ffffff"
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
@@ -228,62 +247,72 @@ navigation_helper = """
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
-                                    height: "70dp"
+                                    height: "60dp"
                                     spacing: dp(-12)
                                     
                                     Image:
                                         source: "images/phone.png"
-                                        size_hint: (0.3, 1)
+                                        size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                    
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "30dp"    
                                     MDLabel:
                                         text: "Pay"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                                         
                                     MDLabel:
                                         text: "contacts"
                                         color: 20/255, 142/255, 254/255,1 
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"   
                                     
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
-                                size: "70dp", "70dp"
+                                size: "90dp", "90dp"
                                 md_bg_color: "#ffffff"
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
-                                # elevation: 1 
+                                #elevation: 1 
                                 on_release: root.nav_auto_topup()
                                      
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
-                                    height: "70dp"
+                                    height: "60dp"
                                     spacing: dp(-12)
                                     
                                     Image:
                                         source: "images/topup.png"
-                                        size_hint: (0.3, 1)
+                                        size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                    
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "30dp"    
                                     MDLabel:
                                         text: "Auto"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                                     MDLabel:
                                         text: "Topup"
                                         color: 20/255, 142/255, 254/255,1 
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"   
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
-                                size: "70dp", "70dp"
+                                size: "90dp", "90dp"
                                 md_bg_color: "#ffffff"
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
@@ -293,29 +322,34 @@ navigation_helper = """
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
-                                    height: "70dp"
+                                    height: "60dp"
                                     spacing: dp(-12)
                                     
                                     Image:
                                         source: "images/museum.png"
-                                        size_hint: (0.3, 1)
+                                        size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                    
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "30dp"    
                                     MDLabel:
                                         text: "Bank"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                                         
                                     MDLabel:
                                         text: "Accounts"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"    
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
-                                size: "70dp", "70dp"
+                                size: "90dp", "90dp"
                                 md_bg_color: "#ffffff"
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
@@ -325,30 +359,35 @@ navigation_helper = """
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
-                                    height: "70dp"
+                                    height: "60dp"
                                     spacing: dp(-12)
                                     
                                     Image:
                                         source: "images/self-transfer.png"
-                                        size_hint: (0.3, 1)
+                                        size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                    
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "30dp"    
                                     MDLabel:
                                         text: "Self"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                                         
                                     MDLabel:
                                         text: "Transfer"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
-                                        halign: "center"   
+                                        font_size: "12sp"
+                                        bold: True 
+                                        halign: "center"  
                                     
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
-                                size: "70dp", "70dp"
+                                size: "90dp", "90dp"
                                 md_bg_color: "#ffffff"
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
@@ -358,30 +397,36 @@ navigation_helper = """
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
-                                    height: "70dp"
+                                    height: "60dp"
                                     spacing: dp(-12)
                                     
                                     Image:
                                         source: "images/refer.png"
-                                        size_hint: (0.3, 1)
+                                        size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                    
+                                        
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "30dp"    
                                     MDLabel:
                                         text: "Refer a"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                                         
                                     MDLabel:
                                         text: "friend"
                                         color: 20/255, 142/255, 254/255,1 
-                                        font_size: "14sp"
-                                        halign: "center"   
+                                        font_size: "12sp"
+                                        bold: True 
+                                        halign: "center"  
                                     
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
-                                size: "70dp", "70dp"
+                                size: "90dp", "90dp"
                                 md_bg_color: "#ffffff"
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
@@ -391,23 +436,28 @@ navigation_helper = """
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
-                                    height: "70dp"
+                                    height: "60dp"
                                     spacing: dp(-12)
                                     
                                     Image:
                                         source: "images/scanner.png"
-                                        size_hint: (0.3, 1)
+                                        size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                    
+                                MDBoxLayout:
+                                    orientation: "vertical"
+                                    size_hint_y: None
+                                    height: "30dp"    
                                     MDLabel:
                                         text: "Scan a"
                                         color: 20/255, 142/255, 254/255,1
-                                        font_size: "14sp"
+                                        font_size: "12sp"
                                         halign: "center"
+                                        bold: True
                                     MDLabel:
                                         text: "QR Code"
                                         color: 20/255, 142/255, 254/255,
-                                        font_size: "14sp" 
+                                        font_size: "12sp"
+                                        bold: True 
                                         halign: "center"
                     
                         MDBoxLayout:
@@ -1169,28 +1219,53 @@ class DashBoardScreen(Screen):
         self.menu.dismiss()
 
     def generate_qr_code(self):
-        phone = JsonStore('user_data.json').get('user')['value']["phone"]
-        qr_code = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
+        # Create a modal view for the loading animation
+        modal_view = ModalView(size_hint=(None, None), size=(300, 150), background_color=[0, 0, 0, 0])
+
+        # Create a BoxLayout to hold the loading text
+        box_layout = BoxLayout(orientation='vertical')
+
+        # Create a label for the loading text
+        loading_label = MDLabel(
+            text="Loading...",
+            halign="center",
+            valign="center",
+            theme_text_color="Custom",
+            text_color=[1, 1, 1, 1],
+            font_size="20sp",
+            bold=True
         )
-        qr_code.add_data(phone)
-        qr_code.make(fit=True)
 
-        img = qr_code.make_image(fill_color="black", back_color="white")
-        buffer = io.BytesIO()
-        img.save(buffer, format='PNG')
-        png_data = buffer.getvalue()
-        self.show_qr(png_data)
+        # Add the label to the box layout
+        box_layout.add_widget(loading_label)
 
-    def show_qr(self, png_data):
-        qr_code_popup = Popup(title='Your QR Code', size_hint=(0.8, 0.8))
-        qr_code_image = Image()
-        qr_code_image.source = 'data:image/png;base64,' + base64.b64encode(png_data).decode('utf-8')
-        qr_code_popup.add_widget(qr_code_image)
-        qr_code_popup.open()
+        # Add the box layout to the modal view
+        modal_view.add_widget(box_layout)
+
+        # Open the modal view
+        modal_view.open()
+
+        # Animate the loading text to the center
+        Animation(pos_hint={'center_x': 0.5, 'center_y': 0.5}, duration=0.5).start(loading_label)
+
+        # Perform the actual action (e.g., showing the add money screen)
+        Clock.schedule_once(lambda dt: self.show_qr(modal_view), 1)
+
+    def show_qr(self, modal_view):
+        # Dismiss the loading animation modal view
+        modal_view.dismiss()
+
+        # Retrieve the screen manager
+        sm = self.manager
+
+        # Create a new instance of the screen for adding money
+        qr_screen = Factory.QRCodeScreen(name='qrcode')
+
+        # Add the screen for adding money to the existing ScreenManager
+        sm.add_widget(qr_screen)
+
+        # Switch to the screen for adding money
+        sm.current = 'qrcode'
 
     def nav_addContact(self):
         self.manager.current = 'addcontact'
@@ -1481,7 +1556,7 @@ class DashBoardScreen(Screen):
         sm = self.manager
 
         # Create a new instance of the QRCodeScannerScreen
-        qr_scanner_screen = Factory.QRCodeScannerScreen(name='qrscanner')
+        qr_scanner_screen = Factory.ScanScreen(name='qrscanner')
 
         # Add the QRCodeScannerScreen to the existing ScreenManager
         sm.add_widget(qr_scanner_screen)

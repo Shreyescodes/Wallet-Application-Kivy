@@ -31,7 +31,7 @@ Builder.load_string(
         pos_hint: {"top":1}
 
         MDTopAppBar:
-            title: 'Add Money'
+            title: 'Your Wallet'
             elevation: 3
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             md_bg_color: "#148EFE"
@@ -73,7 +73,7 @@ Builder.load_string(
 
                 MDLabel:
                     id: balance_lbl
-                    text: 'Balance'
+                    text: ''
                     halign: 'center'
                     valign:'middle'
                     readonly: True
@@ -227,6 +227,8 @@ Builder.load_string(
 
 
 class AddMoneyScreen(Screen):
+
+
 
     def go_back(self):
         self.manager.current = 'dashboard'

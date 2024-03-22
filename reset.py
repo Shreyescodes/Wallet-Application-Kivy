@@ -1,6 +1,7 @@
 import anvil
 from anvil.tables import app_tables
 from kivy.lang import Builder
+from kivy.storage.jsonstore import JsonStore
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -73,9 +74,10 @@ Builder.load_string(KV)
 class ResetPassword(Screen):
     def go_back(self):
         self.manager.current = 'settings'
-    def submit_password(self, instance):
+
+    def submit_password(self):
         # Get the current user's phone number from the stored user data
-        current_user_password = self.manager.current_user_data["password"]
+        current_user_password = JsonStore("user_data.json").get("user")["value"]["password"]
 
         # Get the user from the Anvil app_tables.wallet_users
         user = app_tables.wallet_users.get(password=current_user_password)
@@ -83,11 +85,11 @@ class ResetPassword(Screen):
         if user:
             # Get the decrypted password from the user's data
             decrypted_password = anvil.server.call('load_secret_data', current_user_password,
-                                                   self.old_password_input.text)
+                                                   self.ids.old_password_input.text)
 
-            if decrypted_password == self.old_password_input.text:
+            if decrypted_password == self.ids.old_password_input.text:
                 # Previous password is correct, update with the new password
-                new_encrypted_password = anvil.server.call("save_secret_data", self.new_password_input.text)
+                new_encrypted_password = anvil.server.call("save_secret_data", self.ids.new_password_input.text)
                 user.update(password=new_encrypted_password)
 
                 # Show a success pop-up

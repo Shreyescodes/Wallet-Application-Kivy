@@ -1,3 +1,4 @@
+from anvil.tables import app_tables
 from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
 from kivy.lang import Builder
@@ -6,10 +7,6 @@ import random
 import string
 import pyperclip
 from kivy.storage.jsonstore import JsonStore
-
-
-# Set the background color of the window to white
-Window.clearcolor = (1, 1, 1, 1)
 
 Builder.load_string('''
 <ReferFriendScreen>:
@@ -37,7 +34,6 @@ Builder.load_string('''
                 width: self.texture_size[0]  
                 pos_hint: {'x': 0}  
 
-
             CustomLabel:
                 id: label2
                 text: 'Invite friends to GWallet and get ₹100 and when your friends make their first payment they get ₹50!'
@@ -49,8 +45,6 @@ Builder.load_string('''
                 size_hint_x: 1  # Relative width
                 text_size: self.width, None  # Allow dynamic text wrapping  
 
-
-
                 canvas:
                     Color:
                         rgba: 190 / 255, 190 / 255, 190 / 255, 1  # Set color to rgba(190, 190, 190, 1)
@@ -58,7 +52,6 @@ Builder.load_string('''
                         points: self.x, self.y - dp(20), self.x + self.width, self.y - dp(20) # Draw line separator   
                     Line:
                         points: self.x, self.y - dp(137), self.x + self.width, self.y - dp(137)     
-
 
             BoxLayout:
                 orientation: 'horizontal'
@@ -89,7 +82,6 @@ Builder.load_string('''
                 text_color: (67 / 255, 67 / 255, 67 / 255, 1)  # Set text color to rgba(67, 67, 67, 1)
                 line_color: [0, 0, 0, 0]  # Set line color to transparent
 
-
             MDRoundFlatButton: 
                 id: button2
                 text: 'Search Contacts'
@@ -118,10 +110,16 @@ class ReferFriendScreen(Screen):
 
     def __init__(self, **kwargs):
         super(ReferFriendScreen, self).__init__(**kwargs)
-        random_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-        self.ids.textinput2.text = random_code
+        phone = JsonStore('user_data.json').get('user')['value']['phone']
         username = JsonStore('user_data.json').get('user')['value']['username']
         self.ids.textinput1.text = username
+        user = app_tables.wallet_users.get(phone=phone)
+        if not user['userreferral']:
+            random_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            self.ids.textinput2.text = random_code
+            user.update(userreferral=random_code)
+        else:
+            self.ids.textinput2.text = user['userreferral']
 
     def copy_code(self):
         code_to_copy = self.root.ids.textinput2.text
@@ -129,5 +127,3 @@ class ReferFriendScreen(Screen):
 
     def go_back(self):
         self.manager.current = 'dashboard'
-        self.ids.textinput1.text = ''
-        self.ids.textinput2.text = ''

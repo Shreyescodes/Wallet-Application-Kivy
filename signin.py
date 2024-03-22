@@ -107,55 +107,62 @@ class SignInScreen(Screen):
                     user_data['last_login'] = str(user_data['last_login'])
                     user.update(last_login=date)
                     print(user_data)
-                    # Show popup for successful login
-                    self.show_popup("Login Successful")
 
-                    for screen in self.manager.screens:
-                        self.manager.remove_widget(screen)
-                    # App.get_running_app().authenticated_user_number = row['phone']
-                    self.manager.add_widget(Factory.DashBoardScreen(name='dashboard'))
-                    self.manager.current = 'dashboard'
+                    if user_data['banned']:  # Check if user is banned
+                        print("User is banned. Showing popup.")
+                        # Show popup for banned user
+                        self.show_popup(
+                            "You have been banned due to some credential issue. Your amount will be debited to your account within 5 days.")
+                    else:
+                        # Proceed with login
+                        # Show popup for successful login
+                        # self.show_popup("Login Successful")
 
-                    # Save user data to JsonStore (if needed)
-                    store = JsonStore('user_data.json')
-                    store.put('user', value=user_data)
-                    try:
-                        conn = sqlite3.connect('wallet_database.db')
-                        cursor = conn.cursor()
-                        user = JsonStore('user_data.json').get('user')['value']
-                        phone = user['phone']
-                        username = user['username']
-                        email = user['email']
-                        password = user['password']
-                        confirm_email = user['confirm_email']
-                        aadhar_number = user['aadhar']
-                        pan = user['pan']
-                        address = user['address']
-                        usertype = user['usertype']
-                        banned = user['banned']
-                        balance_limit = user['limit']
-                        daily_limit = user['daily_limit']
-                        last_login = user['last_login']
+                        # for screen in self.manager.screens:
+                        #     self.manager.remove_widget(screen)
+                        # App.get_running_app().authenticated_user_number = row['phone']
+                        self.manager.add_widget(Factory.DashBoardScreen(name='dashboard'))
+                        self.manager.current = 'dashboard'
 
-                        # Insert into wallet_users table
-                        cursor.execute('''
-                               INSERT INTO wallet_users (phone, username, email, password, confirm_email, aadhar_number,
-                                                        pan, address, usertype, banned, balance_limit, daily_limit, last_login)
-                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                           ''', (phone, username, email, password, confirm_email, aadhar_number,
-                                 pan, address, usertype, banned, balance_limit, daily_limit, last_login))
+                        # Save user data to JsonStore (if needed)
+                        store = JsonStore('user_data.json')
+                        store.put('user', value=user_data)
+                        try:
+                            conn = sqlite3.connect('wallet_database.db')
+                            cursor = conn.cursor()
+                            user = JsonStore('user_data.json').get('user')['value']
+                            phone = user['phone']
+                            username = user['username']
+                            email = user['email']
+                            password = user['password']
+                            confirm_email = user['confirm_email']
+                            aadhar_number = user['aadhar']
+                            pan = user['pan']
+                            address = user['address']
+                            usertype = user['usertype']
+                            banned = user['banned']
+                            balance_limit = user['limit']
+                            daily_limit = user['daily_limit']
+                            last_login = user['last_login']
 
-                        conn.commit()
-                        conn.close()
-                    except Exception as e:
-                        print(e)
-                    # Fetch and update dashboard
-                    self.manager.fetch_and_update_navbar()
-                    self.manager.show_balance()
+                            # Insert into wallet_users table
+                            cursor.execute('''
+                                   INSERT INTO wallet_users (phone, username, email, password, confirm_email, aadhar_number,
+                                                            pan, address, usertype, banned, balance_limit, daily_limit, last_login)
+                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                               ''', (phone, username, email, password, confirm_email, aadhar_number,
+                                     pan, address, usertype, banned, balance_limit, daily_limit, last_login))
+
+                            conn.commit()
+                            conn.close()
+                        except Exception as e:
+                            print(e)
+                        # Fetch and update dashboard
+                        self.manager.fetch_and_update_navbar()
+                        self.manager.show_balance()
 
             except Exception as e:
                 print(e)
-
     def show_popup(self, text):
         dialog = MDDialog(
             title="Alert",
