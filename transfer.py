@@ -56,7 +56,10 @@ kv_string = '''
                         mode: "rectangle"
                         hint_text: " Beneficiary Name"
                         pos_hint: {'center_x': .5}
-                        line_color_normal: app.theme_cls.primary_color
+                        line_color_normal: [137/255, 137/255, 137/255, 1]  
+                        on_focus:
+                            root.line_color_normal = app.theme_cls.primary_color if self.focus else [137/255, 137/255, 137/255, 1]
+                    
                         
                     
                             
@@ -66,7 +69,10 @@ kv_string = '''
                         mode: "rectangle"
                         hint_text: " Mobile Number"
                         pos_hint: {'center_x': .5}
-                        line_color_normal: app.theme_cls.primary_color
+                        line_color_normal: [137/255, 137/255, 137/255, 1]  
+                        on_focus:
+                            root.line_color_normal = app.theme_cls.primary_color if self.focus else [137/255, 137/255, 137/255, 1]
+                    
         
                     MDLabel:
                         text: "Note:Please note that only the beneficiary account number and IFSC information will be used for Quick transfer. (Please ensure correctness), the beneficiary name provided will not be considered as per RBI guidelines."
@@ -109,14 +115,20 @@ kv_string = '''
                         mode: "rectangle"
                         hint_text: " Transfer Amount"
                         pos_hint: {'center_x': .5}
-                        line_color_normal: app.theme_cls.primary_color
+                        line_color_normal: [137/255, 137/255, 137/255, 1]  
+                        on_focus:
+                            root.line_color_normal = app.theme_cls.primary_color if self.focus else [137/255, 137/255, 137/255, 1]
+                    
         
                     MDTextField:
                         id:purpose
                         mode: "rectangle"
                         hint_text: " Enter Purpose"
                         pos_hint: {'center_x': .5}
-                        line_color_normal: app.theme_cls.primary_color
+                        line_color_normal: [137/255, 137/255, 137/255, 1]  
+                        on_focus:
+                            root.line_color_normal = app.theme_cls.primary_color if self.focus else [137/255, 137/255, 137/255, 1]
+                    
                     Widget:
                         size_hint_y: None
                         height: '5dp'
@@ -153,12 +165,6 @@ class TransferScreen(Screen):
             self.go_back()
             return True  # Indicates that the key event has been handled
         return False
-
-    import requests
-    from kivymd.toast import toast
-    from kivymd.uix.dialog import MDDialog
-    from kivymd.uix.button import MDFlatButton
-    from datetime import datetime
 
     def transfer_money(self):
         # Get data from the text fields and spinner

@@ -7,6 +7,7 @@ from kivymd.uix.screen import Screen
 from kivymd.uix.snackbar import Snackbar
 from kivy.base import EventLoop
 from anvil.tables import app_tables
+
 KV = """
 <AddAccountScreen>
     BoxLayout:
@@ -16,7 +17,7 @@ KV = """
             title: 'Add Account'
             elevation: 3
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
-            md_bg_color: "#1e75b9"
+            md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"
         ScrollView:
             BoxLayout:
@@ -29,58 +30,63 @@ KV = """
 
                 MDTextField:
                     id: account_holder_name
-                    hint_text: "Account Holder's Name"
+                    hint_text: " Account Holder's Name"
                     mode: "rectangle"
-                    multiline: False    
+                    multiline: False 
+
 
                 MDTextField:
                     id: account_number
-                    hint_text: "Account Number"
+                    hint_text: " Account Number"
                     mode: "rectangle"
                     multiline: False
 
+
                 MDTextField:
                     id: confirm_account_number
-                    hint_text: "Confirm Account Number"
+                    hint_text: " Confirm Account Number"
                     mode: "rectangle"
                     multiline: False
 
                 MDTextField:
                     id: bank_name
-                    hint_text: "Bank Name"
+                    hint_text: " Bank Name"
                     mode: "rectangle"
                     multiline: False
 
                 MDTextField:
                     id: branch_name
-                    hint_text: "Branch Name"
+                    hint_text: " Branch Name"
                     mode: "rectangle"
                     multiline: False
 
                 MDTextField:
                     id: ifsc_code
-                    hint_text: "IFSC Code"
+                    hint_text: " IFSC Code"
                     mode: "rectangle"
                     multiline: False
 
+
                 MDTextField:
                     id: account_type
-                    hint_text: "Account Type"
+                    hint_text: " Account Type"
                     mode: "rectangle"
                     multiline: False
+
 
                 Widget:
                     size_hint_y: None
                     height: '5dp'    
-                    
+
                 MDRaisedButton:
                     #id: edit_save_button
                     text: "Submit"
+                    md_bg_color: "#148EFE"
                     size_hint: None, None
                     size: dp(150), dp(50)
                     pos_hint: {'center_x': 0.5}
                     on_release: root.add_account()
-                    
+
 """
 Builder.load_string(KV)
 
