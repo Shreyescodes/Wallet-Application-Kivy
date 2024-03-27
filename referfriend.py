@@ -2,7 +2,6 @@ from anvil.tables import app_tables
 from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
 from kivy.lang import Builder
-from kivy.core.window import Window
 import random
 import string
 import pyperclip
@@ -26,7 +25,6 @@ Builder.load_string('''
             CustomLabel:
                 id: label1
                 text: 'Invite friends to GWallet'
-                padding: [0, 0, 0, 0]  # Set only left and right padding
                 font_size: 23
                 color: 0, 0, 0, 1
                 height: dp(100)
@@ -37,7 +35,6 @@ Builder.load_string('''
             CustomLabel:
                 id: label2
                 text: 'Invite friends to GWallet and get ₹100 and when your friends make their first payment they get ₹50!'
-                padding: [dp(0), dp(0), dp(0), dp(0)]  # Adjust padding here
                 font_size: 18
                 color: 67 / 255, 67 / 255, 67 / 255, 1
                 size_hint_y: None  # Allow fixed height
@@ -99,7 +96,6 @@ Builder.load_string('''
             color: 0, 0, 0, 1
             width: self.texture_size[0]  
             pos_hint: {'x': 0, 'y': 0.2}  # Adjust the position along the y-direction
-            #padding: [dp(10), 0, 0, 0]  # Add padding to the left side
 
 ''')
 

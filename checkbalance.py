@@ -26,7 +26,7 @@ KV = '''
         orientation: 'vertical'
 
         MDTopAppBar:
-            title: "Check Balance"
+            title: "Currency Balance"
             anchor_title: 'center'
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
 
@@ -53,7 +53,15 @@ for currency in ['INR', 'USD', 'EUR', 'GBP']:
                     size_hint: None, None
                     size: "280dp", "100dp"
                     pos_hint: {{"center_x": .5}}
-                    md_bg_color: [212/255, 239/255, 250/255, 1]  # Correct usage of color
+                    md_bg_color: [250/255, 250/255, 250/255, 1]  # Correct usage of color
+                    radius:[20,20,20,20]
+                    canvas.before:
+                        Color:
+                            rgba: [137/255, 137/255, 137/255, 1]  # Border color
+                        Line:
+                            rounded_rectangle: [self.x, self.y, self.width, self.height,20,20,20,20]
+                            width: 2
+
 
                     BoxLayout:
                         orientation: 'horizontal'
@@ -65,7 +73,7 @@ for currency in ['INR', 'USD', 'EUR', 'GBP']:
                                 icon: "{icon_source}"
                                 theme_text_color: "Custom"
                                 text_color: 0, 0, 0, 1
-                                md_bg_color: [212/255, 239/255, 250/255, 1]
+                                md_bg_color: [250/255, 250/255, 250/255, 1]
                                 valign: 'top'  # Align the icon vertically at the top
                                 padding: "30dp", "0dp", "40dp", "38dp"
 
@@ -79,7 +87,7 @@ for currency in ['INR', 'USD', 'EUR', 'GBP']:
                                 size_hint: 1, None
                                 size: "80dp", "40dp"
                                 pos_hint: {{"center_x": .3,"center_y": .5}}
-                                md_bg_color: [212/255, 239/255, 250/255, 1]
+                                md_bg_color: [250/255, 250/255, 250/255, 1]
                                 MDLabel:
                                     id: {currency.lower()}_balance_label
                                     halign: 'center'  
@@ -137,12 +145,12 @@ class BalanceScreen(Screen):
                 balance = 0  # Set balance to 0 if it is None
             else:
                 balance = round(balance, 2)  # Round balance to two decimal places
-            self.ids[label_id].text = f"Balance: {balance:.2f}"  # Update the text property with the formatted balance
+            self.ids[label_id].text = f" {balance:.2f}"  # Update the text property with the formatted balance
         except Exception as e:
             print(f"Error fetching {currency} balance: {e}")
             balance = 0  # Set balance to 0 if an error occurs (currency not found or other exceptions)
             label_id = f"{currency.lower()}_balance_label"
-            self.ids[label_id].text = f"Balance: {balance:.2f}"
+            self.ids[label_id].text = f" {balance:.2f}"
             traceback.print_exc()
 
     def navigate_to_wallet(self):
