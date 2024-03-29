@@ -129,8 +129,10 @@ Builder.load_string(
 
 class LandingScreen(Screen):
     def nav_sign_in(self):
+        existing_screen = self.manager.get_screen('landing')
         self.manager.add_widget(Factory.SignInScreen(name='signin'))
         self.manager.current = 'signin'
+        self.manager.remove_widget(existing_screen)
 
     def nav_sign_up(self):
         self.manager.add_widget(Factory.SignUpScreen(name='signup'))

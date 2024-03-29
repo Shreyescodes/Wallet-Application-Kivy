@@ -41,10 +41,6 @@ KV = """
                                 spacing:dp(15)
                                 theme_text_color: "Custom"
                                 text_color: app.theme_cls.primary_color
-                                # hint_text_color_normal: "#484848"
-                                # text_color_normal:"#484848"
-                                # icon_left_color_normal:"#484848"
-                                # line_color_normal:"#484848"
                                 md_bg_color: "#e1eaea"
                                 size_hint_y: None
                                 height: 200
@@ -60,17 +56,10 @@ KV = """
                                 text_color_normal:"#484848"
                                 icon_left_color_normal:"#148efe"
                                 line_color_normal:"#148efe"
-                                radius:[30,30,30,30]
                                 icon_left: "account"
                                 mode: "rectangle"
                                 readonly: True
 
-                            # BoxLayout:
-                            #     orientation: 'horizontal'
-                            #     size_hint_y: None
-                            #     height: dp(66)
-                            #     padding: dp(3)
-                            #     spacing: dp(15)
                             MDTextField:
                                 spacing:dp(15)
                                 id: email_label
@@ -79,25 +68,15 @@ KV = """
                                 hint_text_color_normal: "#148efe"
                                 icon_left_color_normal:"#148efe"
                                 line_color_normal:"#148efe"
-                                radius:[30,30,30,30]
                                 mode: "rectangle"
                                 icon_left: "email"
                                 readonly: True
                                 theme_text_color: "Custom"
-                                text_color: '#000000'  # Set text color to black
+                                text_color: '0,0,0,1'  # Set text color to black
+                                font_color: '0,0,0,1'   # Set font color to black
                                 font_style: "Button"
                                 bold: True
-                                # MDIconButton:
-                                #     icon: "pencil"
-                                #     pos_hint: {'center_y': 0.5}
-                                #     on_release: root.enable_email_edit()  
 
-                            # BoxLayout:
-                            #     orientation: 'horizontal'
-                            #     size_hint_y: None
-                            #     height: dp(66)
-                            #     padding: dp(2.8)
-                            #     spacing: dp(15)
                             MDTextField:
                                 spacing: dp(15)
                                 id: contact_label
@@ -105,19 +84,14 @@ KV = """
                                 hint_text_color_normal: "#148efe"
                                 text_color_normal:"#484848"
                                 line_color_normal:"#148efe"
-                                radius:[30,30,30,30]
                                 mode: "rectangle"
                                 icon_left: "phone"
                                 readonly: True
                                 theme_text_color: "Custom"
-                                text_color: '#000000'  # Set text color to black
+                                text_color: '0,0,0,1'  # Set text color to black
                                 icon_left_color_normal:"#148efe"
                                 font_style: "Button"
                                 bold: True
-                                # MDIconButton:
-                                #     icon: "pencil"
-                                #     pos_hint: {'center_y': 0.5}
-                                #     on_release: root.enable_contact_edit() 
 
                             MDTextField:
                                 spacing:dp(15)
@@ -126,7 +100,6 @@ KV = """
                                 line_color_normal:"#148efe"
                                 text_color_normal:"#484848"
                                 hint_text:'Aadhaar'
-                                radius:[30,30,30,30]
                                 icon_left: "fingerprint"
                                 icon_left_color_normal:"#148efe"
                                 mode: "rectangle"
@@ -139,30 +112,23 @@ KV = """
                                 hint_text_color_normal: "#148efe"
                                 line_color_normal:"#148efe"
                                 hint_text:'Pan'
-                                radius:[30,30,30,30]
                                 icon_left: "credit-card"
                                 icon_left_color_normal:"#148efe"
-                                #mode: "rectangle"
                                 mode: "rectangle"
                                 readonly: True
 
                             MDTextField:
-
                                 hint_text:'Address'
                                 hint_text_color_normal: "#148efe"
                                 text_color_normal:"#484848"
                                 line_color_normal:"#148efe"
-                                # mode:'persistent'
-                                text_color:0,0,0,1
-                                # line_color_focus:1,0,0,1
-                                font_color:0,0,0,1
+                                text_color: '0,0,0,1'  # Set text color to black
+                                font_color: '0,0,0,1'   # Set font color to black
                                 id: address_label
                                 icon_left: "map-marker"
                                 icon_left_color_normal:"#148efe"
                                 mode: "rectangle"
-                                radius:[30,30,30,30]
                                 readonly: True
-
 
                             MDRaisedButton:
                                 spacing:dp(15)
@@ -174,6 +140,8 @@ KV = """
                                 on_release: root.edit_profile()   
 
 """
+
+
 Builder.load_string(KV)
 
 from kivy.animation import Animation
@@ -191,6 +159,7 @@ class Profile(Screen):
         super(Profile, self).__init__(**kwargs)
         self.editing_mode = False  # Initialize editing_mode in the __init__ method
         self.email_editing = False  # Initialize email_editing
+        EventLoop.window.bind(on_keyboard=self.on_key)
 
     # def enable_email_edit(self):
     #     self.ids.email_label.readonly = False  # Enable email editing
@@ -214,7 +183,7 @@ class Profile(Screen):
         edit_screen.ids.username.text = store["username"]
         edit_screen.ids.email.text = store["email"]
         edit_screen.ids.phone.text = str(store["phone"])
-        # edit_screen.ids.password.text = store["password"]
+        edit_screen.ids.password.text = store["password"]
         edit_screen.ids.aadhaar.text = str(store["aadhar"])
         edit_screen.ids.pan.text = store["pan"]
         edit_screen.ids.address.text = store["address"]
@@ -266,11 +235,9 @@ class Profile(Screen):
     #         on_release: root.save_edit()
 
     def go_back(self):
+        existing_screen = self.manager.get_screen('profile')
         self.manager.current = 'dashboard'
-
-    def __init__(self, **kwargs):
-        super(Profile, self).__init__(**kwargs)
-        EventLoop.window.bind(on_keyboard=self.on_key)
+        self.manager.remove_widget(existing_screen)
 
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android

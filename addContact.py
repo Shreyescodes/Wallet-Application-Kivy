@@ -64,7 +64,7 @@ KV = '''
                         #             size: self.size
                         #             pos: self.pos
                         #     text_color: 0, 0, 0, 1
-                            
+
 '''
 Builder.load_string(KV)
 
@@ -75,7 +75,9 @@ class CustomMDTextField(MDTextField):
 
 class AddContactScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('addcontact')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def search(self):
         pass

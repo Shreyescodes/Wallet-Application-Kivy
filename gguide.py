@@ -237,7 +237,10 @@ Builder.load_string('''
 
 class GuideScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('guide')
         self.manager.current = 'settings'
+        self.manager.remove_widget(existing_screen)
+
 
     def card_clicked(self, card_number):
         print(f"Card {card_number} clicked")

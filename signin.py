@@ -16,7 +16,7 @@ KV = """
         MDTopAppBar:
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
             title: 'Login'
-            md_bg_color: "#1e75b9"
+            # md_bg_color: "#1e75b9"
             specific_text_color: "#ffffff"
             pos_hint: {'top':1}
 
@@ -40,8 +40,8 @@ KV = """
                 helper_text: "Enter your mobile number, user ID, or email ID"
                 helper_text_mode: "on_focus"
                 multiline: False
-                required: True
-                # fill_color: 255//1, 0, 0, 0.5 
+                #required: True
+                fill_color: 255//1, 0, 0, 0.5 
 
             MDTextField:
                 id: password_input
@@ -50,7 +50,7 @@ KV = """
                 helper_text_mode: "on_focus"
                 password: True
                 multiline: False
-                required: True
+                #required: True
                 #icon_right:"eye"
                 #on_right_icon: app.toggle_password_visibility()
 
@@ -67,9 +67,12 @@ Builder.load_string(KV)
 
 class SignInScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('signin')
+        existing_screen.ids.input_text.text = ''
+        existing_screen.ids.password_input.text = ''
+        self.manager.add_widget(Factory.LandingScreen(name='landing'))
         self.manager.current = 'landing'
-        self.ids.input_text.text = ''
-        self.ids.password_input.text = ''
+        self.manager.remove_widget(existing_screen)
 
     def __init__(self, **kwargs):
         super(SignInScreen, self).__init__(**kwargs)
@@ -121,8 +124,10 @@ class SignInScreen(Screen):
                         # for screen in self.manager.screens:
                         #     self.manager.remove_widget(screen)
                         # App.get_running_app().authenticated_user_number = row['phone']
+                        existing_screen = self.manager.get_screen('signin')
                         self.manager.add_widget(Factory.DashBoardScreen(name='dashboard'))
                         self.manager.current = 'dashboard'
+                        self.manager.remove_widget(existing_screen)
 
                         # Save user data to JsonStore (if needed)
                         store = JsonStore('user_data.json')

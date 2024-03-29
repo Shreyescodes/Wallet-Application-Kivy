@@ -73,7 +73,9 @@ Builder.load_string(KV)
 
 class ResetPassword(Screen):
     def go_back(self):
-        self.manager.current = 'settings'
+        existing_screen = self.manager.get_screen('reset')
+        self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def submit_password(self):
         # Get the current user's phone number from the stored user data

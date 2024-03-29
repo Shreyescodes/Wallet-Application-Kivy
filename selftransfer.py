@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from kivy.base import EventLoop
 from kivy.lang import Builder
 from kivy.metrics import dp
@@ -8,6 +7,7 @@ from kivymd.toast import toast
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.dialog import MDDialog
 from kivy.storage.jsonstore import JsonStore
 from anvil.tables import app_tables
 
@@ -22,7 +22,6 @@ KV = '''
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             right_action_items: [["bank", lambda x: root.nav_account()]]
             elevation: 4
-
 
         ScrollView:
             GridLayout:
@@ -134,45 +133,11 @@ KV = '''
 Builder.load_string(KV)
 
 
-class PayScreen(MDScreen):
-    sender_account = ""
-    receiver_account = ""
-
-    def go_back(self):
-        self.manager.current = 'selftransfer'
-
-    def pay_amount(self):
-        amount_input = self.ids.amount_input
-        amount = amount_input.text
-
-        if amount:
-            if self.sender_account and self.receiver_account:
-                try:
-                    sender_account = app_tables.wallet_users_account.get(bank_name=self.sender_account)
-                    receiver_account = app_tables.wallet_users_account.get(bank_name=self.receiver_account)
-
-                    app_tables.wallet_users_transaction.add_row(
-                        date=datetime.now(),
-                        fund=float(amount),
-                        transaction_type='credit',
-                        transaction_status='self_transfer',
-                        receiver_phone=receiver_account['phone'],
-                        phone=sender_account['phone']
-                    )
-                    print(f"Payment successful: {amount}")
-                    # Navigate to the dashboard screen after successful payment
-                    self.manager.current = 'dashboard'
-                except Exception as e:
-                    print(f"Error processing payment: {e}")
-            else:
-                print("Please select sender and receiver banks.")
-        else:
-            print("Please enter a valid amount.")
-
-
 class SelftransferScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('self_transfer')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def __init__(self, **kwargs):
         super(SelftransferScreen, self).__init__(**kwargs)
@@ -190,43 +155,36 @@ class SelftransferScreen(Screen):
         try:
             store = JsonStore('user_data.json')
             phone = store.get('user')['value']["phone"]
-
             bank_names = app_tables.wallet_users_account.search(phone=phone)
-            bank_names_str = [str(row['bank_name']) for row in bank_names]
+            self.bank_names_str = [str(row['bank_name']) for row in bank_names]
 
-            if bank_names_str:
-                if len(bank_names_str) == 1:
-                    self.ids.sender_button.text = f" Sending Bank: {bank_names_str[0]}        "
-                    self.sender_account = bank_names_str[0]
+            if self.bank_names_str:
+                if len(self.bank_names_str) == 1:
+                    self.ids.sender_button.text = f" Sending Bank: {self.bank_names_str[0]} "
+                    self.sender_account = self.bank_names_str[0]
                     self.ids.sender_button.size_hint = (None, None)
                     self.ids.sender_button.size = (self.width * 0.8, dp(40))
-                    self.ids.receiver_button.text = f"Receiving Bank: {bank_names_str[0]}          "
-                    self.receiver_account = bank_names_str[0]
+                    self.ids.receiver_button.text = f"Receiving Bank: {self.bank_names_str[0]} "
+                    self.receiver_account = self.bank_names_str[0]
                     self.ids.receiver_button.size_hint = (None, None)
                     self.ids.receiver_button.size = (self.width * 0.8, dp(40))
                 else:
-                    self.sender_menu_list = [
-                        {"text": f"        {bank_name}        ",
-                         "on_release": lambda bank_name=bank_name: self.set_selected_sender_bank(bank_name)}
-                        for bank_name in bank_names_str
-                    ]
-                    self.receiver_menu_list = [
-                        {"text": f"         {bank_name}          ",
-                         "on_release": lambda bank_name=bank_name: self.set_selected_receiver_bank(bank_name)}
-                        for bank_name in bank_names_str
-                    ]
+                    if sender:
+                        menu_list = [{"text": f"{bank_name}", "on_release": lambda bank_name=bank_name: self.set_selected_sender_bank(bank_name)} for bank_name in self.bank_names_str]
+                    else:
+                        menu_list = [{"text": f"{bank_name}", "on_release": lambda bank_name=bank_name: self.set_selected_receiver_bank(bank_name)} for bank_name in self.bank_names_str]
 
                     if sender:
                         self.sender_menu = MDDropdownMenu(
                             caller=self.ids.sender_button,
-                            items=self.sender_menu_list,
+                            items=menu_list,
                             width_mult=4
                         )
                         self.sender_menu.open()
                     else:
                         self.receiver_menu = MDDropdownMenu(
                             caller=self.ids.receiver_button,
-                            items=self.receiver_menu_list,
+                            items=menu_list,
                             width_mult=4
                         )
                         self.receiver_menu.open()
@@ -239,22 +197,35 @@ class SelftransferScreen(Screen):
         self.sender_account = bank_name
         self.ids.sender_button.size_hint = (None, None)
         min_button_width = self.ids.sender_button.width
-        self.ids.sender_button.size = (
-            max(self.ids.sender_button.children[0].texture_size[0] + dp(20), min_button_width), dp(40)
-        )
+        self.ids.sender_button.size = (max(self.ids.sender_button.children[0].texture_size[0] + dp(20), min_button_width), dp(40))
+        self.bank_names_str.remove(bank_name)
+        self.update_receiver_menu_options()
         if self.sender_menu:
             self.sender_menu.dismiss()
 
     def set_selected_receiver_bank(self, bank_name):
+        if bank_name == self.sender_account:
+            dialog = MDDialog(title="Alert", text="Sender and receiver banks cannot be the same.", size_hint=(0.8, None), height=dp(200), auto_dismiss=True)
+            dialog.open()
+            return
+
         self.ids.receiver_button.text = f"Receiving Bank: {bank_name}"
         self.receiver_account = bank_name
         self.ids.receiver_button.size_hint = (None, None)
         min_button_width = self.ids.receiver_button.width
-        self.ids.receiver_button.size = (
-            max(self.ids.receiver_button.children[0].texture_size[0] + dp(20), min_button_width), dp(40)
-        )
+        self.ids.receiver_button.size = (max(self.ids.receiver_button.children[0].texture_size[0] + dp(20), min_button_width), dp(40))
+        self.bank_names_str.remove(bank_name)
+        self.update_sender_menu_options()
         if self.receiver_menu:
             self.receiver_menu.dismiss()
+
+    def update_receiver_menu_options(self):
+        menu_list = [{"text": f"{bank_name}", "on_release": lambda bank_name=bank_name: self.set_selected_receiver_bank(bank_name)} for bank_name in self.bank_names_str]
+        self.receiver_menu.items = menu_list
+
+    def update_sender_menu_options(self):
+        menu_list = [{"text": f"{bank_name}", "on_release": lambda bank_name=bank_name: self.set_selected_sender_bank(bank_name)} for bank_name in self.bank_names_str]
+        self.sender_menu.items = menu_list
 
     def pay_button_click(self):
         print("Pay button clicked")

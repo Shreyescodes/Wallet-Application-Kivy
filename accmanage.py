@@ -42,7 +42,10 @@ Builder.load_string(KV)
 
 class AccmanageScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('accmanage')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
+
 
     def on_pre_enter(self, *args):
         # Called before the screen is displayed, show loading animation

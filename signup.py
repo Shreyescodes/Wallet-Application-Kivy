@@ -34,6 +34,7 @@ KV = '''
                     hint_text: " Username"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    radius: [25, 25, 25, 25]
                     
                     
                 MDTextField:
@@ -42,6 +43,7 @@ KV = '''
                     hint_text: " Email Address"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    radius: [25, 25, 25, 25]
                     
                     
                 MDTextField:
@@ -51,6 +53,7 @@ KV = '''
                     password: True
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    radius: [25, 25, 25, 25]
                     
                 MDTextField:
                     mode: "rectangle"
@@ -59,6 +62,7 @@ KV = '''
                     password: True
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    radius: [25, 25, 25, 25]
                                 
 
                 MDTextField:
@@ -67,6 +71,7 @@ KV = '''
                     hint_text: " Phone Number"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    radius: [25, 25, 25, 25]
 
                 MDTextField:
                     mode: "rectangle"
@@ -74,6 +79,7 @@ KV = '''
                     hint_text: " Aadhar Card Number"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    radius: [25, 25, 25, 25]
 
                 MDTextField:
                     mode: "rectangle"
@@ -81,6 +87,7 @@ KV = '''
                     hint_text: " PAN Card Number"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    radius: [25, 25, 25, 25]
 
                 MDTextField:
                     mode: "rectangle"
@@ -88,6 +95,7 @@ KV = '''
                     hint_text: " Address Line 1"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    radius: [25, 25, 25, 25]
                     
                 MDTextField:
                     mode: "rectangle"
@@ -95,6 +103,7 @@ KV = '''
                     hint_text: " Address Line 2"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
+                    radius: [25, 25, 25, 25]
                 Widget:
                     size_hint_y: None
                     height: '4dp'
@@ -144,8 +153,9 @@ Builder.load_string(KV)
 class SignUpScreen(Screen):
 
     def go_back(self):
-        self.manager.add_widget(Factory.LandingScreen(name='landing'))
+        existing_screen = self.manager.get_screen('signup')
         self.manager.current = 'landing'
+        self.manager.remove_widget(existing_screen)
 
     def __init__(self, **kwargs):
         super(SignUpScreen, self).__init__(**kwargs)
@@ -218,5 +228,7 @@ class SignUpScreen(Screen):
         return user is not None
 
     def dismiss_and_navigate(self):
+        existing_screen = self.manager.get_screen('signup')
         self.manager.add_widget(Factory.SignInScreen(name='signin'))
         self.manager.current = 'signin'
+        self.manager.remove_widget(existing_screen)

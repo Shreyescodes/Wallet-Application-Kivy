@@ -61,7 +61,9 @@ Builder.load_string(KV)
 class Transaction(Screen):
 
     def go_back(self):
+        existing_screen = self.manager.get_screen('transaction')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def release(self):  # Explicitly define the release method for the root widget
         print("Root widget released!")

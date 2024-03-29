@@ -148,7 +148,9 @@ Builder.load_string(kv_string)
 class TransferScreen(Screen):
 
     def go_back(self):
+        existing_screen = self.manager.get_screen('transfer')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
         self.ids.purpose.text = ''
         self.ids.amount_field.text = ''
         self.ids.name.text = ''

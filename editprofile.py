@@ -152,8 +152,11 @@ Builder.load_string(KV)
 
 class EditUser(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('edituser')
         self.manager.add_widget(Factory.SettingsScreen(name='settings'))
         self.manager.current = 'settings'
+        self.manager.remove_widget(existing_screen)
+
 
     def __init__(self, **kwargs):
         super(EditUser, self).__init__(**kwargs)

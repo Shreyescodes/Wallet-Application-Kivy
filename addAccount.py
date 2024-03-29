@@ -93,7 +93,9 @@ Builder.load_string(KV)
 
 class AddAccountScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('addaccount')
         self.manager.current = 'accmanage'
+        self.manager.remove_widget(existing_screen)
 
     def __init__(self, **kwargs):
         super(AddAccountScreen, self).__init__(**kwargs)

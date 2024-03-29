@@ -120,7 +120,9 @@ Builder.load_string(KV)
 
 class ComplaintScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('complaint')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def __init__(self, **kwargs):
         super(ComplaintScreen, self).__init__(**kwargs)

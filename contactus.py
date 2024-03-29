@@ -48,7 +48,10 @@ Builder.load_string(KV)
 
 class ContactUsScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('contactus')
         self.manager.current = 'help'
+        self.manager.remove_widget(existing_screen)
+
 
     def __init__(self, **kwargs):
         super(ContactUsScreen, self).__init__(**kwargs)

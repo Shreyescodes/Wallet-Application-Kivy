@@ -38,7 +38,7 @@ class ScreenManagement(ScreenManager):
             requests.get("http://www.google.com", timeout=5)
 
             # If there is an internet connection, connect to Anvil server
-            client = anvil.server.connect("server_XJ2JS6XNM4DAGJAXLUYLU4DU-AU4ETOLISIFV3CR3")#server_7JA6PVL5DBX5GSBY357V7WVW-TLZI2SSXOVZCVYDM
+            client = anvil.server.connect("server_7JA6PVL5DBX5GSBY357V7WVW-TLZI2SSXOVZCVYDM")#server_XJ2JS6XNM4DAGJAXLUYLU4DU-AU4ETOLISIFV3CR3
 
             # Schedule the login status check after 5 seconds
             Clock.schedule_once(self.check_login_status, 5)
@@ -100,11 +100,12 @@ class ScreenManagement(ScreenManager):
             print(f"Error deleting JSON file: {e}")
 
         # Clear all screens
-        for screen in self.screens:
-            self.remove_widget(screen)
-
-        # Navigate to the landing page
+        existing_screen = self.get_screen('dashboard')
         self.add_widget(Factory.LandingScreen(name='landing'))
+        self.current = 'landing'
+        self.remove_widget(existing_screen)
+        # Navigate to the landing page
+
 
     def get_username(self):
         store = JsonStore('user_data.json')

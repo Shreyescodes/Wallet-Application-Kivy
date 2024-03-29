@@ -81,7 +81,9 @@ Builder.load_string(KV)
 
 class PaysettingScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('paysetting')
         self.manager.current = 'settings'
+        self.manager.remove_widget(existing_screen)
 
     def __init__(self, **kwargs):
         super(PaysettingScreen, self).__init__(**kwargs)
@@ -98,23 +100,23 @@ class PaysettingScreen(Screen):
         return False
 
     def currency_set(self):
-        sm=self.manager
+        sm = self.manager
         defaultcurrency = Factory.DefaultCurrency(name='defaultcurrency')
         sm.add_widget(defaultcurrency)
-        sm.current='defaultcurrency'
+        sm.current = 'defaultcurrency'
 
     def on_enter(self):
         options_button_icon_mapping = {
-        "INR": "currency-inr",
-        "GBP": "currency-gbp",
-        "USD": "currency-usd",
-        "EUR": "currency-eur"
-    }
+            "INR": "currency-inr",
+            "GBP": "currency-gbp",
+            "USD": "currency-usd",
+            "EUR": "currency-eur"
+        }
         # print(self.ids.keys())
-        #setting the default currency icon based on currency selected
+        # setting the default currency icon based on currency selected
         phone = JsonStore("user_data.json").get('user')['value']['phone']
-        data=app_tables.wallet_users.get(phone=phone)
-        currency=data['defaultcurrency']
+        data = app_tables.wallet_users.get(phone=phone)
+        currency = data['defaultcurrency']
         if currency:
             self.ids.curr_icon.icon = options_button_icon_mapping[currency]
         else:

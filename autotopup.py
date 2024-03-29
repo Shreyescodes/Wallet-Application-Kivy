@@ -125,8 +125,9 @@ Builder.load_string(
 class AutoTopupScreen(Screen):
 
     def go_back(self):
-        self.manager.add_widget(Factory.SettingsScreen(name='dashboard'))
+        existing_screen = self.manager.get_screen('auto_topup')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def update_amount(self, amount):
         self.ids.balance.text = str(amount)

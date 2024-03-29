@@ -36,7 +36,9 @@ Builder.load_string("""
 class ScanScreen(MDScreen):
     def go_back(self):
         self.ids.preview.disconnect_camera()
+        existing_screen = self.manager.get_screen('qrscanner')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def on_kv_post(self, obj):
         self.ids.preview.connect_camera(enable_analyze_pixels=True, default_zoom=0.0)

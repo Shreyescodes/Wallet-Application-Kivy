@@ -221,7 +221,9 @@ class WithdrawScreen(Screen):
         self.ids.amount_textfield.text = ""  # Clear the amount input field
         self.ids.bank_dropdown.text = "Select bank account"  # Reset the bank dropdown text
         self.update_balance_label(self.ids.options_button.text)  # Update the balance label
+        existing_screen = self.manager.get_screen('withdraw')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def on_key(self, window, key, scancode, codepoint, modifier):
         if key in [27, 9]:

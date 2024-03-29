@@ -157,7 +157,10 @@ class AddPhoneScreen(Screen):
     current_user_phone = ""
 
     def go_back(self):
+        existing_screen = self.manager.get_screen('addphone')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
+
 
     def fetch_and_update_addPhone(self):
         store = JsonStore('user_data.json').get('user')['value']
@@ -463,7 +466,10 @@ class UserDetailsScreen(Screen):
         return custom_text_field
 
     def go_back(self):
+        existing_screen = self.manager.get_screen('userdetails')
         self.manager.current = 'addphone'
+        self.manager.remove_widget(existing_screen)
+
 
 
 class WalletApp(MDApp):

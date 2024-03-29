@@ -47,7 +47,9 @@ Builder.load_string(kv_string)
 
 class QRCodeScreen(Screen):
     def go_back(self):
+        existing_screen = self.manager.get_screen('qrcode')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     # def __init__(self, **kwargs):
     #     super(TransferScreen, self).__init__(**kwargs)

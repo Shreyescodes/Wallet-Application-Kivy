@@ -43,7 +43,7 @@ Builder.load_string(
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.25 
-        pos_hint: {"top":0.86} 
+        pos_hint: {"top":0.95} 
         MDCard:
             orientation: 'vertical'
             size_hint: 0.9, None  # 90% of parent width
@@ -127,7 +127,7 @@ Builder.load_string(
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.5 
-        pos_hint: {"top":0.60} 
+        pos_hint: {"top":0.82} 
         #md_bg_color: "fe1616"
 
         MDCard:
@@ -260,7 +260,9 @@ Builder.load_string(
 class AddMoneyScreen(Screen):
 
     def go_back(self):
+        existing_screen = self.manager.get_screen('addmoney')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def __init__(self, **kwargs):
         super(AddMoneyScreen, self).__init__(**kwargs)

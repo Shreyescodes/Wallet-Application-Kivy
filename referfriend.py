@@ -122,4 +122,6 @@ class ReferFriendScreen(Screen):
         pyperclip.copy(code_to_copy)
 
     def go_back(self):
+        existing_screen = self.manager.get_screen('refer')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
