@@ -4,12 +4,14 @@ from datetime import datetime
 from anvil.tables import app_tables
 from kivy.factory import Factory
 from kivy.lang import Builder
+from kivy.metrics import dp
 from kivy.storage.jsonstore import JsonStore
+from kivymd.toast import toast
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
-
+from kivy.core.window import Keyboard
 KV = """
 <SignInScreen>:
     Screen:
@@ -23,7 +25,7 @@ KV = """
         BoxLayout:
             orientation: 'vertical'
             padding: dp(10)
-            spacing: dp(10)
+            spacing: dp(20)
             size_hint_y: None
             height: dp(200)
             pos_hint: {'center_x': 0.5, 'center_y': 0.4}
@@ -36,7 +38,9 @@ KV = """
                 
             MDTextField:
                 id: input_text
-                hint_text: "Mobile Number/User ID/Email ID"
+                hint_text: "Mobile Number/Email ID"
+                mode: "rectangle"
+                radius:[25,25,25,25]
                 helper_text: "Enter your mobile number, user ID, or email ID"
                 helper_text_mode: "on_focus"
                 multiline: False
@@ -47,6 +51,8 @@ KV = """
                 id: password_input
                 hint_text: "Password"
                 helper_text: "Enter your password"
+                mode: "rectangle"
+                radius:[25,25,25,25]
                 helper_text_mode: "on_focus"
                 password: True
                 multiline: False
@@ -93,22 +99,22 @@ class SignInScreen(Screen):
         else:
             try:
                 if re.match(r'^\d{10}$', input_text):  # Phone number with 10 digits
-                    user = app_tables.wallet_users.get(phone=float(input_text), password=password)
+                    self.user = app_tables.wallet_users.get(phone=float(input_text), password=password)
                 elif re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', input_text):  # Email
-                    user = app_tables.wallet_users.get(email=input_text, password=password)
-                else:  # Assuming it's a username
-                    user = app_tables.wallet_users.get(username=input_text, password=password)
+                    self.user = app_tables.wallet_users.get(email=input_text, password=password)
+                else:
+                    toast("invalid phone or email")
 
                 # Check if the user was found
-                if user is None:
+                if self.user is None:
                     # Show popup for invalid user
                     self.show_popup("Invalid User")
                 else:
                     # Now 'user' contains the Anvil row
-                    user.update(last_login=date)
-                    user_data = dict(user)
+                    self.user.update(last_login=date)
+                    user_data = dict(self.user)
                     user_data['last_login'] = str(user_data['last_login'])
-                    user.update(last_login=date)
+                    self.user.update(last_login=date)
                     print(user_data)
 
                     if user_data['banned']:  # Check if user is banned
@@ -162,9 +168,7 @@ class SignInScreen(Screen):
                             conn.close()
                         except Exception as e:
                             print(e)
-                        # Fetch and update dashboard
-                        self.manager.fetch_and_update_navbar()
-                        self.manager.show_balance()
+
 
             except Exception as e:
                 print(e)

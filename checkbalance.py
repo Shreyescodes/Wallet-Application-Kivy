@@ -11,12 +11,6 @@ import os
 import anvil.server
 import traceback  # Import traceback module for printing exceptions
 
-# try:
-#     anvil.server.connect("server_QVP7TBTIZPTLZZTXO5LN7GBD-2QQVRBJQQ5M7D6YM")
-#     print("Successfully connected to Anvil server")
-# except Exception as e:
-#     print(f"Error connecting to Anvil server: {e}")
-#     traceback.print_exc()
 
 KV = '''
 <BalanceScreen>:

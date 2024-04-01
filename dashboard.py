@@ -738,6 +738,12 @@ class ContentNavigationDrawer(MDBoxLayout):
 
 
 class DashBoardScreen(Screen):
+
+    def on_enter(self, *args):
+        self.ids.contact_label.text = JsonStore('user_data.json').get('user')['value']['username']
+        self.ids.email_label.text = str(JsonStore('user_data.json').get('user')['value']['phone'])
+        self.ids.username_label.text = JsonStore('user_data.json').get('user')['value']['email']
+
     def get_username(self):
         store = JsonStore('user_data.json').get('user')['value']
         return store["username"]

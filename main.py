@@ -57,10 +57,10 @@ class ScreenManagement(ScreenManager):
             self.add_widget(Factory.DashBoardScreen(name='dashboard'))
             self.current = "dashboard"
             self.get_username()
-            self.fetch_and_update_navbar()
+            #self.fetch_and_update_navbar()
             self.fetch_and_update_complaint()
             self.fetch_and_update_addPhone()
-            self.show_balance()
+            #self.show_balance()
             # ... add other screens as needed
         else:
             self.add_widget(Factory.LandingScreen(name='landing'))
@@ -114,14 +114,6 @@ class ScreenManagement(ScreenManager):
     def nav_navbar(self):
         self.current = 'navbar'
 
-    def fetch_and_update_navbar(self):
-        store = JsonStore('user_data.json').get('user')['value']
-        # Update labels in NavbarScreen
-        navbar_screen = self.get_screen('dashboard')
-        navbar_screen.ids.username_label.text = store["username"]
-        navbar_screen.ids.email_label.text = store["email"]
-        navbar_screen.ids.contact_label.text = str(store["phone"])
-
     def nav_complaint(self):
         self.current = 'complaint'
 
@@ -143,20 +135,6 @@ class ScreenManagement(ScreenManager):
     def nav_account(self):
         self.current = 'addaccount'
 
-    def show_balance(self):
-        balance_scr = self.get_screen('dashboard')
-        # Load user data from the JSON file
-        store = JsonStore('user_data.json')
-
-        if 'user' in store:
-            # 'user' key found, proceed with retrieving data
-            phone = store.get('user')['value']["phone"]
-            currency = "INR"
-            # balance_scr.ids.balance_lbl.text = f"{self.get_total_balance(phone, currency)} INR"
-        else:
-            # 'user' key not found, show an appropriate message
-            # balance_scr.ids.balance_lbl.text = "User data not found. Please log in."
-            pass
 
     def get_total_balance(self, phone, currency_type):
         try:

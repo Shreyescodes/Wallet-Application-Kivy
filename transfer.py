@@ -174,7 +174,7 @@ class TransferScreen(Screen):
         try:
             receiver_phone = float(self.ids.mobile_no_field.text)
         except ValueError:
-            toast("Invalid mobile number. Please enter a valid numeric value.",duration=4)
+            toast("Invalid mobile number. Please enter a valid numeric value.", duration=4)
             return
         currency = self.ids.currency_spinner.text
 
@@ -233,14 +233,14 @@ class TransferScreen(Screen):
                 self.ids.mobile_no_field.text = ''
                 self.ids.test_money.active = False
             else:
-                toast("you dont have a balance in this currency type",duration=5)
+                toast("you dont have a balance in this currency type", duration=5)
                 self.ids.purpose.text = ''
                 self.ids.amount_field.text = ''
                 self.ids.name.text = ''
                 self.ids.mobile_no_field.text = ''
                 self.ids.test_money.active = False
         except Exception as e:
-            toast("an error occurred",duration=5)
+            toast("an error occurred", duration=5)
             self.ids.purpose.text = ''
             self.ids.amount_field.text = ''
             self.ids.name.text = ''
@@ -267,13 +267,13 @@ class TransferScreen(Screen):
         self.ids.mobile_no_field.text = ''
         self.ids.test_money.active = False
 
-
     def check_reg(self, phone):
         return app_tables.wallet_users.get(phone=phone)
 
     def show_currency_menu(self):
         currencies = ['INR', 'USD', 'EUROS', 'POUND']
-        menu_items = [{"text": currency, "viewclass": "OneLineListItem", "height": dp(44),"on_release": lambda x=currency: self.test(x)} for currency in currencies]
+        menu_items = [{"text": currency, "viewclass": "OneLineListItem", "height": dp(44),
+                       "on_release": lambda x=currency: self.test(x)} for currency in currencies]
 
         menu = MDDropdownMenu(
             caller=self.ids.currency_spinner,
@@ -288,7 +288,8 @@ class TransferScreen(Screen):
 
         menu.bind(on_release=set_currency)
         menu.open()
-    def test(self,text):
+
+    def test(self, text):
         self.ids.currency_spinner.text = text
 
     def update_transfer_amount(self, active):
@@ -296,5 +297,3 @@ class TransferScreen(Screen):
             self.ids.amount_field.text = "1"
         else:
             self.ids.amount_field.text = ""
-
-
