@@ -8,6 +8,208 @@ from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
 from kivy.core.window import Window
 
+# Builder.load_string(
+#     """
+# <WithdrawScreen>:
+#     MDScreen:
+#         MDTopAppBar:
+#             title: 'Withdraw Money'  # Updated title to 'Withdraw Money'
+#             elevation: 1
+#             left_action_items: [['arrow-left', lambda x: root.go_back()]]
+#             md_bg_color: "#148EFE"
+#             specific_text_color: "#ffffff"
+#             pos_hint:{'top':1}
+#         MDBoxLayout:
+#             orientation: 'vertical'
+#
+#         MDBoxLayout:
+#             orientation: 'vertical'
+#             padding: dp(10)
+#             spacing: dp(10)
+#             size_hint_y:0.9
+#             pos_hint: {"top":0.8}
+#             #md_bg_color: "#fe1616"
+#             MDBoxLayout:
+#                 orientation: 'vertical'
+#             MDBoxLayout:
+#                 orientation: 'vertical'
+#                 MDCard:
+#                     orientation: 'vertical'
+#                     size_hint: 1, None  # Full width
+#                     height: dp(150)
+#                     pos_hint: {"center_x": 0.5,'y':0.2}
+#                     radius: [20, 20, 20, 20]
+#                     padding: dp(20)
+#                     spacing: dp(20)
+#                     md_bg_color: "#ffffff"        #0.7961, 0.9019, 0.9412, 1   #d7ecfa
+#                     elevation:1
+#                     shadow_softness: 12
+#                     shadow_offset:10,-12
+#                     shadow_color:0,0,0,0.3
+#                     line_color:colors['Gray']['500']
+#
+                    # GridLayout:
+                    #     cols: 2
+                    #     # row_force_default: True  # Ensure equal row heights (optional)
+                    #     spacing:dp(5)
+                    #
+                    #     # Column 1 (Labels)
+                    #     MDBoxLayout:  # Use BoxLayout for vertical alignment
+                    #         orientation: 'vertical'
+                    #         spacing: dp(10)  # Adjust spacing as needed
+                    #
+                    #         MDLabel:
+                    #             text: 'Total Wallet Balance'
+                    #             font_size: dp(21)
+                    #             halign: 'left'
+                    #             size_hint_y: None
+                    #             height: self.texture_size[1]  # Dynamic height for label content
+                    #
+                    #         MDLabel:
+                    #             id: balance_lbl
+                    #             text: 'User Wallet Balance'
+                    #             font_size: 20
+                    #             halign: 'left'
+                    #             valign: 'center'
+                    #             readonly: True
+                    #             size_hint_y: None
+                    #             height: dp(43)  # Adjust height as needed
+                    #             mode: "fill"
+                    #             fill_mode: True
+                    #             radius: [15, 15, 15, 15]  # Rounded edges
+                    #             padding: dp(5), dp(5)
+                    #             theme_text_color: "Custom"
+                    #             text_color: 0, 0, 0, 1
+                    #             md_bg_color: '#ffffff'
+                    #
+                    #     # Column 2 (MDIconButton)
+                    #     MDBoxLayout:  # Use BoxLayout for centering
+                    #         orientation: 'vertical'
+                    #         halign: 'center'  # Center the button vertically
+                    #         size_hint_x:None
+                    #         width:dp(50)
+                    #         size_hint_y:None
+                    #         height:dp(100)
+                    #
+                    #         MDIconButton:
+                    #             id: options_button
+                    #             pos_hint:{'y':0.7}
+                    #             icon: "currency-inr"
+                    #             md_bg_color: colors['LightBlue']['A100']
+                    #             theme_text_color: "Custom"
+                    #             text_color: 0, 0, 0, 1
+                    #             on_release: root.show_currency_options(self)
+#
+#
+                # MDLabel:
+                #     text: "Send Money from Wallet to Bank"
+                #     font_size:dp(21)
+                #     halign: 'center'
+                #     valign:'center'
+                #     font_style: 'Subtitle1'
+                #     size_hint_y: None
+                #     height: dp(40)
+                #     bold: True
+#
+#                 MDBoxLayout:
+#                     padding: dp(10)
+#                     spacing: dp(20)
+#                     adaptive_height: True
+#
+                    # MDRaisedButton:
+                    #     id: bank_dropdown
+                    #     text: 'Select bank account'
+                    #     size_hint_x: 1
+                    #     height: dp(50)
+                    #     md_bg_color: '#ffffff'           #"#3dd2ff"        # b0d9f9    #0.7961, 0.9019, 0.9412, 1
+                    #     on_release: root.fetch_bank_names()
+                    #     text_color: 0, 0, 0, 1
+                    #     elevation:1
+                    #     line_color:colors['Gray']['500']
+                    #     shadow_softness: 15
+                    #     shadow_offset:10,-12
+                    #     shadow_color:0,0,0,0.3
+#
+#                 MDBoxLayout:
+#                     # padding: dp(5)
+#                     spacing: dp(10)
+#                     adaptive_height: True
+#                     MDTextField:
+#                         id: amount_textfield
+#                         mode: "rectangle"
+#                         radius:[15,15,15,15]
+#                         hint_text: "Enter amount"
+#                         size_hint_x: 1
+#                         hint_text_color_normal:0,0,0,0.7
+#                         line_color_normal:colors['Gray']['500']
+#
+#                 MDSeparator:
+#                     height: dp(1)
+#
+                # MDBoxLayout:
+                #     padding: dp(10) #(dp(27),dp(10),dp(24),dp(10))
+                #     spacing: dp(20)
+                #     adaptive_height: True
+                #     adaptive_width: True
+                #     # orientation: 'horizontal'
+                #     pos_hint: {'center_x': 0.5}
+                #
+                #
+                #     MDFlatButton:
+                #         text: '+100'
+                #         size_hint_x: None
+                #         width: dp(64)
+                #         height: dp(40)
+                #         md_bg_color:colors['LightBlue']['100']    #0.7961, 0.9019, 0.9412, 1
+                #         on_release: root.update_amount(100)
+                #
+                #     MDFlatButton:
+                #         text: '+200'
+                #         size_hint_x: None
+                #         width: dp(64)
+                #         height: dp(40)
+                #         md_bg_color: colors['LightBlue']['100']     #0.7961, 0.9019, 0.9412, 1
+                #         on_release: root.update_amount(200)
+                #
+                #     MDFlatButton:
+                #         text: '+500'
+                #         size_hint_x: None
+                #         width: dp(64)
+                #         height: dp(40)
+                #         md_bg_color: colors['LightBlue']['100']       #0.7961, 0.9019, 0.9412, 1
+                #         on_release: root.update_amount(500)
+                #
+                #     MDFlatButton:
+                #         text: '+1000'
+                #         size_hint_x: None
+                #         width: dp(64)
+                #         height: dp(40)
+                #         md_bg_color: colors['LightBlue']['100']         #0.7961, 0.9019, 0.9412, 1
+                #         on_release: root.update_amount(1000)
+#
+#                 MDBoxLayout:
+#                     padding: dp(10)
+#                     adaptive_height: True
+#
+                    # MDRaisedButton:
+                    #     text: 'Proceed '
+                    #     md_bg_color: 20/255, 142/255, 254/255, 1
+                    #     size_hint_x: 1.5
+                    #     height: dp(50)
+                    #     on_press: root.withdraw()
+                    #     shadow_softness: 12
+                    #     shadow_offset:10,-12
+                    #     shadow_color:0,0,0,0.3
+#             MDBoxLayout:
+#                 orientation: 'vertical'
+#         MDBoxLayout:
+#             size_hint_y: None
+#             height: dp(100)
+#             pos_hint: {'center_x': 0.5, 'center_y': 0.1}
+#             size_hint_x: None
+#             width: dp(100)
+# """
+# )
 Builder.load_string(
     """
 <WithdrawScreen>:
@@ -19,52 +221,49 @@ Builder.load_string(
             md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"
             pos_hint:{'top':1}
-        MDBoxLayout:
-            orientation: 'vertical'
-
+            anchor_title: 'center'
+            
         MDBoxLayout:
             orientation: 'vertical'
             padding: dp(10)
-            spacing: dp(10)
-            size_hint_y:0.9
-            pos_hint: {"top":0.8}
+            spacing: dp(5)
+            size_hint_y: 0.9
             #md_bg_color: "#fe1616"
-            MDBoxLayout:
-                orientation: 'vertical'
-            MDBoxLayout:
-                orientation: 'vertical'
+            FloatLayout:
                 MDCard:
                     orientation: 'vertical'
                     size_hint: 1, None  # Full width
                     height: dp(150)
-                    pos_hint: {"center_x": 0.5,'y':0.2}
+                    pos_hint: {"top": 1,"center_x":0.5}
                     radius: [20, 20, 20, 20]
                     padding: dp(20)
                     spacing: dp(20)
-                    md_bg_color: "#ffffff"        #0.7961, 0.9019, 0.9412, 1   #d7ecfa
-                    elevation:1
+                    md_bg_color: "#ffffff"
+                    elevation: 1
                     shadow_softness: 12
-                    shadow_offset:10,-12
-                    shadow_color:0,0,0,0.3
-                    line_color:colors['Gray']['500']
-                    
+                    shadow_offset: 10, -12
+                    shadow_color: 0, 0, 0, 0.3
+                    line_color: colors['Gray']['500']
+                    # Additional widgets or layout code goes here
+             
+                            
                     GridLayout:
                         cols: 2
                         # row_force_default: True  # Ensure equal row heights (optional)
                         spacing:dp(5)
-                        
+        
                         # Column 1 (Labels)
                         MDBoxLayout:  # Use BoxLayout for vertical alignment
                             orientation: 'vertical'
                             spacing: dp(10)  # Adjust spacing as needed
-
+        
                             MDLabel:
                                 text: 'Total Wallet Balance'
                                 font_size: dp(21)
                                 halign: 'left'
                                 size_hint_y: None
                                 height: self.texture_size[1]  # Dynamic height for label content
-
+        
                             MDLabel:
                                 id: balance_lbl
                                 text: 'User Wallet Balance'
@@ -81,7 +280,7 @@ Builder.load_string(
                                 theme_text_color: "Custom"
                                 text_color: 0, 0, 0, 1
                                 md_bg_color: '#ffffff'
-
+        
                         # Column 2 (MDIconButton)
                         MDBoxLayout:  # Use BoxLayout for centering
                             orientation: 'vertical'
@@ -90,7 +289,7 @@ Builder.load_string(
                             width:dp(50)
                             size_hint_y:None
                             height:dp(100)
-                            
+        
                             MDIconButton:
                                 id: options_button
                                 pos_hint:{'y':0.7}
@@ -98,63 +297,59 @@ Builder.load_string(
                                 md_bg_color: colors['LightBlue']['A100']
                                 theme_text_color: "Custom"
                                 text_color: 0, 0, 0, 1
-                                on_release: root.show_currency_options(self)
-
-                
+                                on_release: root.show_currency_options(self) 
+            FloatLayout:                  
                 MDLabel:
-                    text: "Send Money from Wallet to Bank" 
-                    font_size:dp(21)
+                    text: "Send Money from Wallet to Bank"
+                    pos_hint: {"center_y": 0.7}
+                    font_size:dp(20)
                     halign: 'center'
-                    valign:'center'
-                    font_style: 'Subtitle1'
+                    #valign:'center'
+                    #font_style: 'Subtitle1'
                     size_hint_y: None
-                    height: dp(40)
                     bold: True 
-
-                MDBoxLayout:
-                    padding: dp(10)
-                    spacing: dp(20)
-                    adaptive_height: True
-
-                    MDRaisedButton:
-                        id: bank_dropdown
-                        text: 'Select bank account'
-                        size_hint_x: 1
-                        height: dp(50)
-                        md_bg_color: '#ffffff'           #"#3dd2ff"        # b0d9f9    #0.7961, 0.9019, 0.9412, 1
-                        on_release: root.fetch_bank_names()
-                        text_color: 0, 0, 0, 1
-                        elevation:1
-                        line_color:colors['Gray']['500']
-                        shadow_softness: 15
-                        shadow_offset:10,-12
-                        shadow_color:0,0,0,0.3
-
-                MDBoxLayout:
-                    # padding: dp(5)
-                    spacing: dp(10)
-                    adaptive_height: True
-                    MDTextField:
-                        id: amount_textfield
-                        mode: "rectangle"
-                        radius:[15,15,15,15]
-                        hint_text: "Enter amount"
-                        size_hint_x: 1
-                        hint_text_color_normal:0,0,0,0.7
-                        line_color_normal:colors['Gray']['500']      
-
-                MDSeparator:
-                    height: dp(1)
-
+                MDLabel:
+                    text: "No direct or hidden charges.Send money from \\nyour wallet to bank for FREE"
+                    pos_hint: {"center_y": 0.4}
+                    halign: 'center'
+                    valign: 'center'
+                    font_style: 'Subtitle1'
+                    size_hint: (None, None)
+                    size: (root.width, dp(40))
+                    multiline: True   
+            FloatLayout:    
+                MDRaisedButton:
+                    id: bank_dropdown
+                    text: 'Select bank account'
+                    pos_hint: {"center_y": 0.9,"center_x":0.5}
+                    size_hint_x: 1
+                    height: dp(70)
+                    md_bg_color: '#ffffff'           #"#3dd2ff"        # b0d9f9    #0.7961, 0.9019, 0.9412, 1
+                    on_release: root.fetch_bank_names()
+                    text_color: 0, 0, 0, 1
+                    elevation:1
+                    line_color:colors['Gray']['500']
+                    shadow_softness: 15
+                    shadow_offset:10,-12
+                    shadow_color:0,0,0,0.3 
+                MDTextField:
+                    id: amount_textfield
+                    pos_hint: {"center_y": 0.3,"center_x":0.5}
+                    mode: "rectangle"
+                    radius:[15,15,15,15]
+                    hint_text: "Enter amount"
+                    size_hint_x: 1
+                    hint_text_color_normal:0,0,0,0.7
+                    line_color_normal:colors['Gray']['500'] 
+            FloatLayout:    
                 MDBoxLayout:
                     padding: dp(10) #(dp(27),dp(10),dp(24),dp(10))
                     spacing: dp(20)
                     adaptive_height: True
                     adaptive_width: True
                     # orientation: 'horizontal'
-                    pos_hint: {'center_x': 0.5}
-
-
+                    pos_hint: {"center_y": 0.6,"center_x":0.5}
+    
                     MDFlatButton:
                         text: '+100'
                         size_hint_x: None
@@ -162,7 +357,7 @@ Builder.load_string(
                         height: dp(40)
                         md_bg_color:colors['LightBlue']['100']    #0.7961, 0.9019, 0.9412, 1
                         on_release: root.update_amount(100)
-
+    
                     MDFlatButton:
                         text: '+200'
                         size_hint_x: None
@@ -170,7 +365,7 @@ Builder.load_string(
                         height: dp(40)
                         md_bg_color: colors['LightBlue']['100']     #0.7961, 0.9019, 0.9412, 1
                         on_release: root.update_amount(200)
-
+    
                     MDFlatButton:
                         text: '+500'
                         size_hint_x: None
@@ -178,39 +373,31 @@ Builder.load_string(
                         height: dp(40)
                         md_bg_color: colors['LightBlue']['100']       #0.7961, 0.9019, 0.9412, 1
                         on_release: root.update_amount(500)
-
+    
                     MDFlatButton:
                         text: '+1000'
                         size_hint_x: None
                         width: dp(64)
                         height: dp(40)
                         md_bg_color: colors['LightBlue']['100']         #0.7961, 0.9019, 0.9412, 1
-                        on_release: root.update_amount(1000)
-
-                MDBoxLayout:
-                    padding: dp(10)
-                    adaptive_height: True
-
-                    MDRaisedButton:
-                        text: 'Proceed '
-                        md_bg_color: 20/255, 142/255, 254/255, 1
-                        size_hint_x: 1.5
-                        height: dp(50)
-                        on_press: root.withdraw()
-                        shadow_softness: 12
-                        shadow_offset:10,-12
-                        shadow_color:0,0,0,0.3
-            MDBoxLayout:
-                orientation: 'vertical'    
+                        on_release: root.update_amount(1000)    
+            FloatLayout:    
+                MDRaisedButton:
+                    text: 'Proceed'
+                    font_style: 'Button'  # This applies the default bold style for buttons
+                    md_bg_color: 20/255, 142/255, 254/255, 1
+                    size_hint_x: .6
+                    halign: "center"
+                    height: dp(100)  # Increase the height as needed
+                    on_press: root.withdraw()
+                    shadow_softness: 12
+                    shadow_offset: 10, -12
+                    shadow_color: 0, 0, 0, 0.3
+                    pos_hint: {"center_y": 0.7, "center_x": 0.5}
         MDBoxLayout:
-            size_hint_y: None
-            height: dp(100)
-            pos_hint: {'center_x': 0.5, 'center_y': 0.1}
-            size_hint_x: None
-            width: dp(100)
-"""
+            orientation: "vertical"                                     
+    """
 )
-
 
 class WithdrawScreen(Screen):
     def __init__(self, **kwargs):
@@ -408,3 +595,4 @@ class WithdrawScreen(Screen):
         if users_default_account != None:
             self.ids.bank_dropdown.text = users_default_account
             self.test(users_default_account)
+            pass

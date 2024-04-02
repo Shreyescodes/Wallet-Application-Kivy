@@ -1067,11 +1067,16 @@ class DashBoardScreen(Screen):
                 MDFlatButton(
                     text="OK",
                     on_release=lambda *args:
-                    (dialog.dismiss(), setattr(self.manager, 'current', 'addaccount'))),
+                    self.add_account_screen(dialog)),
             ],
         )
         dialog.open()
 
+    def add_account_screen(self, dialog):
+        dialog.dismiss()
+        new_screen = Factory.AddAccountScreen(name='addaccount')
+        self.manager.add_widget(new_screen)
+        self.manager.current = 'addaccount'
     def go_to_transaction(self):
         # Call on_start to show the loading animation
         self.on_start()
