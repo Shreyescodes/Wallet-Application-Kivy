@@ -44,7 +44,10 @@ from referfriend import ReferFriendScreen
 from autotopup import AutoTopupScreen
 from qrscanner import ScanScreen
 from newQR import QRCodeScreen
-
+from kivy.core.image import  Image as CoreImage
+import tempfile
+from io import BytesIO
+from PIL import Image as imga
 navigation_helper = """
 <DashBoardScreen>:
     MDNavigationLayout:
@@ -67,7 +70,7 @@ navigation_helper = """
                         elevation: 1
                         left_action_items:
                             [['menu', lambda x: nav_drawer.set_state("open")]]
-                        right_action_items: [["account-circle", lambda x: print("Image Button Pressed")]] 
+                        right_action_items: [["account-circle", lambda x: root.manage_acc()]] 
                     MDBoxLayout:
                         orientation: "vertical"                   
                 MDBoxLayout:
@@ -663,6 +666,7 @@ navigation_helper = """
                             size_hint_y :0.1
                             on_release: root.profile_view()
                             Image:
+                                id:user_image
                                 source: "images/account.png"
                                 size_hint: (0.4, 0.4)
                                 pos_hint:{"center_x":0.1}
@@ -1741,3 +1745,23 @@ class DashBoardScreen(Screen):
 
         # Switch to the screen for adding money
         sm.current = 'auto_topup'
+
+    def on_pre_enter(self):
+        store = JsonStore('user_data.json').get('user')['value']['phone']
+        table = app_tables.wallet_users.get(phone=store)
+        image_stored = table['profile_pic']
+        if image_stored:
+            decoded_image_bytes = base64.b64decode(image_stored)
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file1:
+                temp_file_path = temp_file1.name
+                # Write the decoded image data to the temporary file
+                temp_file1.write(decoded_image_bytes)
+                # Close the file to ensure the data is flushed and saved
+                temp_file1.close()
+            self.ids.user_image.source = temp_file_path
+
+    def manage_acc(self):
+        screen = self.manager
+        profile_screen = Factory.Profile(name="profile")
+        screen.add_widget(profile_screen)
+        screen.current = 'profile'
