@@ -13,6 +13,7 @@ KV = """
         orientation:'vertical'
         MDTopAppBar:
             title: 'Set Default Currency'
+            anchor_title:'left'
             elevation: 3
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             md_bg_color: "#148EFE"

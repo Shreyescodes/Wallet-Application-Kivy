@@ -15,6 +15,7 @@ KV = """
 
         MDTopAppBar:
             title: 'Add Account'
+            anchor_title:'left'
             elevation: 3
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             md_bg_color: "#148EFE"
@@ -30,48 +31,55 @@ KV = """
 
                 MDTextField:
                     id: account_holder_name
-                    hint_text: " Account Holder's Name"
+                    hint_text: "  Account Holder's Name"
                     mode: "rectangle"
                     multiline: False 
+                    radius: [50, 50, 50, 50]
 
 
                 MDTextField:
                     id: account_number
-                    hint_text: " Account Number"
+                    hint_text: "  Account Number"
                     mode: "rectangle"
                     multiline: False
+                    radius: [50, 50, 50, 50]
 
 
                 MDTextField:
                     id: confirm_account_number
-                    hint_text: " Confirm Account Number"
+                    hint_text: "  Confirm Account Number"
                     mode: "rectangle"
                     multiline: False
+                    radius: [50, 50, 50, 50]
 
                 MDTextField:
                     id: bank_name
-                    hint_text: " Bank Name"
+                    hint_text: "  Bank Name"
                     mode: "rectangle"
                     multiline: False
+                    radius: [50, 50, 50, 50]
 
                 MDTextField:
                     id: branch_name
-                    hint_text: " Branch Name"
+                    hint_text: "  Branch Name"
                     mode: "rectangle"
                     multiline: False
+                    radius: [50, 50, 50, 50]
 
                 MDTextField:
                     id: ifsc_code
-                    hint_text: " IFSC Code"
+                    hint_text: "  IFSC Code"
                     mode: "rectangle"
                     multiline: False
+                    radius: [50, 50, 50, 50]
 
 
                 MDTextField:
                     id: account_type
-                    hint_text: " Account Type"
+                    hint_text: "  Account Type"
                     mode: "rectangle"
                     multiline: False
+                    radius: [50, 50, 50, 50]
 
 
                 Widget:

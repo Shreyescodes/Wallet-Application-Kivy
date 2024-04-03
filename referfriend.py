@@ -14,6 +14,7 @@ Builder.load_string('''
 
         MDTopAppBar:
             title: "Referral"
+            anchor_title:'left'
             left_action_items: [["arrow-left", lambda x: root.go_back()]]  # Back button
             background_color: (173, 216, 230)  # Light blue color
 

@@ -18,6 +18,7 @@ KV = """
         MDTopAppBar:
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
             title: 'Login'
+            anchor_title:'left'
             # md_bg_color: "#1e75b9"
             specific_text_color: "#ffffff"
             pos_hint: {'top':1}
@@ -38,9 +39,9 @@ KV = """
                 
             MDTextField:
                 id: input_text
-                hint_text: "Mobile Number/Email ID"
+                hint_text: "  Mobile Number/Email ID"
                 mode: "rectangle"
-                radius:[25,25,25,25]
+                radius: [50, 50, 50, 50]
                 helper_text: "Enter your mobile number, user ID, or email ID"
                 helper_text_mode: "on_focus"
                 multiline: False
@@ -49,7 +50,7 @@ KV = """
 
             MDTextField:
                 id: password_input
-                hint_text: "Password"
+                hint_text: "  Password"
                 helper_text: "Enter your password"
                 mode: "rectangle"
                 radius:[25,25,25,25]

@@ -12,6 +12,7 @@ KV = '''
         MDTopAppBar:
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
             title: 'Contact Us'
+            anchor_title:'left'
             md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"
             pos_hint: {'top':1}

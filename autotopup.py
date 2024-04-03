@@ -31,6 +31,7 @@ Builder.load_string(
 
         MDTopAppBar:
             title: 'Auto Topup'
+            anchor_title:'left'
             elevation: 3
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             right_action_items: [['dots-vertical', lambda x: root.show_menu(x)]]

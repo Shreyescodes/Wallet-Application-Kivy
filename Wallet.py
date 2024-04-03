@@ -31,7 +31,8 @@ Builder.load_string(
         pos_hint: {"top":1}
 
         MDTopAppBar:
-            title: 'Add Money'
+            title: 'Your Wallet'
+            anchor_title:'left'
             elevation: 1
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             md_bg_color: "#148EFE"

@@ -30,6 +30,7 @@ Builder.load_string('''
             MDTopAppBar:
                 id: top_bar
                 title: "Welcome to GWallet Guide"
+                anchor_title:'left'
                 left_action_items: [["arrow-left", lambda x: root.go_back()]] 
                 background_color: (173, 216, 230)
                 pos_hint: {'top': 1}

@@ -14,6 +14,7 @@ Builder.load_string(
     MDScreen:
         MDTopAppBar:
             title: 'Withdraw Money'  # Updated title to 'Withdraw Money'
+            anchor_title:'left'
             elevation: 1
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             md_bg_color: "#148EFE"
@@ -29,15 +30,16 @@ Builder.load_string(
             size_hint_y:0.9
             pos_hint: {"top":0.8}
             #md_bg_color: "#fe1616"
+            # MDBoxLayout:
+            #     orientation: 'vertical'
             MDBoxLayout:
                 orientation: 'vertical'
-            MDBoxLayout:
-                orientation: 'vertical'
+                pos_hint: {"center_x": 0.5,"center_y":0.1}
                 MDCard:
                     orientation: 'vertical'
                     size_hint: 1, None  # Full width
                     height: dp(150)
-                    pos_hint: {"center_x": 0.5,'y':0.2}
+                    pos_hint: {"center_x": 0.5,"center_y":0.1}
                     radius: [20, 20, 20, 20]
                     padding: dp(20)
                     spacing: dp(20)
@@ -68,7 +70,7 @@ Builder.load_string(
                             MDLabel:
                                 id: balance_lbl
                                 text: 'User Wallet Balance'
-                                font_size: 20
+                                font_size: 25
                                 halign: 'left'
                                 valign: 'center'
                                 readonly: True
@@ -137,7 +139,7 @@ Builder.load_string(
                     MDTextField:
                         id: amount_textfield
                         mode: "rectangle"
-                        radius:[15,15,15,15]
+                        radius:[40,40,40,40]
                         hint_text: "Enter amount"
                         size_hint_x: 1
                         hint_text_color_normal:0,0,0,0.7

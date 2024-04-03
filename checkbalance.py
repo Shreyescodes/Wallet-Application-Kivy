@@ -21,7 +21,8 @@ KV = '''
 
         MDTopAppBar:
             title: "Currency Balance"
-            anchor_title: 'center'
+            anchor_title:'left'
+            
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
 
         ScrollView:

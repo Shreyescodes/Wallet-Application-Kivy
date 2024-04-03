@@ -19,6 +19,7 @@ KV = """
         spacing: "20dp"
         MDTopAppBar:
             title: "Change Password"
+            anchor_title:'left'
             left_action_items: [["arrow-left", lambda x: root.go_back()]]  # Back button
             background_color: (173, 216, 230)  # Light blue color
         BoxLayout:
@@ -35,7 +36,8 @@ KV = """
                 size_hint_y: None
                 mode: "rectangle"
                 height: "48dp"
-                radius: [20, 20, 20, 20]
+                radius: [50, 50, 50, 50]
+                line_width: "2dp" 
             MDTextField:
                 id: new_password_input
                 hint_text: "Enter new password"
@@ -45,7 +47,8 @@ KV = """
                 size_hint_y: None
                 mode: "rectangle"
                 height: "48dp"
-                radius: [20, 20, 20, 20]
+                radius: [50, 50, 50, 50]
+                line_width: "2dp" 
             MDTextField:
                 id: confirm_password_input
                 hint_text: "Enter new password again"
@@ -55,7 +58,8 @@ KV = """
                 size_hint_y: None
                 mode: "rectangle"
                 height: "48dp"
-                radius: [20, 20, 20, 20]
+                radius: [50, 50, 50, 50]
+                line_width: "20dp" 
 
             BoxLayout:
                 orientation: "vertical"

@@ -15,7 +15,8 @@ KV = '''
 
         MDTopAppBar:
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
-            title: 'Sign Up            '
+            title: "Sign Up"   
+            anchor_title:'left'
             elevation: 2
 
 
@@ -34,7 +35,7 @@ KV = '''
                     hint_text: " Username"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-                    radius: [25, 25, 25, 25]
+                    radius: [50, 50, 50, 50]
                     
                     
                 MDTextField:
@@ -43,7 +44,7 @@ KV = '''
                     hint_text: " Email Address"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-                    radius: [25, 25, 25, 25]
+                    radius: [50, 50, 50, 50]
                     
                     
                 MDTextField:
@@ -53,7 +54,7 @@ KV = '''
                     password: True
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-                    radius: [25, 25, 25, 25]
+                    radius: [50, 50, 50, 50]
                     
                 MDTextField:
                     mode: "rectangle"
@@ -62,7 +63,7 @@ KV = '''
                     password: True
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-                    radius: [25, 25, 25, 25]
+                    radius: [50, 50, 50, 50]
                                 
 
                 MDTextField:
@@ -71,7 +72,7 @@ KV = '''
                     hint_text: " Phone Number"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-                    radius: [25, 25, 25, 25]
+                    radius: [50, 50, 50, 50]
 
                 MDTextField:
                     mode: "rectangle"
@@ -79,7 +80,7 @@ KV = '''
                     hint_text: " Aadhar Card Number"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-                    radius: [25, 25, 25, 25]
+                    radius: [50, 50, 50, 50]
 
                 MDTextField:
                     mode: "rectangle"
@@ -87,7 +88,7 @@ KV = '''
                     hint_text: " PAN Card Number"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-                    radius: [25, 25, 25, 25]
+                    radius: [50, 50, 50, 50]
 
                 MDTextField:
                     mode: "rectangle"
@@ -95,7 +96,7 @@ KV = '''
                     hint_text: " Address Line 1"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-                    radius: [25, 25, 25, 25]
+                    radius: [50, 50, 50, 50]
                     
                 MDTextField:
                     mode: "rectangle"
@@ -103,7 +104,7 @@ KV = '''
                     hint_text: " Address Line 2"
                     line_color_normal: (0.5, 0.5, 0.5, 1)
                     # required: True
-                    radius: [25, 25, 25, 25]
+                    radius: [50, 50, 50, 50]
                 Widget:
                     size_hint_y: None
                     height: '4dp'

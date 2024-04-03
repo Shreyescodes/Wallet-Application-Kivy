@@ -55,7 +55,7 @@ navigation_helper = """
                     size_hint_y :0.1
                     pos_hint:{"top":1}
                     #md_bg_color: "#fe5016"
-                    
+
                     MDTopAppBar:
                         title: "[b][color=#ffffff]G WALLET[/color][/b]"
                         theme_text_color: "Custom"
@@ -74,8 +74,8 @@ navigation_helper = """
                     orientation: "vertical"
                     size_hint_y: 0.1
                     pos_hint: {"top":0.9}
-                    
-                    
+
+
                     MDCard:
                         orientation: "vertical"
                         size_hint: None, None
@@ -83,7 +83,7 @@ navigation_helper = """
                         md_bg_color: "#C4E3FF"
                         radius: [dp(15), dp(15), dp(15), dp(15)]
                         pos_hint: {"center_y": 1, "center_x": 0.5}
-                
+
                         MDLabel:
                             text: "Search in G Wallet"
                             theme_text_color: "Custom"  # Disable theme color
@@ -91,7 +91,7 @@ navigation_helper = """
                             # size_hint_y:None
                             pos_hint: {"center_x": 0.8, "center_y": 0.5}
                             font_size: "15sp"
-                            
+
                     MDBoxLayout:
                         orientation: "vertical"
                         size_hint: None, None
@@ -101,15 +101,15 @@ navigation_helper = """
                     size_hint_y :0.5
                     pos_hint:{"top":0.8}
                     #md_bg_color: "#1650fe"
-                    
+
                     MDBoxLayout:
                         orientation: "vertical"
                         pos_hint: {"center_x": 0.5,"center_y":0.5}
                         #md_bg_color: "#fe168a"
                         size_hint_y: 1
                         size_hint_x: 1
-                        
-                        
+
+
                         MDGridLayout:
                             cols: 3
                             rows: 3
@@ -118,8 +118,8 @@ navigation_helper = """
                             width: self.minimum_width  # Set width explicitly
                             height: self.minimum_height  # Set height explicitly
                             pos_hint: {"center_x": 0.5, "center_y": 0.5}
-                            
-                            
+
+
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
@@ -130,18 +130,18 @@ navigation_helper = """
                                 pos_hint_x:  None
                                 # elevation: 1 
                                 on_release: root.nav_transfer()
-                            
+
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
                                     height: "60dp"
                                     #spacing: dp(-12)
-                                    
+
                                     Image:
                                         source: "images/money-transfer.png"
                                         size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                        
+
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
@@ -152,15 +152,15 @@ navigation_helper = """
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"
-                                        
-                                        
+
+
                                     MDLabel:
                                         text: "Money"
                                         color: 20/255, 142/255, 254/255,1
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"
-                                        
+
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
@@ -176,12 +176,12 @@ navigation_helper = """
                                     size_hint_y: None
                                     height: "60dp"
                                     spacing: dp(-12)
-                                    
+
                                     Image:
                                         source: "images/wallet.png"
                                         size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                        
+
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
@@ -192,7 +192,7 @@ navigation_helper = """
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"
-                                        
+
                                     MDLabel:
                                         text: "Wallet"
                                         color: 20/255, 142/255, 254/255,1
@@ -214,7 +214,7 @@ navigation_helper = """
                                     size_hint_y: None
                                     height: "60dp"
                                     spacing: dp(-12)
-                                    
+
                                     Image:
                                         source: "images/cash-withdrawal.png"
                                         size_hint: (0.4, 1)
@@ -250,7 +250,7 @@ navigation_helper = """
                                     size_hint_y: None
                                     height: "60dp"
                                     spacing: dp(-12)
-                                    
+
                                     Image:
                                         source: "images/phone.png"
                                         size_hint: (0.4, 1)
@@ -265,14 +265,14 @@ navigation_helper = """
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"
-                                        
+
                                     MDLabel:
                                         text: "contacts"
                                         color: 20/255, 142/255, 254/255,1 
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"   
-                                    
+
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
@@ -283,13 +283,13 @@ navigation_helper = """
                                 pos_hint_x:  None
                                 #elevation: 1 
                                 on_release: root.nav_auto_topup()
-                                     
+
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
                                     height: "60dp"
                                     spacing: dp(-12)
-                                    
+
                                     Image:
                                         source: "images/topup.png"
                                         size_hint: (0.4, 1)
@@ -325,7 +325,7 @@ navigation_helper = """
                                     size_hint_y: None
                                     height: "60dp"
                                     spacing: dp(-12)
-                                    
+
                                     Image:
                                         source: "images/museum.png"
                                         size_hint: (0.4, 1)
@@ -340,7 +340,7 @@ navigation_helper = """
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"
-                                        
+
                                     MDLabel:
                                         text: "Accounts"
                                         color: 20/255, 142/255, 254/255,1
@@ -362,7 +362,7 @@ navigation_helper = """
                                     size_hint_y: None
                                     height: "60dp"
                                     spacing: dp(-12)
-                                    
+
                                     Image:
                                         source: "images/self-transfer.png"
                                         size_hint: (0.4, 1)
@@ -377,14 +377,14 @@ navigation_helper = """
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"
-                                        
+
                                     MDLabel:
                                         text: "Transfer"
                                         color: 20/255, 142/255, 254/255,1
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"  
-                                    
+
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
@@ -400,12 +400,12 @@ navigation_helper = """
                                     size_hint_y: None
                                     height: "60dp"
                                     spacing: dp(-12)
-                                    
+
                                     Image:
                                         source: "images/refer.png"
                                         size_hint: (0.4, 1)
                                         pos_hint:{"center_x":0.5,"center_y":0.2}
-                                        
+
                                 MDBoxLayout:
                                     orientation: "vertical"
                                     size_hint_y: None
@@ -416,14 +416,14 @@ navigation_helper = """
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"
-                                        
+
                                     MDLabel:
                                         text: "friend"
                                         color: 20/255, 142/255, 254/255,1 
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"  
-                                    
+
                             MDCard:
                                 orientation: "vertical"
                                 size_hint: None, None
@@ -439,7 +439,7 @@ navigation_helper = """
                                     size_hint_y: None
                                     height: "60dp"
                                     spacing: dp(-12)
-                                    
+
                                     Image:
                                         source: "images/scanner.png"
                                         size_hint: (0.4, 1)
@@ -460,23 +460,23 @@ navigation_helper = """
                                         font_size: "12sp"
                                         bold: True 
                                         halign: "center"
-                    
+
                         MDBoxLayout:
                             orientation: "vertical"
                             #md_bg_color: "#fefe16"
-                            
+
                 MDBoxLayout:
                     orientation: "vertical"
                     size_hint_y :0.4
                     pos_hint:{"center_y":0.12}
                     md_bg_color: "#C4E3FF"
                     spacing: dp(-10)
-                    
+
                     MDBoxLayout:
                         orientation: "vertical"
                         size_hint_y :0.28
                         pos_hint:{"center_y":1}
-                
+
                         MDCard:
                             orientation: "horizontal"
                             size_hint_y :0.1
@@ -486,7 +486,7 @@ navigation_helper = """
                                 source: "images/qr-code.png"
                                 size_hint: (0.5, 0.5)
                                 pos_hint:{"center_x":0.1}
-                                
+
                             MDLabel:
                                 text: "Receive money from QR code"
                                 theme_text_color: "Custom"  # Disable theme color
@@ -504,7 +504,7 @@ navigation_helper = """
                             Image:
                                 source: "images/history.png"
                                 size_hint: (0.5, 0.5)
-                                
+
                             MDLabel:
                                 text: "See transaction history"
                                 theme_text_color: "Custom"  # Disable theme color
@@ -539,7 +539,7 @@ navigation_helper = """
                             Image:
                                 source: "images/setting.png"
                                 size_hint: (0.5, 0.5)
-                                
+
                             MDLabel:
                                 text: "Settings"
                                 theme_text_color: "Custom"  # Disable theme color
@@ -552,7 +552,7 @@ navigation_helper = """
                     MDBoxLayout:
                         orientation: "vertical" 
                         size_hint_y:0.12     
-                                                                                                                                                  
+
         MDNavigationDrawer:
             id: nav_drawer
             radius: (0, 10, 10, 0)
@@ -563,18 +563,18 @@ navigation_helper = """
                 MDBoxLayout:
                     orientation: "vertical"
                     #md_bg_color: "#148EFE"
-                    
+
                     MDBoxLayout: #for user information
                         orientation: "horizontal"
                         md_bg_color: "#148EFE"
                         size_hint_y: 0.2
                         pos_hint: {"top":1}
-                        
+
                         MDBoxLayout: # for labels
                             orientation: "vertical"
                             #md_bg_color: "#fe1616"
                             size_hint_x: 0.6
-                            
+
                             MDLabel:
                                 text: "[b]your name[/b]"
                                 id:username_label
@@ -607,13 +607,13 @@ navigation_helper = """
                                 source: "images/user.png"
                                 size_hint: (0.5, 0.5)
                                 pos_hint:{"center_x":0.5,"center_y":0.3}
-                                
-                            
+
+
                     MDBoxLayout: #for features
                         orientation: "vertical"
                         size_hint_y: 0.6
                         pos_hint: {"top":0.8}
-                        
+
                         MDCard:
                             orientation: "horizontal"
                             size_hint_y :0.1
@@ -628,7 +628,7 @@ navigation_helper = """
                                 text_color: 0, 0, 0, 1
                                 font_size: "15sp"
                                 pos_hint:{"center_y":0.2} 
-                      
+
                         MDCard:
                             orientation: "horizontal"
                             size_hint_y :0.1
@@ -643,7 +643,7 @@ navigation_helper = """
                                 text_color: 0, 0, 0, 1
                                 font_size: "15sp"
                                 pos_hint:{"center_y":0.2} 
-                                
+
                         MDCard:
                             orientation: "horizontal"
                             size_hint_y :0.1
@@ -686,7 +686,7 @@ navigation_helper = """
                                 text_color: 0, 0, 0, 1
                                 font_size: "15sp"
                                 pos_hint:{"center_y":0.2} 
-                                
+
                         MDCard:
                             orientation: "horizontal"
                             size_hint_y :0.1
@@ -701,7 +701,7 @@ navigation_helper = """
                                 text_color: 0, 0, 0, 1
                                 font_size: "15sp"
                                 pos_hint:{"center_y":0.2}
-                                
+
                         MDCard:
                             orientation: "horizontal"
                             size_hint_y :0.1
@@ -720,7 +720,7 @@ navigation_helper = """
                         orientation:"vertical"
                         size_hint_y: 0.15
                         #md_bg_color: "#fefe16"
-                           
+
 """
 Builder.load_string(navigation_helper)
 
@@ -1067,10 +1067,16 @@ class DashBoardScreen(Screen):
                 MDFlatButton(
                     text="OK",
                     on_release=lambda *args:
-                    (dialog.dismiss(), setattr(self.manager, 'current', 'addaccount'))),
+                    self.add_account_screen(dialog)),
             ],
         )
         dialog.open()
+
+    def add_account_screen(self, dialog):
+        dialog.dismiss()
+        new_screen = Factory.AddAccountScreen(name='addaccount')
+        self.manager.add_widget(new_screen)
+        self.manager.current = 'addaccount'
 
     def go_to_transaction(self):
         # Call on_start to show the loading animation

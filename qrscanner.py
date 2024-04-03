@@ -18,6 +18,7 @@ Builder.load_string("""
         orientation: 'vertical'
         MDTopAppBar:
             title: "Scan QR Code"
+            anchor_title:'left'
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
             elevation: 2
         

@@ -15,6 +15,7 @@ KV = """
         MDTopAppBar:
             title: 'Report a bug'
             elevation: 3
+            anchor_title:'left'
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"

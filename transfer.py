@@ -18,7 +18,8 @@ kv_string = '''
             orientation: 'vertical'
             
             MDTopAppBar:
-                title: "Money Transfer          "
+                title: "Money Transfer"
+                anchor_title:'left'
                 left_action_items: [["arrow-left", lambda x: root.go_back()]]
                 md_bg_color: app.theme_cls.primary_color
                 specific_text_color: 1, 1, 1, 1
@@ -43,7 +44,7 @@ kv_string = '''
                         size_hint_y: None
                         height: '7dp'
                     MDRectangleFlatButton:
-                        radius:40,40,40,40
+                        radius:[40,40,40,40]
                         id: currency_spinner
                         text: 'Currency'
                         size_hint: 1, None
@@ -54,7 +55,8 @@ kv_string = '''
                     MDTextField:
                         id: name
                         mode: "rectangle"
-                        hint_text: " Beneficiary Name"
+                        hint_text: "  Beneficiary Name"
+                        radius:[40,40,40,40]
                         pos_hint: {'center_x': .5}
                         line_color_normal: [137/255, 137/255, 137/255, 1]  
                         on_focus:
@@ -67,7 +69,8 @@ kv_string = '''
                         id:mobile_no_field
                         input_type: "number"
                         mode: "rectangle"
-                        hint_text: " Mobile Number"
+                        radius:[40,40,40,40]
+                        hint_text: "  Mobile Number"
                         pos_hint: {'center_x': .5}
                         line_color_normal: [137/255, 137/255, 137/255, 1]  
                         on_focus:
@@ -113,7 +116,8 @@ kv_string = '''
                     MDTextField:
                         id:amount_field
                         mode: "rectangle"
-                        hint_text: " Transfer Amount"
+                        hint_text: "  Transfer Amount"
+                        radius:[40,40,40,40]
                         pos_hint: {'center_x': .5}
                         line_color_normal: [137/255, 137/255, 137/255, 1]  
                         on_focus:
@@ -123,7 +127,8 @@ kv_string = '''
                     MDTextField:
                         id:purpose
                         mode: "rectangle"
-                        hint_text: " Enter Purpose"
+                        hint_text: "  Enter Purpose"
+                        radius:[40,40,40,40]
                         pos_hint: {'center_x': .5}
                         line_color_normal: [137/255, 137/255, 137/255, 1]  
                         on_focus:
@@ -138,7 +143,8 @@ kv_string = '''
                         md_bg_color: app.theme_cls.primary_color
                         text_color: 1, 1, 1, 1
                         size_hint: .7, None
-                        on_release: root.transfer_money() 
+                        on_release: root.transfer_money()
+                        radius:[40,40,40,40] 
 
 
 '''

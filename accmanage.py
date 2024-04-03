@@ -19,6 +19,7 @@ KV = '''
         orientation: "vertical"
         MDTopAppBar:
             title: "Account Management"
+            anchor_title:'left'
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             right_action_items: [["bank",lambda x: root.nav_account()]]
             elevation:4
@@ -30,12 +31,12 @@ KV = '''
                 height: self.minimum_height
                 id: account_details_container
                 
-        MDBottomAppBar:
-            MDTopAppBar:
-                mode: 'end'
-                type: 'bottom'
-                icon: 'bank'
-                on_action_button: root.nav_account()        
+        # MDBottomAppBar:
+        #     MDTopAppBar:
+        #         mode: 'end'
+        #         type: 'bottom'
+        #         icon: 'bank'
+        #         on_action_button: root.nav_account()        
 '''
 Builder.load_string(KV)
 

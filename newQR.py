@@ -12,6 +12,7 @@ kv_string = '''
         orientation: 'vertical'
         MDTopAppBar:
             title: "Receive Money"
+            anchor_title:'left'
             left_action_items: [["arrow-left", lambda x: root.go_back()]]
             md_bg_color: app.theme_cls.primary_color
             specific_text_color: 1, 1, 1, 1
@@ -33,12 +34,14 @@ kv_string = '''
                 MDRoundFlatButton:
                     text: 'Download QR Code'
                     on_release: root.download_qr_code()
-                    pos_hint: {'y': 0.5}  # Center vertically
-    
+                    pos_hint: {'center_y': 0.5}  # Center vertically
+                Widget:
+                    size_hint_y: None
+                    height: '5dp'
                 MDRoundFlatButton:
                     text: 'Share QR Code'
                     on_release: root.share_qr_code()
-                    pos_hint: {'y': 0.5}  # Center vertically
+                    pos_hint: {'center_y': 0.5}  # Center vertically
 
 '''
 

@@ -19,6 +19,7 @@ KV = '''
 
         MDTopAppBar:
             title: "Self Transfer"
+            anchor_title:'left'
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             right_action_items: [["bank", lambda x: root.nav_account()]]
             elevation: 4
