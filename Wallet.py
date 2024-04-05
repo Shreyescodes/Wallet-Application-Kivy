@@ -37,14 +37,27 @@ Builder.load_string(
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
             md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"
-            pos_hint:{'top':1}
+            pos_hint:{"top":1}
 
         MDBoxLayout:
             orientation: 'vertical'
+            pos_hint: {"top":0.91} 
+             
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.25 
-        pos_hint: {"top":0.95} 
+        pos_hint: {"top":0.91} 
+        MDIconButton:
+            id: options_button
+            icon: "currency-inr"
+            pos_hint: {'center_x':.91}
+            md_bg_color:colors['LightBlue']['A100']                          #"#b0d9f9"  # Blue background color
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1  # White text color
+            on_release: root.show_currency_options(self)
+        Widget:
+            size_hint_y: None
+            height: '5dp'    
         MDCard:
             orientation: 'vertical'
             size_hint: 0.9, None  # 90% of parent width
@@ -54,7 +67,7 @@ Builder.load_string(
             shadow_softness: 12
             shadow_offset:10,-12
             shadow_color:0,0,0,0.3
-            radius: [20, 20, 20, 20]
+            radius: [50, 50, 50, 50]
             padding: dp(20)
             spacing: dp(20)
             md_bg_color: '#ffffff'         #"#d7ecfa"
@@ -88,7 +101,7 @@ Builder.load_string(
 
                     MDLabel:
                         id: balance_lbl
-                        text: 'User Wallet Balance'
+                        text: ''
                         halign: 'left'
                         valign:'middle'
                         readonly: True
@@ -117,18 +130,11 @@ Builder.load_string(
                     height:dp(100)
 
 
-                    MDIconButton:
-                        id: options_button
-                        icon: "currency-inr"
-                        pos_hint: {'center_y':0.5}
-                        md_bg_color:colors['LightBlue']['A100']                          #"#b0d9f9"  # Blue background color
-                        theme_text_color: "Custom"
-                        text_color: 0, 0, 0, 1  # White text color
-                        on_release: root.show_currency_options(self) 
+                    
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.5 
-        pos_hint: {"top":0.82} 
+        pos_hint: {"top":0.78} 
         #md_bg_color: "fe1616"
 
         MDCard:
@@ -140,7 +146,7 @@ Builder.load_string(
             shadow_softness: 12
             shadow_offset:10,-12
             shadow_color:0,0,0,0.3
-            radius: [20, 20, 20, 20]
+            radius: [50, 50, 50, 50]
             padding: dp(20)
             md_bg_color:"#ffffff"           #"#d7ecfa"
             line_color:colors['Gray']['500']
@@ -457,7 +463,7 @@ class AddMoneyScreen(Screen):
         total_balance = self.manager.get_total_balance(phone_no, instance_menu_item)
         # Convert the total balance to the selected currency
 
-        self.ids.balance_lbl.text = f'User Wallet Balance: {total_balance} '
+        self.ids.balance_lbl.text = f' {int(total_balance)} '
         print(total_balance)
         self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
         self.menu.dismiss()
@@ -502,7 +508,7 @@ class AddMoneyScreen(Screen):
             self.ids.options_button.icon = self.options_button_icon_mapping[user_default_currency]       
             total_balance = self.manager.get_total_balance(phone_no, user_default_currency)
             # Convert the total balance to the selected currency
-            self.ids.balance_lbl.text = f'User Wallet Balance: {total_balance}'
+            self.ids.balance_lbl.text = f' {int(total_balance)}'
         
         #users data
         users_default_account = user_data['default_account']

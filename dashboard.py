@@ -607,6 +607,7 @@ navigation_helper = """
                             #md_bg_color: "#5016fe"
                             size_hint_x: 0.4    
                             Image:
+                                id:user_image
                                 source: "images/user.png"
                                 size_hint: (0.5, 0.5)
                                 pos_hint:{"center_x":0.5,"center_y":0.3}
@@ -666,7 +667,7 @@ navigation_helper = """
                             size_hint_y :0.1
                             on_release: root.profile_view()
                             Image:
-                                id:user_image
+                                
                                 source: "images/account.png"
                                 size_hint: (0.4, 0.4)
                                 pos_hint:{"center_x":0.1}
@@ -747,6 +748,18 @@ class DashBoardScreen(Screen):
         self.ids.contact_label.text = JsonStore('user_data.json').get('user')['value']['username']
         self.ids.email_label.text = str(JsonStore('user_data.json').get('user')['value']['phone'])
         self.ids.username_label.text = JsonStore('user_data.json').get('user')['value']['email']
+        store = JsonStore('user_data.json').get('user')['value']['phone']
+        table = app_tables.wallet_users.get(phone=store)
+        image_stored = table['profile_pic']
+        if image_stored:
+            decoded_image_bytes = base64.b64decode(image_stored)
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file1:
+                temp_file_path = temp_file1.name
+                # Write the decoded image data to the temporary file
+                temp_file1.write(decoded_image_bytes)
+                # Close the file to ensure the data is flushed and saved
+                temp_file1.close()
+            self.ids.user_image.source = temp_file_path
 
     def get_username(self):
         store = JsonStore('user_data.json').get('user')['value']
@@ -1746,19 +1759,7 @@ class DashBoardScreen(Screen):
         # Switch to the screen for adding money
         sm.current = 'auto_topup'
 
-    def on_pre_enter(self):
-        store = JsonStore('user_data.json').get('user')['value']['phone']
-        table = app_tables.wallet_users.get(phone=store)
-        image_stored = table['profile_pic']
-        if image_stored:
-            decoded_image_bytes = base64.b64decode(image_stored)
-            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file1:
-                temp_file_path = temp_file1.name
-                # Write the decoded image data to the temporary file
-                temp_file1.write(decoded_image_bytes)
-                # Close the file to ensure the data is flushed and saved
-                temp_file1.close()
-            self.ids.user_image.source = temp_file_path
+
 
     def manage_acc(self):
         screen = self.manager

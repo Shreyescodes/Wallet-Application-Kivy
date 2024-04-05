@@ -1,12 +1,12 @@
-from ast import Store
-from ctypes import sizeof
-from fileinput import filename
-import imp
-from logging import root
-from operator import imod
-from os import path
+# from ast import Store
+# from ctypes import sizeof
+# from fileinput import filename
+# import imp
+# from logging import root
+# from operator import imod
+# from os import path
 import platform
-from turtle import width
+
 from certifi import where
 from kivy.app import App
 from kivy.factory import Factory
@@ -213,7 +213,7 @@ class Profile(Screen):
         super(Profile, self).__init__(**kwargs)
         self.editing_mode = False  # Initialize editing_mode in the __init__ method
         self.email_editing = False  # Initialize email_editing
-
+        EventLoop.window.bind(on_keyboard=self.on_key)
     # def enable_email_edit(self):
     #     self.ids.email_label.readonly = False  # Enable email editing
     #     self.ids.edit_save_button.text = "Save"  # Change button text to 'Save'
@@ -290,9 +290,7 @@ class Profile(Screen):
     def go_back(self):
         self.manager.current = 'dashboard'
 
-    def __init__(self, **kwargs):
-        super(Profile, self).__init__(**kwargs)
-        EventLoop.window.bind(on_keyboard=self.on_key)
+
 
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android
@@ -306,6 +304,7 @@ class Profile(Screen):
         if platform == 'android':
             app_dir = App.get_running_app().user_data_dir
             Path = join(app_dir, "DCIM")
+
         else:
             Path = r'D:\mbl photos'
         file_chooser1 = FileChooserListView(path=Path)

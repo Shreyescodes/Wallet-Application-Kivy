@@ -3,6 +3,7 @@ from anvil.tables import app_tables
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivymd.toast import toast
+from kivymd.uix.bottomsheet import MDListBottomSheet
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
@@ -69,7 +70,7 @@ Builder.load_string(
 
                             MDLabel:
                                 id: balance_lbl
-                                text: 'User Wallet Balance'
+                                text: ''
                                 font_size: 25
                                 halign: 'left'
                                 valign: 'center'
@@ -361,27 +362,31 @@ class WithdrawScreen(Screen):
         total_balance = self.manager.get_total_balance(phone_no, instance_menu_item)
 
         self.ids.options_button.text = instance_menu_item
-        self.ids.balance_lbl.text = f'User Wallet Balance: {total_balance} '
+        self.ids.balance_lbl.text = f': {total_balance} '
         print(total_balance)
         self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
         self.menu.dismiss()
 
-    def currencyDropdown(self):
-        try:
-            currencies = ["INR", "USD", "EUR", "GBP", "JPY", "AUD"]
-            self.menu_list = [
-                {"viewclass": "OneLineListItem", "text": currency,
-                 "on_release": lambda x=currency: self.select_currency(x)}
-                for currency in currencies
-            ]
-            self.menu = MDDropdownMenu(
-                caller=self.ids.currency_dropdown,
-                items=self.menu_list,
-                width_mult=4
-            )
-            self.menu.open()
-        except Exception as e:
-            print(f"Error fetching currencies: {e}")
+    # def currencyDropdown(self):
+    #     try:
+    #         bs_menu = MDListBottomSheet
+    #         #
+    #         # currencies = ["INR", "USD", "EUR", "GBP", "JPY", "AUD"]
+    #         # self.bs_menu = [
+    #         #     {"viewclass": "OneLineListItem", "text": currency,
+    #         #      "on_release": lambda x=currency: self.select_currency(x)}
+    #         #     for currency in currencies
+    #         # ]
+    #         # # self.menu = MDDropdownMenu(
+    #         #     caller=self.ids.currency_dropdown,
+    #         #     items=self.menu_list,
+    #         #     width_mult=4
+    #         # )
+    #         # self.menu.open()
+    #         bs_menu.open()
+    #
+    #     except Exception as e:
+    #         print(f"Error fetching currencies: {e}")
 
     def update_balance_label(self, currency):
         store = JsonStore('user_data.json')
