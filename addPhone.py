@@ -1,5 +1,4 @@
-from datetime import datetime, date
-from operator import itemgetter
+from datetime import datetime
 from kivy.core.window import Window
 from kivy.factory import Factory
 from kivy.graphics import Color
@@ -19,8 +18,6 @@ from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
 from kivymd.uix.textfield import MDTextField
 from kivy.uix.boxlayout import BoxLayout
-import traceback
-
 from kivymd.uix.boxlayout import MDBoxLayout
 
 KV = '''
@@ -31,8 +28,10 @@ KV = '''
 
             MDTopAppBar:
                 title: root.top_app_bar_title
+                halign:'center'
                 elevation: 3
                 left_action_items: [['arrow-left', lambda x: root.go_back()]]
+                right_action_items: [["", lambda x:None]]
                 md_bg_color: "#148EFE"
                 specific_text_color: "#ffffff"
                 pos_hint: {'top': 1}
@@ -41,28 +40,46 @@ KV = '''
                 BoxLayout:
                     orientation: 'vertical'
                     size_hint_y: None
-                    height: dp(120)  # Adjust the height as needed
+                    height: dp(215)  # Adjust the height as needed
 
                     MDBoxLayout:
-                        orientation: 'horizontal'
+                        orientation: 'vertical'
                         size_hint_y: None
                         height: dp(80)
+                        spacing:dp(5)
+                        ThreeLineListItem:
+                            text:"Enter a Phone number"
+                            secondary_text:'Pay any person on G-wallet using'
+                            padding:dp(2)
+                            spacing:dp(2)
+                            tertiary_text:'their Phone number'
+                            bg_color:0,0,0,0
+                            divider:None
+                            size_hint_x:0.9
+                            pos_hint:{'x':0.03}
+                        MDSeparator:
+                            height:dp(1)
+                            size_hint_x:0.9
+                            pos_hint:{'center_x':0.5}
 
-                        MDIconButton:
-                            icon: 'magnify'
-                            theme_text_color: 'Custom'
-                            text_color: [0, 0, 0, 1]
-
+                        Widget:
+                            size_hint_y:None
+                            height: dp(8)
                         MDTextField:
                             id: search_text_card
-                            hint_text: 'Enter a Phone number to Pay any person on Gwallet'
+                            line_color_normal:colors['Gray']['500']
+                            fill_color_normal:1,1,1,1
+                            hint_text: '+91   00000 00000'
+                            hint_text_color:0,0,0,1
+                            mode:'round'
                             multiline: False
-                            size_hint_x: 0.7
-                            radius: [20, 20, 0, 0]
+                            size_hint_x: 0.9
+                            size_hint_y:None
+                            height:0.4
+                            # radius: [40,40,40,40]
                             padding: dp(0)
-                            background_color: 1, 1, 1, 0
                             on_text_validate: root.on_search_text_entered()
-                            pos_hint: {"center_y": 0.4}  # Adjust the value to move it down
+                            pos_hint: {"center_y": 0.4,'x':0.05}  # Adjust the value to move it down
 
                     Widget:  # Spacer
                         size_hint_y: None
@@ -72,6 +89,12 @@ KV = '''
                         id: search_result_item
                         text: "No result"
                         on_release: root.on_number_click(float(root.ids.search_text_card.text))
+                        pos_hint:{'x':0.03}
+                        divider:None
+
+                    Widget:
+                        size_hint_y:None
+                        height: dp(5)
 
                     MDLabel:
                         id: contact_label
@@ -79,6 +102,11 @@ KV = '''
                         font_style:"H6"
                         size_hint_y:None
                         height: self.texture_size[1]
+
+                    MDSeparator:
+                        height:dp(1)
+                        size_hint_x:0.9
+                        pos_hint:{'center_x':0.5}
 
 <UserDetailsScreen>:
     BoxLayout:
@@ -139,7 +167,7 @@ KV = '''
 
                 CustomMDTextField:
                     id: my_text_field
-                    hint_text: "Enter amount or chat"
+                    hint_text: "Message..."
                     mode: "round"
                     width: "200dp"
                     height: dp(1)
@@ -160,7 +188,9 @@ class AddPhoneScreen(Screen):
     current_user_phone = ""
 
     def go_back(self):
+        existing_screen = self.manager.get_screen('addphone')
         self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
 
     def fetch_and_update_addPhone(self):
         store = JsonStore('user_data.json').get('user')['value']
@@ -240,6 +270,7 @@ class CustomMDTextField(MDTextField):
     def on_right_icon(self):
         self.right_icon_callback()
 
+
 class UserDetailsScreen(Screen):
     username = ""
     phone_number = StringProperty('')
@@ -248,160 +279,140 @@ class UserDetailsScreen(Screen):
     transaction_list_mdlist = None
 
     def on_enter(self, sender=None):
+        # Convert phone numbers to integers
+        global message, color, align
+        current_user_phone = JsonStore('user_data.json').get('user')['value']['phone']
+        print(f'current_user_phone:{self.current_user_phone}')
+        searched_user_phone = int(self.searched_user_phone)
+        print(f'searched_user_phone:{self.searched_user_phone}')
 
-            # Convert phone numbers to integers
-            current_user_phone = JsonStore('user_data.json').get('user')['value']['phone']
-            print(f'current_user_phone: {current_user_phone}')
-            searched_user_phone = int(self.searched_user_phone)
-            print(f'searched_user_phone: {self.searched_user_phone}')
+        # Get the transaction data between current and searched users
+        user_data_1 = app_tables.wallet_users_transaction.search(
+            phone=searched_user_phone,
+            receiver_phone=current_user_phone,
+            transaction_type='Debit'
+        )
+        user_data_2 = app_tables.wallet_users_transaction.search(
+            phone=current_user_phone,
+            receiver_phone=searched_user_phone,
+            transaction_type='Debit'
+        )
 
-            # Get the transaction data between current and searched users
-            user_data_1 = app_tables.wallet_users_transaction.search(
-                phone=searched_user_phone,
-                receiver_phone=current_user_phone,
-                transaction_type='Debit'
+        # Convert LiveObjectProxy results to lists
+        user_data_1_list = list(user_data_1)
+        user_data_2_list = list(user_data_2)
+
+        user_data = user_data_1_list + user_data_2_list
+
+        user_data.sort(key=lambda x: x['date'])
+
+        self.ids.transaction_list_mdlist.clear_widgets()
+
+        # Iterate over the transaction data and display
+        for transaction in user_data:
+            sender = transaction['phone']
+            receiver = transaction['receiver_phone']
+            fund = transaction['fund']
+            date = transaction['date']
+
+            # Check if date is not None before formatting
+            if date is not None:
+                date_str = date.strftime('%b %d, %Y %I:%M %p')  # Format the date as desired
+                date_only = date.strftime('%b %d, %Y')
+            else:
+                date_str = "Unknown Date"
+                date_only = "Unknown Date"
+
+            searched_user_data = app_tables.wallet_users.get(phone=searched_user_phone)
+            searched_username = searched_user_data['username'] if searched_user_data else 'Unknown User'
+
+            date_label = Label(
+                text=date_str,
+                font_size=16,
+                color=(0.3, 0.3, 0.3, 1),
+                size_hint_y=None,
+                height=dp(40),
+                halign='center'
             )
-            user_data_2 = app_tables.wallet_users_transaction.search(
-                phone=current_user_phone,
-                receiver_phone=searched_user_phone,
-                transaction_type='Debit'
+            self.ids.transaction_list_mdlist.add_widget(date_label)
+
+            # Add a spacer widget for some space between date_label and message_container
+            spacer_top = BoxLayout(size_hint=(1, None), height=dp(85))
+            self.ids.transaction_list_mdlist.add_widget(spacer_top)
+
+            # Initialize message and color variables
+            message = ""
+            color = (0, 0, 0, 1)
+
+            # Determine the direction of the message based on sender and receiver
+            if sender == current_user_phone:
+                formatted_fund = "{:,.0f}".format(fund)
+                message = f"Payment to {searched_username}\n" \
+                          f"₹{fund}\n" \
+                          f"Paid on {date_only}  "
+
+                background_color = [0.7686, 0.8902, 1, 1]  # [0.8, 0.925, 0.729, 1]
+                text_color = (0, 0, 0, 1)
+                align = 'right'
+
+            else:
+                formatted_fund = "{:,.0f}".format(fund)
+                message = f"Payment to you\n" \
+                          f"₹{fund}\n" \
+                          f"Paid on {date_only}  "
+
+                background_color = [0.7686, 0.8902, 1, 1]  # [0.8, 1, 0.8, 1]
+                text_color = (0, 0, 0, 1)
+                align = 'left'
+
+            # Inside the loop where you construct the message_label, split the message into parts
+            parts = message.split('\n')
+
+            message_container = AnchorLayout(anchor_x=('right' if align == 'right' else 'left'), anchor_y='center')
+
+            message_layout = MDBoxLayout(
+                orientation="vertical",
+                size_hint=(None, None),
+                size=(dp(170), dp(100)),
+                padding=[10, 10],
+                spacing=100,
             )
 
-            # Convert LiveObjectProxy results to lists
-            user_data_1_list = list(user_data_1)
-            user_data_2_list = list(user_data_2)
+            message_label = RoundedMDLabel()
+            message_label.text = message
+            message_label.font_size = 20
+            message_label.md_bg_color = background_color
+            message_label.size_hint_y = None
+            message_label.height = message_label.texture_size[1] + dp(120)
+            message_label.halign = align
+            # message_label.padding = dp(5)
+            message_label.valign = "middle"
+            message_label.theme_text_color = "Custom"
+            message_label.text_color = text_color
 
-            user_data = user_data_1_list + user_data_2_list
-
-            user_data.sort(key=lambda x: x['date'])
-
-            self.ids.transaction_list_mdlist.clear_widgets()
-
-            # Iterate over the transaction data and display
-            for transaction in user_data:
-                sender = transaction['phone']
-                receiver = transaction['receiver_phone']
-                fund = transaction['fund']
-                date = transaction['date']
-                msg = transaction['message']
-
-                # Check if date is not None before formatting
-                if date is not None:
-                    date_str = date.strftime('%b %d, %Y %I:%M %p')  # Format the date as desired
-                    date_only = date.strftime('%b %d, %Y')
+            message_label.markup = True
+            formatted_text = f"[size=18]{parts[0]}[/size]"
+            for part in parts[1:]:
+                formatted_text += f"\n"
+                if part.startswith('₹'):
+                    formatted_text += f"\n[size=30]{part}[/size]"
                 else:
-                    date_str = "Unknown Date"
-                    date_only = "Unknown Date"
+                    formatted_text += f"\n[size=16]{part}[/size]"
 
-                searched_user_data = app_tables.wallet_users.get(phone=searched_user_phone)
-                searched_username = searched_user_data['username'] if searched_user_data else 'Unknown User'
+            message_label.text = formatted_text
 
-                date_label = Label(
-                    text=date_str,
-                    font_size=16,
-                    color=(0.3, 0.3, 0.3, 1),
-                    size_hint_y=None,
-                    height=dp(40),
-                    halign='center'
-                )
-                self.ids.transaction_list_mdlist.add_widget(date_label)
+            # Add the message label to the message layout
+            message_layout.add_widget(message_label)
 
-                # Add a spacer widget for some space between date_label and message_container
-                spacer_top = BoxLayout(size_hint=(1, None), height=dp(85))
-                self.ids.transaction_list_mdlist.add_widget(spacer_top)
+            # Add the message layout to the message container
+            message_container.add_widget(message_layout)
 
-                # Initialize message and color variables
-                message = ""
-                color = (0, 0, 0, 1)
+            # Add the message layout to the transaction list
+            self.ids.transaction_list_mdlist.add_widget(message_container)
 
-                # Determine the direction of the message based on sender and receiver
-                if sender == current_user_phone:
-                    if fund is not None:
-                        formatted_fund = "{:,.0f}".format(fund)
-                        message = f"Payment to {searched_username}\n" \
-                                  f"₹{fund}\n" \
-                                  f"Paid on {date_only}  "
-                    else:
-                        formatted_fund = "N/A"  # Or any other placeholder text you prefer
-                        message = f"{msg} "\
-                                  f"                                                                   {date_only}"
-
-                    background_color = [0.7686, 0.8902, 1, 1]  # [0.8, 0.925, 0.729, 1]
-                    text_color = (0, 0, 0, 1)
-                    align = 'right'
-
-                else:
-                    if fund is not None:
-                        formatted_fund = "{:,.0f}".format(fund)
-                        message = f"Payment to you\n" \
-                                  f"₹{fund}\n" \
-                                  f"Paid on {date_only}  "
-                    else:
-                        formatted_fund = "N/A"  # Or any other placeholder text you prefer
-                        message = f"{msg} \n"\
-                                  f"{date_only}"
-                    background_color = [0.7686, 0.8902, 1, 1]  # [0.8, 1, 0.8, 1]
-                    text_color = (0, 0, 0, 1)
-                    align = 'left'
-
-                # Inside the loop where you construct the message_label, split the message into parts
-                parts = message.split('\n')
-
-                message_container = AnchorLayout(anchor_x=('right' if align == 'right' else 'left'), anchor_y='center')
-
-                if fund is None:
-                    # Determine the height of the label based on the length of the message
-                    message_label = RoundedMDLabel()
-                    message_label.text = message
-                    message_label.font_size = 20
-                    message_label.md_bg_color = background_color
-                    message_label.size_hint_y = None
-                    message_label.height = max(50, len(parts) * 90)
-                    message_label.halign = align
-                    message_label.padding = dp(5)
-                    message_label.valign = "middle"
-                    message_label.theme_text_color = "Custom"
-                    message_label.text_color = text_color
-                else:
-                    message_label = RoundedMDLabel()
-                    message_label.text = message
-                    message_label.font_size = 20
-                    message_label.md_bg_color = background_color
-                    message_label.size_hint_y = None
-                    message_label.height = message_label.texture_size[1] + dp(120)
-                    message_label.halign = align
-                    message_label.padding = dp(5)
-                    message_label.valign = "middle"
-                    message_label.theme_text_color = "Custom"
-                    message_label.text_color = text_color
-
-                message_label.markup = True
-                formatted_text = f"[size=18]{parts[0]}[/size]"
-                for part in parts[1:]:
-                    formatted_text += f"\n"
-                    if part.startswith('₹'):
-                        formatted_text += f"\n[size=30]{part}[/size]"
-                    else:
-                        formatted_text += f"\n[size=16]{part}[/size]"
-
-                message_label.text = formatted_text
-
-                message_layout = MDBoxLayout(
-                    orientation="vertical",
-                    size_hint=(None, None),
-                    size=(dp(170), dp(100)),
-                    padding=[10, 10],
-                    spacing=100,
-                )
-
-                message_layout.add_widget(message_label)
-
-                message_container.add_widget(message_layout)
-
-                self.ids.transaction_list_mdlist.add_widget(message_container)
-
-                spacer_bottom = BoxLayout(size_hint=(1, None), height=dp(55))
-                self.ids.transaction_list_mdlist.add_widget(spacer_bottom)
+            # Add another spacer widget for some space between message_container and next date_label
+            spacer_bottom = BoxLayout(size_hint=(1, None), height=dp(55))
+            self.ids.transaction_list_mdlist.add_widget(spacer_bottom)
 
     def calculate_label_height(self, text):
         lines = text.count("\n") + 1
@@ -414,94 +425,67 @@ class UserDetailsScreen(Screen):
         else:
             self.ids.another_textfield.opacity = 0
 
-    def deduct_and_transfer(self, amount_or_message):
-        if amount_or_message.isnumeric():
-            amount = int(amount_or_message)
-            date = datetime.now()
+    def deduct_and_transfer(self, amount):
+        print("deduct_and_transfer function called with text:", amount)
+        # Convert amount to integer or float
+        amount = int(amount)
 
-            # Fetch current user's data from wallet_users_balance
-            current_user_data = app_tables.wallet_users_balance.search(
-                phone=JsonStore('user_data.json').get('user')['value']['phone'],
-                currency_type='INR'  # Add currency_type condition
-            )
-            if len(current_user_data) == 1:
-                current_user_data = current_user_data[0]
-                existing_bal = current_user_data['balance']
-                if amount > existing_bal:
-                    toast("Insufficient Balance.")
-                else:
-                    # Deduct amount from current user's balance
-                    current_user_data['balance'] -= amount
-                    current_user_data.update()
-                    print(f'{amount} deduced from {self.current_user_phone}')
+        date = datetime.now()
+
+        # Fetch current user's data from wallet_users_balance
+        current_user_data = app_tables.wallet_users_balance.search(
+            phone=int(self.current_user_phone),
+            currency_type='INR'  # Add currency_type condition
+        )
+        if len(current_user_data) == 1:
+            current_user_data = current_user_data[0]
+            existing_bal = current_user_data['balance']
+            if amount > existing_bal:
+                toast("Insufficient Balance.")
+            else:
+                # Deduct amount from current user's balance
+                current_user_data['balance'] -= amount
+                current_user_data.update()
+                print(f'{amount} deduced from {int(self.current_user_phone)}')
+
+                app_tables.wallet_users_transaction.add_row(
+                    receiver_phone=int(self.searched_user_phone),
+                    phone=int(self.current_user_phone),
+                    fund=amount,
+                    date=date,
+                    transaction_type="Debit"
+                )
+
+                # Fetch searched user's data from wallet_users_balance
+                searched_user_data = app_tables.wallet_users_balance.search(
+                    phone=int(self.searched_user_phone),
+                    currency_type='INR'  # Add currency_type condition
+                )
+                if len(searched_user_data) == 1:
+                    searched_user_data = searched_user_data[0]
+                    # Add amount to searched user's balance
+
+                    searched_user_data['balance'] += amount
+                    searched_user_data.update()
+                    print(f'{amount} added to {int(self.searched_user_phone)}')
 
                     app_tables.wallet_users_transaction.add_row(
-                        receiver_phone=int(self.searched_user_phone),
-                        phone=JsonStore('user_data.json').get('user')['value']['phone'],
+                        receiver_phone=int(self.current_user_phone),
+                        phone=int(self.searched_user_phone),
                         fund=amount,
                         date=date,
-                        transaction_type="Debit"
+                        transaction_type="Credit"
                     )
+                    Clock.schedule_once(lambda dt: self.clear_text_field(), 0.1)
 
-                    # Fetch searched user's data from wallet_users_balance
-                    searched_user_data = app_tables.wallet_users_balance.search(
-                        phone=JsonStore('user_data.json').get('user')['value']['phone'],
-                        currency_type='INR'  # Add currency_type condition
-                    )
-                    if len(searched_user_data) == 1:
-                        searched_user_data = searched_user_data[0]
-                        # Add amount to searched user's balance
-
-                        searched_user_data['balance'] += amount
-                        searched_user_data.update()
-                        print(f'{amount} added to {int(self.searched_user_phone)}')
-
-                        app_tables.wallet_users_transaction.add_row(
-                            receiver_phone=JsonStore('user_data.json').get('user')['value']['phone'],
-                            phone=int(self.searched_user_phone),
-                            fund=amount,
-                            date=date,
-                            transaction_type="Credit"
-                        )
-                        Clock.schedule_once(lambda dt: self.clear_text_field(), 0.1)
-
-                        # Show a success toast
-                        toast("Money added successfully.")
-                        self.manager.current = 'dashboard'
-                        self.manager.show_balance()
-                    else:
-                        print("Error: More than one row matched for searched user")
-            else:
-                print("Error: More than one row matched for current user")
-
+                    # Show a success toast
+                    toast("Money added successfully.")
+                    self.manager.current = 'dashboard'
+                    self.manager.show_balance()
+                else:
+                    print("Error: More than one row matched for searched user")
         else:
-            message = amount_or_message
-            date = datetime.now()
-
-            # Store the message in the database
-            app_tables.wallet_users_transaction.add_row(
-                receiver_phone=int(self.searched_user_phone),
-                phone=JsonStore('user_data.json').get('user')['value']['phone'],
-                message=message,
-                date=date,
-                transaction_type="Debit"
-            )
-
-            # Store the message in the database
-            app_tables.wallet_users_transaction.add_row(
-                receiver_phone=JsonStore('user_data.json').get('user')['value']['phone'],
-                phone=int(self.searched_user_phone),
-                message=message,
-                date=date,
-                transaction_type="credit"
-            )
-
-            Clock.schedule_once(lambda dt: self.clear_text_field(), 0.1)
-
-            # Show a success toast or any other indication
-            toast("Message sent successfully.")
-            self.manager.current = 'dashboard'
-            self.manager.show_balance()
+            print("Error: More than one row matched for current user")
 
     def clear_text_field(self):
         self.ids.my_text_field.text = ''
@@ -512,7 +496,10 @@ class UserDetailsScreen(Screen):
         return custom_text_field
 
     def go_back(self):
+        existing_screen = self.manager.get_screen('userdetails')
         self.manager.current = 'addphone'
+        self.manager.remove_widget(existing_screen)
+
 
 class WalletApp(MDApp):
     def build(self):

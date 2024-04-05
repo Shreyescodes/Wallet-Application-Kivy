@@ -1173,6 +1173,9 @@ class DashBoardScreen(Screen):
 
             current_date = ""
 
+            # Create a dictionary to store transactions grouped by date
+            transactions_by_date = {}
+
             for transaction in sorted(filter(lambda x: x['date'] is not None, transactions), key=lambda x: x['date'],
                                       reverse=True):
                 transaction_datetime = transaction['date']
@@ -1181,35 +1184,43 @@ class DashBoardScreen(Screen):
                 transactions_text = f"{transaction['receiver_phone']}"
                 fund_text = f"{transaction['fund']}"
 
-                if transaction_date != current_date:
-                    current_date = transaction_date
-                    header_text = f"[b]{transaction_date}[/b]"
+                # Add transaction to transactions_by_date dictionary
+                transactions_by_date.setdefault(transaction_date, []).append(transaction)
+
+            for date, transactions_for_date in transactions_by_date.items():
+                # Check if there are any transactions with non-None fund for this date
+                if any(transaction['fund'] is not None for transaction in transactions_for_date):
+                    header_text = f"[b]{date}[/b]"
                     list1 = OneLineListItem(text=header_text, height=dp(15), theme_text_color='Custom',
                                             text_color=[0, 0, 0, 1], divider=None, bg_color="#e5f3ff", )
-
                     trans_screen.ids.transaction_list.add_widget(list1)
 
-                transaction_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(36))
+                    for transaction in transactions_for_date:
+                        if transaction['fund'] is not None:
+                            transaction_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(36))
 
-                # Add transaction details
-                transaction_item_widget = OneLineListItem(text=f"{transactions_text}", theme_text_color='Custom',
-                                                          text_color=[0, 0, 0, 1], divider=None)
-                transaction_container.add_widget(transaction_item_widget)
+                            # Add transaction details
+                            transaction_item_widget = OneLineListItem(text=f"{transactions_text}",
+                                                                      theme_text_color='Custom',
+                                                                      text_color=[0, 0, 0, 1], divider=None)
+                            transaction_container.add_widget(transaction_item_widget)
 
-                transaction_container.add_widget(Widget(size_hint_x=None, width=dp(20)))
+                            transaction_container.add_widget(Widget(size_hint_x=None, width=dp(20)))
 
-                if transaction['transaction_type'] == 'Credit':
-                    fund_color = [0, 0.5, 0, 1]
-                    sign = '+'
-                else:
-                    fund_color = [1, 0, 0, 1]
-                    sign = '-'
+                            if transaction['transaction_type'] == 'Credit':
+                                fund_color = [0, 0.5, 0, 1]
+                                sign = '+'
+                            else:
+                                fund_color = [1, 0, 0, 1]
+                                sign = '-'
 
-                fund_label = MDLabel(text=f"{sign}₹{fund_text}", theme_text_color='Custom', text_color=fund_color,
-                                     halign='right', padding=(15, 15))
-                transaction_container.add_widget(fund_label)
+                            fund_label = MDLabel(text=f"{sign}₹{fund_text}", theme_text_color='Custom',
+                                                 text_color=fund_color,
+                                                 halign='right', padding=(15, 15))
+                            transaction_container.add_widget(fund_label)
 
-                trans_screen.ids.transaction_list.add_widget(transaction_container)
+                            trans_screen.ids.transaction_list.add_widget(transaction_container)
+
         except Exception as e:
             print(f"Error getting transaction history: {e} ,{traceback.format_exc()}")
 

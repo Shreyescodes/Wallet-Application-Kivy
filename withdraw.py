@@ -3,7 +3,6 @@ from anvil.tables import app_tables
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivymd.toast import toast
-from kivymd.uix.bottomsheet import MDListBottomSheet
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
@@ -15,9 +14,10 @@ Builder.load_string(
     MDScreen:
         MDTopAppBar:
             title: 'Withdraw Money'  # Updated title to 'Withdraw Money'
-            anchor_title:'left'
+            anchor_title: 'center'
             elevation: 1
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
+            right_action_items: [["",lambda x:None]]
             md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"
             pos_hint:{'top':1}
@@ -28,19 +28,18 @@ Builder.load_string(
             orientation: 'vertical'
             padding: dp(10)
             spacing: dp(10)
-            size_hint_y:0.9
+            size_hint_y:1
             pos_hint: {"top":0.8}
             #md_bg_color: "#fe1616"
-            # MDBoxLayout:
-            #     orientation: 'vertical'
             MDBoxLayout:
                 orientation: 'vertical'
-                pos_hint: {"center_x": 0.5,"center_y":0.1}
+            MDBoxLayout:
+                orientation: 'vertical'
                 MDCard:
                     orientation: 'vertical'
                     size_hint: 1, None  # Full width
                     height: dp(150)
-                    pos_hint: {"center_x": 0.5,"center_y":0.1}
+                    pos_hint: {"center_x": 0.5,'y':0.2}
                     radius: [20, 20, 20, 20]
                     padding: dp(20)
                     spacing: dp(20)
@@ -50,12 +49,14 @@ Builder.load_string(
                     shadow_offset:10,-12
                     shadow_color:0,0,0,0.3
                     line_color:colors['Gray']['500']
-                    
+
                     GridLayout:
                         cols: 2
                         # row_force_default: True  # Ensure equal row heights (optional)
                         spacing:dp(5)
-                        
+                        pos_hint_y:None
+                        pos_hint_x:None
+
                         # Column 1 (Labels)
                         MDBoxLayout:  # Use BoxLayout for vertical alignment
                             orientation: 'vertical'
@@ -70,8 +71,7 @@ Builder.load_string(
 
                             MDLabel:
                                 id: balance_lbl
-                                text: ''
-                                font_size: 25
+                                text: ''    #Available Balance
                                 halign: 'left'
                                 valign: 'center'
                                 readonly: True
@@ -85,25 +85,24 @@ Builder.load_string(
                                 text_color: 0, 0, 0, 1
                                 md_bg_color: '#ffffff'
 
-                        # Column 2 (MDIconButton)
-                        MDBoxLayout:  # Use BoxLayout for centering
-                            orientation: 'vertical'
-                            halign: 'center'  # Center the button vertically
-                            size_hint_x:None
-                            width:dp(50)
+                        # Column 2 (MDIconButton)                    
+                        AnchorLayout:
                             size_hint_y:None
                             height:dp(100)
-                            
+                            size_hint_x:None
+                            width:dp(50)
                             MDIconButton:
                                 id: options_button
-                                pos_hint:{'y':0.7}
+                                # pos_hint:{'center_x':0.5,'center_y':0.5}
                                 icon: "currency-inr"
-                                md_bg_color: colors['LightBlue']['A100']
+                                md_bg_color: colors['LightBlue']['A400']
                                 theme_text_color: "Custom"
                                 text_color: 0, 0, 0, 1
                                 on_release: root.show_currency_options(self)
 
-                
+                Widget:
+                    size_hint_y: None
+                    height:dp(10)
                 MDLabel:
                     text: "Send Money from Wallet to Bank" 
                     font_size:dp(21)
@@ -111,11 +110,28 @@ Builder.load_string(
                     valign:'center'
                     font_style: 'Subtitle1'
                     size_hint_y: None
-                    height: dp(40)
+                    height: dp(30)
                     bold: True 
+                MDLabel:
+                    text: "No direct or hidden charges. Send money from" 
+                    font_size:dp(10)
+                    halign: 'center'
+                    valign:'center'
+                    font_style: 'Subtitle1'
+                    size_hint_y: None
+                    height: dp(20)
+
+                MDLabel:
+                    text: "your wallet to bank for FREE" 
+                    font_size:dp(15)
+                    halign: 'center'
+                    valign:'center'
+                    font_style: 'Subtitle1'
+                    size_hint_y: None
+                    height: dp(20)
 
                 MDBoxLayout:
-                    padding: dp(10)
+                    padding: dp(15)
                     spacing: dp(20)
                     adaptive_height: True
 
@@ -140,7 +156,7 @@ Builder.load_string(
                     MDTextField:
                         id: amount_textfield
                         mode: "rectangle"
-                        radius:[40,40,40,40]
+                        radius:[15,15,15,15]
                         hint_text: "Enter amount"
                         size_hint_x: 1
                         hint_text_color_normal:0,0,0,0.7
@@ -325,7 +341,7 @@ class WithdrawScreen(Screen):
 
             success_message = f"Withdrawal successful."
             self.manager.show_success_popup(success_message)
-            self.manager.show_balance()
+            # self.manager.show_balance()
         except Exception as e:
             print(f"Error withdrawing money: {e}")
             self.manager.show_error_popup("An error occurred. Please try again.")
@@ -362,55 +378,51 @@ class WithdrawScreen(Screen):
         total_balance = self.manager.get_total_balance(phone_no, instance_menu_item)
 
         self.ids.options_button.text = instance_menu_item
-        self.ids.balance_lbl.text = f': {total_balance} '
+        self.ids.balance_lbl.text = f'{int(total_balance)} '  # Available Balance:
         print(total_balance)
         self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
         self.menu.dismiss()
 
-    # def currencyDropdown(self):
-    #     try:
-    #         bs_menu = MDListBottomSheet
-    #         #
-    #         # currencies = ["INR", "USD", "EUR", "GBP", "JPY", "AUD"]
-    #         # self.bs_menu = [
-    #         #     {"viewclass": "OneLineListItem", "text": currency,
-    #         #      "on_release": lambda x=currency: self.select_currency(x)}
-    #         #     for currency in currencies
-    #         # ]
-    #         # # self.menu = MDDropdownMenu(
-    #         #     caller=self.ids.currency_dropdown,
-    #         #     items=self.menu_list,
-    #         #     width_mult=4
-    #         # )
-    #         # self.menu.open()
-    #         bs_menu.open()
-    #
-    #     except Exception as e:
-    #         print(f"Error fetching currencies: {e}")
+    def currencyDropdown(self):
+        try:
+            currencies = ["INR", "USD", "EUR", "GBP", "JPY", "AUD"]
+            self.menu_list = [
+                {"viewclass": "OneLineListItem", "text": currency,
+                 "on_release": lambda x=currency: self.select_currency(x)}
+                for currency in currencies
+            ]
+            self.menu = MDDropdownMenu(
+                caller=self.ids.currency_dropdown,
+                items=self.menu_list,
+                width_mult=4
+            )
+            self.menu.open()
+        except Exception as e:
+            print(f"Error fetching currencies: {e}")
 
     def update_balance_label(self, currency):
         store = JsonStore('user_data.json')
         phone_no = store.get('user')['value']["phone"]
         total_balance = self.manager.get_total_balance(phone_no, currency)
-        self.ids.balance_lbl.text = f'User Wallet Balance: {total_balance} {currency}'
+        self.ids.balance_lbl.text = f'{total_balance} {currency}'  # Available Balance:
 
-    def on_enter(self, *args):
-        #in this function it will display the balance as per the default currency selected in default currency settings
+    def on_pre_enter(self, *args):
+        # in this function it will display the balance as per the default currency selected in default currency settings
         store1 = JsonStore('user_data.json')
         phone_no = store1.get('user')['value']["phone"]
-        user_data=app_tables.wallet_users.get(phone=phone_no)
+        user_data = app_tables.wallet_users.get(phone=phone_no)
         user_default_currency = user_data['defaultcurrency']
         print(user_default_currency)
         # for icon_btn in self.options_button_icon_mapping:
         if user_default_currency:
             self.ids.options_button.icon = self.options_button_icon_mapping[user_default_currency]
             total_balance = self.manager.get_total_balance(phone_no, user_default_currency)
-            self.ids.options_button.text= user_default_currency
+            self.ids.options_button.text = user_default_currency
             # Convert the total balance to the selected currency
-            self.ids.balance_lbl.text = f'User Wallet Balance: {total_balance}'
-        
-        #users data
-        
+            self.ids.balance_lbl.text = f'{int(total_balance)}'  # Available Balance:
+
+        # users data
+
         users_default_account = user_data['default_account']
         if users_default_account != None:
             self.ids.bank_dropdown.text = users_default_account

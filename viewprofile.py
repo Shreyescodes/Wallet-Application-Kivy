@@ -302,8 +302,11 @@ class Profile(Screen):
     def open_camera(self):
         # setting the path
         if platform == 'android':
+            # from android.permissions import request_permissions, Permission
+            # request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
             app_dir = App.get_running_app().user_data_dir
             Path = join(app_dir, "DCIM")
+            # rootpath: '/storage/emulated/0/'
 
         else:
             Path = r'D:\mbl photos'

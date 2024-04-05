@@ -32,32 +32,20 @@ Builder.load_string(
 
         MDTopAppBar:
             title: 'Your Wallet'
-            anchor_title:'left'
+            anchor_title:'center'
             elevation: 1
             left_action_items: [['arrow-left', lambda x: root.go_back()]]
+            right_action_items: [["",lambda x: None]]
             md_bg_color: "#148EFE"
             specific_text_color: "#ffffff"
-            pos_hint:{"top":1}
+            pos_hint:{'top':1}
 
         MDBoxLayout:
             orientation: 'vertical'
-            pos_hint: {"top":0.91} 
-             
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.25 
-        pos_hint: {"top":0.91} 
-        MDIconButton:
-            id: options_button
-            icon: "currency-inr"
-            pos_hint: {'center_x':.91}
-            md_bg_color:colors['LightBlue']['A100']                          #"#b0d9f9"  # Blue background color
-            theme_text_color: "Custom"
-            text_color: 0, 0, 0, 1  # White text color
-            on_release: root.show_currency_options(self)
-        Widget:
-            size_hint_y: None
-            height: '5dp'    
+        pos_hint: {"top":0.86} 
         MDCard:
             orientation: 'vertical'
             size_hint: 0.9, None  # 90% of parent width
@@ -67,7 +55,7 @@ Builder.load_string(
             shadow_softness: 12
             shadow_offset:10,-12
             shadow_color:0,0,0,0.3
-            radius: [50, 50, 50, 50]
+            radius: [20, 20, 20, 20]
             padding: dp(20)
             spacing: dp(20)
             md_bg_color: '#ffffff'         #"#d7ecfa"
@@ -77,7 +65,7 @@ Builder.load_string(
                 cols: 2
                 # row_force_default: True  # Ensure equal row heights (optional)
                 spacing:dp(5)
-                
+
                 # Column 1 (Labels)
                 MDBoxLayout:  # Use BoxLayout for vertical alignment
                     orientation: 'vertical'
@@ -120,21 +108,26 @@ Builder.load_string(
                             RoundedRectangle:
                                 pos: self.pos
                                 size: self.size
-
-                MDBoxLayout:  # Use BoxLayout for centering
-                    orientation: 'vertical'
-                    halign: 'center'  # Center the button vertically
-                    size_hint_x:None
-                    width:dp(50)
+                #col 2
+                AnchorLayout:
                     size_hint_y:None
                     height:dp(100)
+                    size_hint_x:None
+                    width:dp(50)
 
-
-                    
+                    MDIconButton:
+                        id: options_button
+                        icon: "currency-inr"
+                        pos_hint: {'center_y':0.5}
+                        md_bg_color:colors['LightBlue']['A400']                          #"#b0d9f9"  # Blue background color
+                        theme_text_color: "Custom"
+                        text_color: 0, 0, 0, 1  # White text color
+                        on_release: root.show_currency_options(self) 
+                        pos_hint:{'center_x':0.5}
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.5 
-        pos_hint: {"top":0.78} 
+        pos_hint: {"top":0.60} 
         #md_bg_color: "fe1616"
 
         MDCard:
@@ -146,7 +139,8 @@ Builder.load_string(
             shadow_softness: 12
             shadow_offset:10,-12
             shadow_color:0,0,0,0.3
-            radius: [50, 50, 50, 50]
+            radius: [20, 20, 20, 20]
+            spacing:dp(5)
             padding: dp(20)
             md_bg_color:"#ffffff"           #"#d7ecfa"
             line_color:colors['Gray']['500']
@@ -162,45 +156,45 @@ Builder.load_string(
                 text_color: 0,0,0,1
             MDBoxLayout:
                 padding: dp(5)
-                spacing: dp(10)  # Adjust the spacing as needed
+                spacing: dp(15)  # Adjust the spacing as needed
                 adaptive_height: True
                 theme_text_color: "Custom"
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}  # This will create a 10dp gap
 
                 MDTextField:
                     id: balance
-                    halign:'left
                     text_color_normal:0,0,0,1
                     line_color_normal:colors['Gray']['500']
-                    halign: 'center'
+                    halign: 'left'
+                    mode:'round'
                     readonly: False
                     size_hint_y: None
                     height: dp(25)  # Adjust height as needed
-                    mode: "rectangle"
                     fill_mode: True
-                    radius: [15, 15, 15, 15]  # Rounded edges
+                    # radius: [15, 15, 15, 15]  # Rounded edges
                     padding: dp(5), dp(5)
                     fill_color_normal: 1,1,1,1  
                     theme_text_color: "Custom"
+                    hint_text:'0'
 
-                MDRectangleFlatButton:
-                    id: currency_dropdown
-                    text: "Select Currency"
-                    theme_text_color: "Custom"  # Disable theme color
-                    text_color: 0,0,0,1
-                    line_color: 1, 1, 1, 1  # Black border color
-                    size_hint: None, None
-                    size: dp(100), dp(48)
-                    pos_hint: {"center_x": 0.5, "center_y": 0.45}
-                    on_release: root.currencyDropdown()
-                    md_bg_color:colors['LightBlue']['A100']                 #"#b0d9f9"
+                # MDRectangleFlatButton:
+                #     id: currency_dropdown
+                #     text: "Select Currency"
+                #     theme_text_color: "Custom"  # Disable theme color
+                #     text_color: 0,0,0,1
+                #     line_color: 1, 1, 1, 1  # Black border color
+                #     size_hint: None, None
+                #     size: dp(100), dp(48)
+                #     pos_hint: {"center_x": 0.5, "center_y": 0.45}
+                #     on_release: root.currencyDropdown()
+                #     md_bg_color:colors['LightBlue']['A100']                 #"#b0d9f9"
 
             MDSeparator:
                 height: dp(1)
 
             MDBoxLayout:
-                padding: dp(10)
-                spacing: dp(10)
+                padding: dp(8)
+                spacing: dp(8)
                 adaptive_height: True
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
@@ -237,9 +231,9 @@ Builder.load_string(
                 id: bank_dropdown
                 text: "select bank account"
                 #theme_text_color: "Custom"  # Disable theme color
-                md_bg_color:colors['LightBlue']['A100']                         #"#b0d9f9"
+                md_bg_color:1,1,1,1                         #"#b0d9f9"
                 text_color: 0,0,0,1
-                line_color: 1, 1, 1, 1  # white border color
+                line_color:colors['Gray']['500'] 
                 size_hint: None, None
                 on_release: root.dropdown()
                 size: dp(200), dp(48)
@@ -341,12 +335,17 @@ class AddMoneyScreen(Screen):
     def add_money(self):
         wallet_scr = self.manager.get_screen('addmoney')
         money = wallet_scr.ids.balance.text
-        amount = float(money)
+        amount = int(money)
         print(amount)
         # print("amount " + amount)
         bank_name = wallet_scr.ids.bank_dropdown.text
         date = datetime.now()
-        currency = wallet_scr.ids.currency_dropdown.text
+        for i in self.options_button_icon_mapping.keys():
+            print('yes', i)
+            if self.ids.options_button.icon == self.options_button_icon_mapping[i]:
+                global currency
+                currency = i
+
         rate_response = self.currency_rate(currency, amount)
         print(rate_response)
         if 'response' in rate_response and rate_response['meta']['code'] == 200:
@@ -388,11 +387,11 @@ class AddMoneyScreen(Screen):
                 # Show a success toast
                 toast("Money added successfully.")
                 self.manager.current = 'dashboard'
-                self.manager.show_balance()
+                # self.manager.show_balance()
 
             except Exception as e:
                 print(f"Error adding money: {e}")
-                toast("An error occurred. Please try again.")
+
 
         else:
             # Show an error toast
@@ -463,58 +462,61 @@ class AddMoneyScreen(Screen):
         total_balance = self.manager.get_total_balance(phone_no, instance_menu_item)
         # Convert the total balance to the selected currency
 
-        self.ids.balance_lbl.text = f' {int(total_balance)} '
+        self.ids.balance_lbl.text = f'{total_balance} '
         print(total_balance)
         self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
         self.menu.dismiss()
 
-    def currencyDropdown(self):
-        try:
-            # Manually set currencies
-            currencies = ["INR", "USD", "EUR", "GBP", "JPY", "AUD"]
+    # def currencyDropdown(self):
+    #     try:
+    #         # Manually set currencies
+    #         currencies = ["INR", "USD", "EUR", "GBP", "JPY", "AUD"]
 
-            # Create the menu list dynamically based on the fetched currencies
-            self.menu_list = [
-                {"viewclass": "OneLineListItem", "text": currency,
-                 "on_release": lambda x=currency: self.selected_currency(x)}
-                for currency in currencies
-            ]
+    #         # Create the menu list dynamically based on the fetched currencies
+    #         self.menu_list = [
+    #             {"viewclass": "OneLineListItem", "text": currency,
+    #              "on_release": lambda x=currency: self.selected_currency(x)}
+    #             for currency in currencies
+    #         ]
 
-            # Create and open the dropdown menu
-            self.menu = MDDropdownMenu(
-                caller=self.ids.currency_dropdown,
-                items=self.menu_list,
-                width_mult=4
-            )
-            self.menu.open()
-        except Exception as e:
-            print(f"Error fetching currencies: {e}")
+    #         # Create and open the dropdown menu
+    #         self.menu = MDDropdownMenu(
+    #             caller=self.ids.currency_dropdown,
+    #             items=self.menu_list,
+    #             width_mult=4
+    #         )
+    #         self.menu.open()
+    #     except Exception as e:
+    #         print(f"Error fetching currencies: {e}")
 
-    def selected_currency(self, currency):
-        wallet_scr = self.manager.get_screen('addmoney')
-        wallet_scr.ids.currency_dropdown.text = currency
-        self.menu.dismiss()
-        print(currency)
+    # def selected_currency(self, currency):
+    #     wallet_scr = self.manager.get_screen('addmoney')
+    #     wallet_scr.ids.currency_dropdown.text = currency
+    #     self.menu.dismiss()
+    #     print(currency)
 
-    def on_enter(self, *args):
-        #in this function it will display the balance as per the default currency selected in default currency settings
+    def on_pre_enter(self, *args):
+        # in this function it will display the balance as per the default currency selected in default currency settings
         # for icon_btn in self.options_button_icon_mapping:
+        self.ids.balance.text = ""
         store1 = JsonStore('user_data.json')
         phone_no = store1.get('user')['value']["phone"]
-        user_data=app_tables.wallet_users.get(phone=phone_no)
-        user_data=app_tables.wallet_users.get(phone=phone_no)
+        user_data = app_tables.wallet_users.get(phone=phone_no)
+        user_data = app_tables.wallet_users.get(phone=phone_no)
         user_default_currency = user_data['defaultcurrency']
         if user_default_currency:
-            self.ids.options_button.icon = self.options_button_icon_mapping[user_default_currency]       
+            self.ids.options_button.icon = self.options_button_icon_mapping[user_default_currency]
             total_balance = self.manager.get_total_balance(phone_no, user_default_currency)
+            print(type(total_balance))
             # Convert the total balance to the selected currency
-            self.ids.balance_lbl.text = f' {int(total_balance)}'
-        
-        #users data
+            self.ids.balance_lbl.text = f'{int(total_balance)}'
+
+        # users data
         users_default_account = user_data['default_account']
         if users_default_account:
             self.ids.bank_dropdown.text = users_default_account
             self.test(users_default_account)
+
 
 class WalletApp(MDApp):
     def build(self):
