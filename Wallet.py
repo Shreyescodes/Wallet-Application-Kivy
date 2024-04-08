@@ -65,7 +65,7 @@ Builder.load_string(
                 cols: 2
                 # row_force_default: True  # Ensure equal row heights (optional)
                 spacing:dp(5)
-
+                
                 # Column 1 (Labels)
                 MDBoxLayout:  # Use BoxLayout for vertical alignment
                     orientation: 'vertical'
@@ -341,11 +341,11 @@ class AddMoneyScreen(Screen):
         bank_name = wallet_scr.ids.bank_dropdown.text
         date = datetime.now()
         for i in self.options_button_icon_mapping.keys():
-            print('yes', i)
+            print('yes',i)
             if self.ids.options_button.icon == self.options_button_icon_mapping[i]:
                 global currency
-                currency = i
-
+                currency=i
+        
         rate_response = self.currency_rate(currency, amount)
         print(rate_response)
         if 'response' in rate_response and rate_response['meta']['code'] == 200:
@@ -391,7 +391,7 @@ class AddMoneyScreen(Screen):
 
             except Exception as e:
                 print(f"Error adding money: {e}")
-
+                
 
         else:
             # Show an error toast
@@ -496,27 +496,28 @@ class AddMoneyScreen(Screen):
     #     print(currency)
 
     def on_pre_enter(self, *args):
-        # in this function it will display the balance as per the default currency selected in default currency settings
+        #in this function it will display the balance as per the default currency selected in default currency settings
         # for icon_btn in self.options_button_icon_mapping:
-        self.ids.balance.text = ""
+        self.ids.balance.text=""
         store1 = JsonStore('user_data.json')
         phone_no = store1.get('user')['value']["phone"]
-        user_data = app_tables.wallet_users.get(phone=phone_no)
-        user_data = app_tables.wallet_users.get(phone=phone_no)
+        user_data=app_tables.wallet_users.get(phone=phone_no)
+        # user_data=app_tables.wallet_users.get(phone=phone_no)
         user_default_currency = user_data['defaultcurrency']
         if user_default_currency:
-            self.ids.options_button.icon = self.options_button_icon_mapping[user_default_currency]
+            self.ids.options_button.icon = self.options_button_icon_mapping[user_default_currency]       
             total_balance = self.manager.get_total_balance(phone_no, user_default_currency)
             print(type(total_balance))
             # Convert the total balance to the selected currency
             self.ids.balance_lbl.text = f'{int(total_balance)}'
-
-        # users data
+        
+        #users data
         users_default_account = user_data['default_account']
+        ban_name = app_tables.wallet_users_account.get(account_number=float(users_default_account))
+        bank_name = ban_name['bank_name']
         if users_default_account:
-            self.ids.bank_dropdown.text = users_default_account
-            self.test(users_default_account)
-
+            self.ids.bank_dropdown.text = bank_name
+            self.test(bank_name)
 
 class WalletApp(MDApp):
     def build(self):
