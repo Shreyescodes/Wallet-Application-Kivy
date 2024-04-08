@@ -74,3 +74,19 @@ class Transaction(Screen):
             self.filter_dialog.content_cls.add_widget(items[1])
 
         self.filter_dialog.open()
+
+    def go_back(self):
+        existing_screen = self.manager.get_screen('transaction')
+        self.manager.current = 'dashboard'
+        self.manager.remove_widget(existing_screen)
+
+    def __init__(self, **kwargs):
+        super(Transaction, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False

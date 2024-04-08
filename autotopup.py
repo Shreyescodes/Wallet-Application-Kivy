@@ -20,7 +20,8 @@ from kivymd.uix.menu import MDDropdownMenu
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.label import MDLabel
 from kivy.factory import Factory
-
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.base import EventLoop
 Builder.load_string(
     """
 <AutoTopupScreen>:
@@ -106,29 +107,48 @@ Builder.load_string(
                     specific_text_color: "#ffffff"
                 ScrollView:
                     BoxLayout: 
+                        orientation:'vertical'
                         size_hint_y: None
                         height: dp(70)
                         pos_hint: {'center_x': 0.45, 'y': 100}        
-
-                        BoxLayout:
-                            orientation: "vertical"
+                        GridLayout:
+                            id:grid
+                            cols:2
+                            # orientation: "vertical"
                             size_hint_y: None
                             height: self.minimum_height
                             spacing: '4dp'
 
                             TwoLineAvatarIconListItem:
+                                id:twoline
                                 text: 'Auto-Topup'
                                 secondary_text: "If turned off, you won't be able to topup automatically" 
+                                # divider:None
+                        MDSeparator:
+                            size_hint_y:None
+                            height:dp(1)
+                                
+
 
 """)
 
 
 class AutoTopupScreen(Screen):
+    def __init__(self, **kwargs):
+        super(AutoTopupScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
 
     def go_back(self):
         existing_screen = self.manager.get_screen('auto_topup')
         self.manager.current = 'dashboard'
         self.manager.remove_widget(existing_screen)
+    
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def update_amount(self, amount):
         self.ids.balance.text = str(amount)
@@ -933,6 +953,7 @@ class ScheduledTopupCard(MDCard):
 class SetOnOffScreen(Screen):
     def __init__(self, **kwargs):
         super(SetOnOffScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
         store = JsonStore('user_data.json')
         phone = store.get('user')['value']["phone"]
         user_table = app_tables.wallet_users.get(phone=phone)
@@ -943,32 +964,36 @@ class SetOnOffScreen(Screen):
             button_text = 'OFF'
             button_color = (0.5, 0.5, 0.5, 1)  # Grey color
 
-        self.box_layout = BoxLayout(
-            orientation='vertical',
-            padding=(dp(20), dp(20)),
-            pos_hint={"top": 1.77}
-        )
+        # self.box_layout = BoxLayout(
+        #     orientation='vertical',
+        #     padding=(dp(20), dp(20)),
+        #     pos_hint={"top": 1.77}
+        # )
 
         # Button Layout
-        self.button_layout = BoxLayout(
-            size_hint=(1, None),
-            height=dp(50),
-            pos_hint={"top": 1, "right": 1}
-        )
+        # self.button_layout = BoxLayout(
+        #     size_hint=(1, None),
+        #     height=dp(50),
+        #     pos_hint={"top": 1, "right": 1}
+        # )
         # Button
         self.auto_topup_button = Button(
             text=button_text,
             size_hint=(None, None),
             size=(dp(60), dp(30)),
-            pos_hint={ "top": 1, "right": 1},
+            pos_hint={'center_x':0.5,'center_y':0.5},
             background_normal='',
             background_color=button_color,
             bold = True
         )
         self.auto_topup_button.bind(on_press=self.toggle_auto_topup)
-        self.box_layout.add_widget(self.auto_topup_button)
-        self.box_layout.add_widget(self.button_layout)
-        self.add_widget(self.box_layout)
+        # self.box_layout.add_widget(self.auto_topup_button)
+        # self.box_layout.add_widget(self.button_layout)
+        # self.add_widget(self.box_layout)
+        self.anchor_layout = AnchorLayout(size_hint_x=None,
+                    width=dp(100))
+        self.anchor_layout.add_widget(self.auto_topup_button)
+        self.ids.grid.add_widget(self.anchor_layout)
 
     def toggle_auto_topup(self, instance):
         store = JsonStore('user_data.json')
@@ -986,9 +1011,16 @@ class SetOnOffScreen(Screen):
             self.auto_topup_button.background_color = (0, 0.7, 1, 1)
             print("Auto top-up enabled")
 
-    def go_back(self):
+    def go_backi(self):
         self.manager.add_widget(Factory.AutoTopupScreen(name='autotopup'))
         self.manager.current = 'autotopup'
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_backi()
+            return True  # Indicates that the key event has been handled
+        return False
 
 
 

@@ -88,15 +88,14 @@ class PaysettingScreen(Screen):
 
     def __init__(self, **kwargs):
         super(PaysettingScreen, self).__init__(**kwargs)
-        lambda x: Window.bind(on_keyboard=self.on_key)
+        # lambda x: Window.bind(on_keyboard=self.on_key)
         # print("hello")
-
+        EventLoop.window.bind(on_keyboard=self.on_key)
+    
     def on_key(self, key):
         # 27 is the key code for the back button on Android
-        print(key)
         if key in [27, 9]:
-            self.manager.current = 'settings'
-
+            self.go_back()
             return True  # Indicates that the key event has been handled
         return False
 

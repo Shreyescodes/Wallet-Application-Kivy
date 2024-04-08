@@ -65,7 +65,7 @@ for currency in ['INR', 'USD', 'EUR', 'GBP']:
                             size_hint:None,None
                             height:dp(45)
                             width:dp(45)
-                            pos_hint:{{'center_y':0.7}}  
+                            pos_hint:{{'center_x':0.5,'center_y':0.7}}  
 
                         MDLabel:
                             id: text_label
@@ -77,7 +77,7 @@ for currency in ['INR', 'USD', 'EUR', 'GBP']:
                             height:dp(30)
                             halign: 'left'
                             valign:'center'
-                            pos_hint:{{'center_y':0.7}}
+                            pos_hint:{{'center_x':0.5,'center_y':0.7}}
 
                             
                             # CheckBox:

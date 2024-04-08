@@ -11,7 +11,7 @@ from kivymd.uix.screen import MDScreen
 from camera4kivy import Preview
 from PIL import Image as PILImage
 from pyzbar.pyzbar import decode
-
+from kivy.base import EventLoop
 Builder.load_string("""
 <ScanScreen>:
     BoxLayout:
@@ -35,6 +35,10 @@ Builder.load_string("""
 
 
 class ScanScreen(MDScreen):
+    def __init__(self, **kwargs):
+        super(ScanScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
     def go_back(self):
         self.ids.preview.disconnect_camera()
         existing_screen = self.manager.get_screen('qrscanner')

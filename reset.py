@@ -1,3 +1,4 @@
+import imp
 import anvil
 from anvil.tables import app_tables
 from kivy.lang import Builder
@@ -11,7 +12,7 @@ from kivymd.app import MDApp
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.button import MDRaisedButton, MDFlatButton
-
+from kivy.base import EventLoop
 KV = """
 <ResetPassword>:
     BoxLayout:
@@ -80,6 +81,17 @@ class ResetPassword(Screen):
         existing_screen = self.manager.get_screen('reset')
         self.manager.current = 'dashboard'
         self.manager.remove_widget(existing_screen)
+
+    def __init__(self, **kwargs):
+        super(ResetPassword, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def submit_password(self):
         # Get the current user's phone number from the stored user data
