@@ -12,6 +12,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.screen import Screen
 from kivy.base import EventLoop
 from kivy.core.window import Keyboard
+
 KV = """
 <SignInScreen>:
     Screen:
@@ -36,12 +37,12 @@ KV = """
                 size_hint_y: None
                 height: dp(170)  # Adjust the height as needed
                 pos_hint: {'center_x': 0.5}
-                
+
             MDTextField:
                 id: input_text
                 hint_text: "  Mobile Number/Email ID"
                 mode: "rectangle"
-                radius: [50, 50, 50, 50]
+                radius:[25,25,25,25]
                 helper_text: "Enter your mobile number, user ID, or email ID"
                 helper_text_mode: "on_focus"
                 multiline: False
