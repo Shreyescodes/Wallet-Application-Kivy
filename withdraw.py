@@ -49,14 +49,14 @@ Builder.load_string(
                     shadow_offset:10,-12
                     shadow_color:0,0,0,0.3
                     line_color:colors['Gray']['500']
-
+                    
                     GridLayout:
                         cols: 2
                         # row_force_default: True  # Ensure equal row heights (optional)
                         spacing:dp(5)
                         pos_hint_y:None
                         pos_hint_x:None
-
+                        
                         # Column 1 (Labels)
                         MDBoxLayout:  # Use BoxLayout for vertical alignment
                             orientation: 'vertical'
@@ -120,7 +120,7 @@ Builder.load_string(
                     font_style: 'Subtitle1'
                     size_hint_y: None
                     height: dp(20)
-
+ 
                 MDLabel:
                     text: "your wallet to bank for FREE" 
                     font_size:dp(15)
@@ -378,7 +378,7 @@ class WithdrawScreen(Screen):
         total_balance = self.manager.get_total_balance(phone_no, instance_menu_item)
 
         self.ids.options_button.text = instance_menu_item
-        self.ids.balance_lbl.text = f'{int(total_balance)} '  # Available Balance:
+        self.ids.balance_lbl.text = f'{int(total_balance)} '   #Available Balance: 
         print(total_balance)
         self.ids.options_button.icon = self.options_button_icon_mapping.get(instance_menu_item, "currency-inr")
         self.menu.dismiss()
@@ -404,26 +404,28 @@ class WithdrawScreen(Screen):
         store = JsonStore('user_data.json')
         phone_no = store.get('user')['value']["phone"]
         total_balance = self.manager.get_total_balance(phone_no, currency)
-        self.ids.balance_lbl.text = f'{total_balance} {currency}'  # Available Balance:
+        self.ids.balance_lbl.text = f'{total_balance} {currency}'  #Available Balance: 
 
     def on_pre_enter(self, *args):
-        # in this function it will display the balance as per the default currency selected in default currency settings
+        #in this function it will display the balance as per the default currency selected in default currency settings
         store1 = JsonStore('user_data.json')
         phone_no = store1.get('user')['value']["phone"]
-        user_data = app_tables.wallet_users.get(phone=phone_no)
+        user_data=app_tables.wallet_users.get(phone=phone_no)
         user_default_currency = user_data['defaultcurrency']
         print(user_default_currency)
         # for icon_btn in self.options_button_icon_mapping:
         if user_default_currency:
             self.ids.options_button.icon = self.options_button_icon_mapping[user_default_currency]
             total_balance = self.manager.get_total_balance(phone_no, user_default_currency)
-            self.ids.options_button.text = user_default_currency
+            self.ids.options_button.text= user_default_currency
             # Convert the total balance to the selected currency
-            self.ids.balance_lbl.text = f'{int(total_balance)}'  # Available Balance:
-
-        # users data
-
+            self.ids.balance_lbl.text = f'{int(total_balance)}'   #Available Balance: 
+        
+        #users data
+        
         users_default_account = user_data['default_account']
-        if users_default_account != None:
-            self.ids.bank_dropdown.text = users_default_account
-            self.test(users_default_account)
+        ban_name = app_tables.wallet_users_account.get(account_number=float(users_default_account))
+        bank_name = ban_name['bank_name']
+        if users_default_account:
+            self.ids.bank_dropdown.text = bank_name
+            self.test(bank_name)
