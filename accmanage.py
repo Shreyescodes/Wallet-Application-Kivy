@@ -1,4 +1,5 @@
 from logging import root
+from docutils import SettingsSpec
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.factory import Factory
@@ -6,7 +7,7 @@ from kivy.lang import Builder
 from kivymd.uix.screen import Screen
 from kivy.metrics import dp
 from kivy.storage.jsonstore import JsonStore
-from kivymd.uix.list import TwoLineAvatarIconListItem
+from kivymd.uix.list import TwoLineAvatarIconListItem,ThreeLineAvatarIconListItem
 from anvil.tables import app_tables
 from kivymd.uix.spinner import MDSpinner
 from addAccount import AddAccountScreen
@@ -81,8 +82,13 @@ class AccmanageScreen(Screen):
 
             # Call the server function to fetch account details and bank names
             bank_names = app_tables.wallet_users_account.search(phone=phone)
-            bank_names_str = [str(row['bank_name']) for row in bank_names]
-            print(len(bank_names_str))
+            # bank_names_str = [str(row['bank_name']) for row in bank_names]
+            banks= [[str(row['bank_name']),str(row['account_number'])] for row in bank_names]
+            print(banks)
+            # for i in range(len(banks)):
+            #     print(i[0])
+
+            # print(len(bank_names_str))
             # Clear existing widgets in the GridLayout
             account_details_container = self.ids.account_details_container
             account_details_container.clear_widgets()
@@ -91,26 +97,33 @@ class AccmanageScreen(Screen):
             # right_action= [["dots-vertical", lambda x: self.callback(x)]]
             print(self.ids.keys())
             #if there is only one bank account of the user it will set that account to default
-            if len(bank_names_str) == 1:
-                # for bank_name in bank_names_str:
-                items=TwoLineAvatarIconListItem(
-                                       id=f'{bank_names_str[0]}',
-                                       text=f'{bank_names_str[0]}',
-                                       secondary_text='primary account',
-                                       on_press=lambda bank_name: self.setting_default_account(f'{bank_name}'),
-                                       )
-                account_details_container.add_widget(items)
-                phone = JsonStore('user_data.json').get('user')['value']['phone']
-                users = app_tables.wallet_users.get(phone=phone)
-                users.update(default_account = bank_names_str[0])
-            #if user has multiple accounts it will show options to select the default account
-            if len(bank_names_str)>1:
-                for bank_name in bank_names_str:
-                    id = bank_name
+            if len(banks) == 1:
+                for bank_name in banks:
+                    id=bank_name[1]
                     items=TwoLineAvatarIconListItem(
-                                        # id=id,
-                                        IconRightWidget(id=id,icon="dots-vertical",on_release =lambda x: self.show_menu(x)),
-                                        text=f'{bank_name}',
+                                        IconRightWidget(id=id,icon="dots-vertical",on_release =lambda x: self.show_menu(x,bank_name[1])),
+                                        id=id, #f'{bank_names_str[0]}',
+                                        text=f'{bank_name[0]}',
+                                        secondary_text='primary account',
+                                        # tertiary_text='primary account',
+                                        # on_press=lambda bank_name: self.setting_default_account(f'{bank_name}'),
+                                        )
+                    account_details_container.add_widget(items)
+                print('yes')
+                phone = JsonStore('user_data.json').get('user')['value']['phone']
+                # phone['default_accout']=str(bank_name[1])
+                users = app_tables.wallet_users.get(phone=phone)
+                users.update(default_account = bank_name[1])
+            #if user has multiple accounts it will show options to select the default account
+            if len(banks)>1:
+                for bank_name in banks:
+                    id = bank_name[1]
+                    items=TwoLineAvatarIconListItem(
+                                        
+                                        IconRightWidget(id=id,icon="dots-vertical",on_release =lambda x: self.show_menu(x,bank_name[1])),
+                                        id=id,
+                                        text=f'{bank_name[0]}',
+                                        # secondary_text = f'{bank_name[1]}'
                                         # on_press=lambda bank_name: self.setting_default_account(f'{bank_name}'),
                                         )
                     # items.add_widget()
@@ -118,7 +131,8 @@ class AccmanageScreen(Screen):
                     self.dynmaic_ids[id] = items
             print(self.dynmaic_ids)
             self.hide_loading_animation()
-            if len(bank_names_str)>1:
+            # Setting on entering
+            if len(banks)>1:
                 phone = JsonStore('user_data.json').get('user')['value']['phone']
                 users = app_tables.wallet_users.get(phone=phone)
                 users_default_account = users['default_account']
@@ -142,32 +156,74 @@ class AccmanageScreen(Screen):
     #     for i in data_account:
     #         print(dict(i))
     
-    def show_menu(self,instance):
+    def show_menu(self,instance,acc_number):
         # print(y)
-        menu_items = [
-            {
-                "text": "set primary",
-                "on_release": lambda x=instance: self.set_primary(x),
-                # 'on_release':lambda :self.menu_callback()
-            }   # Customize menu items here
-            # for i in range(1)
-        ]
-        self.menu = MDDropdownMenu(items=menu_items)
-        self.menu.caller = instance  # Set the button that triggered the menu
-        self.menu.open()
+        store = JsonStore('user_data.json')
+        phone = store.get('user')['value']["phone"]
+
+        # Call the server function to fetch account details and bank names
+        bank_names = app_tables.wallet_users_account.search(phone=phone)
+        # bank_names_str = [str(row['bank_name']) for row in bank_names]
+        banks= [[str(row['bank_name']),str(row['account_number'])] for row in bank_names]
+
+        if len(banks)>1:
+            menu_items = [
+                {
+            "text": "set primary",
+            "on_release": lambda x=instance: self.set_primary(x),  #,acc_number
+                },
+                {
+            "text": "delete account",
+            "on_release": lambda x=instance: self.delete_account(x),
+                }
+            ]
+            self.menu = MDDropdownMenu(items=menu_items)
+            self.menu.caller = instance  # Set the button that triggered the menu
+            self.menu.open()
+        if len(banks)==1:
+            menu_items = [
+                {
+            "text": "delete account",
+            "on_release": lambda x=instance: self.delete_account(x),
+                }
+            ]
+            self.menu = MDDropdownMenu(items=menu_items)
+            self.menu.caller = instance  # Set the button that triggered the menu
+            self.menu.open()
+
+    def delete_account(self,instance):
+        phone = JsonStore('user_data.json').get('user')['value']['phone']
+        accounts_table = app_tables.wallet_users_account.get(phone = phone,account_number= int(instance.id))
+        for i in accounts_table:
+            print(i)
+            if accounts_table['account_number'] == float(instance.id):
+                accounts_table.delete()
+                self.menu.dismiss()
+                self.manager.current = 'dashboard'
+                break
+            else:
+                print('couldnt delete')
+                self.menu.dismiss()
+
+        # print(instance.id)
 
     def set_primary(self,x):
+        # print(acc_number)
         print(x)
+        print(x.id)
         print(self.dynmaic_ids[x.id])
          # Print text of each item
         for i in self.dynmaic_ids:
-            if i == x.id:
+            print(i)
+            if i == x.id :
+                print('yes',self.dynmaic_ids[i])
                 self.dynmaic_ids[i].secondary_text='primary account'
-            else:self.dynmaic_ids[i].secondary_text=''
+            else:
+                self.dynmaic_ids[i].secondary_text=''
                 # print(self.dynmaic_ids[i].text)
           
         bank_name=x.id
-        phone = JsonStore('user_data.json').get('user')['value']['phone']
+        phone = JsonStore('user_data.json').get('user')['value']['phone']       
         users = app_tables.wallet_users.get(phone=phone)
         users.update(default_account = bank_name)
         self.menu.dismiss()  
