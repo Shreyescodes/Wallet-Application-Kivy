@@ -90,6 +90,7 @@ navigation_helper = """
                         MDLabel:
                             text: "Search in G Wallet"
                             theme_text_color: "Custom"  # Disable theme color
+                            md_bg_color: 0, 0, 0, 0
                             text_color: 0, 0, 0, 1
                             # size_hint_y:None
                             pos_hint: {"center_x": 0.8, "center_y": 0.5}
@@ -127,7 +128,7 @@ navigation_helper = """
                                 orientation: "vertical"
                                 size_hint: None, None
                                 size: "90dp", "90dp"
-                                md_bg_color: "#ffffff"
+                                md_bg_color: 0, 0, 0, 0
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
@@ -168,7 +169,7 @@ navigation_helper = """
                                 orientation: "vertical"
                                 size_hint: None, None
                                 size: "90dp", "90dp"
-                                md_bg_color: "#ffffff"
+                                md_bg_color: 0, 0, 0, 0
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
@@ -206,7 +207,7 @@ navigation_helper = """
                                 orientation: "vertical"
                                 size_hint: None, None
                                 size: "90dp", "90dp"
-                                md_bg_color: "#ffffff"
+                                md_bg_color: 0, 0, 0, 0
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None 
@@ -242,7 +243,7 @@ navigation_helper = """
                                 orientation: "vertical"
                                 size_hint: None, None
                                 size: "90dp", "90dp"
-                                md_bg_color: "#ffffff"
+                                md_bg_color: 0, 0, 0, 0
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
@@ -280,7 +281,7 @@ navigation_helper = """
                                 orientation: "vertical"
                                 size_hint: None, None
                                 size: "90dp", "90dp"
-                                md_bg_color: "#ffffff"
+                                md_bg_color: 0, 0, 0, 0
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
@@ -317,7 +318,7 @@ navigation_helper = """
                                 orientation: "vertical"
                                 size_hint: None, None
                                 size: "90dp", "90dp"
-                                md_bg_color: "#ffffff"
+                                md_bg_color: 0, 0, 0, 0
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
@@ -354,7 +355,7 @@ navigation_helper = """
                                 orientation: "vertical"
                                 size_hint: None, None
                                 size: "90dp", "90dp"
-                                md_bg_color: "#ffffff"
+                                md_bg_color: 0, 0, 0, 0
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
@@ -392,7 +393,7 @@ navigation_helper = """
                                 orientation: "vertical"
                                 size_hint: None, None
                                 size: "90dp", "90dp"
-                                md_bg_color: "#ffffff"
+                                md_bg_color: 0, 0, 0, 0
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
@@ -431,7 +432,7 @@ navigation_helper = """
                                 orientation: "vertical"
                                 size_hint: None, None
                                 size: "90dp", "90dp"
-                                md_bg_color: "#ffffff"
+                                md_bg_color: 0, 0, 0, 0
                                 radius: [dp(20), dp(20), dp(20), dp(20)]
                                 pos_hint_y: None
                                 pos_hint_x:  None
