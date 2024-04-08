@@ -6,7 +6,7 @@ import random
 import string
 import pyperclip
 from kivy.storage.jsonstore import JsonStore
-
+from kivy.base import EventLoop
 Builder.load_string('''
 <ReferFriendScreen>:
     MDBoxLayout:
@@ -107,6 +107,7 @@ class ReferFriendScreen(Screen):
 
     def __init__(self, **kwargs):
         super(ReferFriendScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
         phone = JsonStore('user_data.json').get('user')['value']['phone']
         username = JsonStore('user_data.json').get('user')['value']['username']
         self.ids.textinput1.text = username
@@ -126,3 +127,10 @@ class ReferFriendScreen(Screen):
         existing_screen = self.manager.get_screen('refer')
         self.manager.current = 'dashboard'
         self.manager.remove_widget(existing_screen)
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False

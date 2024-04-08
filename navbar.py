@@ -155,17 +155,18 @@ class NavbarScreen(Screen):
     def go_back(self):
         self.manager.current = 'dashboard'
 
-    # def __init__(self, **kwargs):
-    #     super(NavbarScreen, self).__init__(**kwargs)
-    #     EventLoop.window.bind(on_keyboard=self.on_key)
+    def __init__(self, **kwargs):
+        super(NavbarScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
 
 
-    # def on_key(self, window, key, scancode, codepoint, modifier):
-    #     # 27 is the key code for the back button on Android
-    #     if key in [27,9]:
-    #         self.go_back()
-    #         return True  # Indicates that the key event has been handled
-    #     return False
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27,9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
+    
     def fetch_and_update_navbar(self):
         store = JsonStore('user_data.json').get('user')['value']
         # Update labels in NavbarScreen

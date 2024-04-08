@@ -45,7 +45,7 @@ Builder.load_string(
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.25 
-        pos_hint: {"top":0.86} 
+        pos_hint: {"top":0.95} 
         MDCard:
             orientation: 'vertical'
             size_hint: 0.9, None  # 90% of parent width
@@ -127,7 +127,7 @@ Builder.load_string(
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.5 
-        pos_hint: {"top":0.60} 
+        pos_hint: {"top":0.8} 
         #md_bg_color: "fe1616"
 
         MDCard:
@@ -514,8 +514,8 @@ class AddMoneyScreen(Screen):
         #users data
         users_default_account = user_data['default_account']
         ban_name = app_tables.wallet_users_account.get(account_number=float(users_default_account))
-        bank_name = ban_name['bank_name']
-        if users_default_account:
+        if ban_name:
+            bank_name = ban_name['bank_name']
             self.ids.bank_dropdown.text = bank_name
             self.test(bank_name)
 

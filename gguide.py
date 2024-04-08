@@ -9,7 +9,7 @@ from kivy.uix.label import Label
 from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.behaviors import TouchBehavior
-
+from kivy.base import EventLoop
 Window.clearcolor = (1, 1, 1, 1)
 
 # Define the Kivy language string
@@ -242,6 +242,16 @@ class GuideScreen(Screen):
         self.manager.current = 'settings'
         self.manager.remove_widget(existing_screen)
 
+    def __init__(self, **kwargs):
+        super(GuideScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def card_clicked(self, card_number):
         print(f"Card {card_number} clicked")

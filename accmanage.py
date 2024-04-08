@@ -14,6 +14,8 @@ from addAccount import AddAccountScreen
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.list import IconRightWidget
 from kivy.properties import DictProperty
+from kivy.base import EventLoop
+
 KV = '''
 <AccmanageScreen>:
     BoxLayout:
@@ -48,6 +50,16 @@ class AccmanageScreen(Screen):
         self.manager.current = 'dashboard'
         self.manager.remove_widget(existing_screen)
 
+    def __init__(self, **kwargs):
+        super(AccmanageScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def on_pre_enter(self, *args):
         # Called before the screen is displayed, show loading animation
@@ -132,6 +144,10 @@ class AccmanageScreen(Screen):
             print(self.dynmaic_ids)
             self.hide_loading_animation()
             # Setting on entering
+            if len(banks) == 0:
+                phone = JsonStore('user_data.json').get('user')['value']['phone']
+                users = app_tables.wallet_users.get(phone=phone)
+                users.update(default_account=None)
             if len(banks)>1:
                 phone = JsonStore('user_data.json').get('user')['value']['phone']
                 users = app_tables.wallet_users.get(phone=phone)
