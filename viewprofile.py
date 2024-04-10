@@ -1,12 +1,13 @@
-from ast import Store
-from ctypes import sizeof
-from fileinput import filename
-import imp
-from logging import root
-from operator import imod
-from os import path
+# from ast import Store
+# from ctypes import sizeof
+# from fileinput import filename
+# import imp
+# from logging import root
+# from operator import imod
+# from os import path
+from ast import Global
 import platform
-from turtle import width
+
 from certifi import where
 from kivy.app import App
 from kivy.factory import Factory
@@ -199,7 +200,8 @@ KV = """
 Builder.load_string(KV)
 
 from kivy.animation import Animation
-from jnius import autoclass
+
+
 class Profile(Screen):
     # current_user_data = None
     # editing_mode = False  # Initialize editing_mode attribute
@@ -212,7 +214,7 @@ class Profile(Screen):
         super(Profile, self).__init__(**kwargs)
         self.editing_mode = False  # Initialize editing_mode in the __init__ method
         self.email_editing = False  # Initialize email_editing
-
+        EventLoop.window.bind(on_keyboard=self.on_key)
     # def enable_email_edit(self):
     #     self.ids.email_label.readonly = False  # Enable email editing
     #     self.ids.edit_save_button.text = "Save"  # Change button text to 'Save'
@@ -289,9 +291,7 @@ class Profile(Screen):
     def go_back(self):
         self.manager.current = 'dashboard'
 
-    def __init__(self, **kwargs):
-        super(Profile, self).__init__(**kwargs)
-        EventLoop.window.bind(on_keyboard=self.on_key)
+
 
     def on_key(self, window, key, scancode, codepoint, modifier):
         # 27 is the key code for the back button on Android
@@ -302,29 +302,16 @@ class Profile(Screen):
 
     def open_camera(self):
         # setting the path
-        # print(platform)
-        # if platform == 'android':
-        #     Environment = autoclass('android.os.Environment')
-        #     # from android.storage import request_permissions, Permission
-        #     Path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
-            # app_dir = App.get_running_app().user_data_dir
-            # Path = join(app_dir, "DCIM")
-
         if platform == 'android':
             from android.permissions import request_permissions, Permission
-            request_permissions([Permission.INTERNET,
-                Permission.READ_EXTERNAL_STORAGE,
-                Permission.WRITE_EXTERNAL_STORAGE])
-            Intent = autoclass('android.content.Intent')
-            Intent.ACTION_PICK
-            intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            intent.add_category(Intent.CATEGORY_OPENABLE)
-            activity = autoclass('org.kivy.android.PythonActivity').mActivity
-            activity.startActivityForResult(intent, 100)
-            Environment = autoclass('android.os.Environment')
-            Path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
+            from android.storage import primary_external_storage_path
+            request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
+            # app_dir = App.get_running_app().user_data_dir
+            global Path
+            Path=primary_external_storage_path()
+
         else:
-            Path = r'D:\mbl photos'
+            Path = r'/'
         file_chooser1 = FileChooserListView(path=Path)
         file_chooser1.bind(on_submit=self.selected_file)
         # Create and open a Popup containing the file chooser
@@ -335,7 +322,6 @@ class Profile(Screen):
         boxlayoutt.add_widget(button)
         self.popup.open()
         self.popup.content.add_widget(boxlayoutt)
-
     def cancel(self, inst):
         self.popup.dismiss()
 
