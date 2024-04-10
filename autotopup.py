@@ -1003,7 +1003,3 @@ class SetOnOffScreen(Screen):
     def go_back(self):
         self.manager.add_widget(Factory.AutoTopupScreen(name='autotopup'))
         self.manager.current = 'autotopup'
-
-
-
-
