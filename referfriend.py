@@ -9,77 +9,71 @@ from kivy.storage.jsonstore import JsonStore
 from kivy.base import EventLoop
 Builder.load_string('''
 <ReferFriendScreen>:
-    MDBoxLayout:
-        orientation: 'vertical'
-
+    Screen:
         MDTopAppBar:
-            title: "Referral"
+            title: 'Referral'
             anchor_title:'left'
-            left_action_items: [["arrow-left", lambda x: root.go_back()]]  # Back button
-            background_color: (173, 216, 230)  # Light blue color
-
+            elevation: 2
+            left_action_items: [['arrow-left', lambda x: root.go_back()]]
+            md_bg_color: "#148EFE"
+            specific_text_color: "#ffffff"
+            pos_hint: {'top':1}
         BoxLayout:
             orientation: 'vertical'
-            padding: [20, 0, 20, 0]  # Adjust outer padding
-            spacing: 0  # Adjust spacing between label1 and label2
-
-            CustomLabel:
-                id: label1
-                text: 'Invite friends to GWallet'
-                font_size: 23
-                color: 0, 0, 0, 1
-                height: dp(100)
-                size_hint_x: None  
-                width: self.texture_size[0]  
-                pos_hint: {'x': 0}  
-
-            CustomLabel:
-                id: label2
-                text: 'Invite friends to GWallet and get ₹100 and when your friends make their first payment they get ₹50!'
-                font_size: 18
-                color: 67 / 255, 67 / 255, 67 / 255, 1
-                size_hint_y: None  # Allow fixed height
-                height: self.texture_size[1]  # Set height to fit text
-                size_hint_x: 1  # Relative width
-                text_size: self.width, None  # Allow dynamic text wrapping  
-
-                canvas:
-                    Color:
-                        rgba: 190 / 255, 190 / 255, 190 / 255, 1  # Set color to rgba(190, 190, 190, 1)
-                    Line:
-                        points: self.x, self.y - dp(20), self.x + self.width, self.y - dp(20) # Draw line separator   
-                    Line:
-                        points: self.x, self.y - dp(137), self.x + self.width, self.y - dp(137)     
-
+            pos_hint:{'center_y':.91}
+            padding:dp(10)
+            
+            # Widget:
+            #     size_hint_y: None
+            #     height:dp(15)    
+            MDLabel:
+                text: "Invite friends to GWallet"
+                size_hint_y: None
+                height: self.texture_size[1]
+                # halign: 'left'  
+                pos_hint:{'center_x':.5,'center_y':.78}
+                font_size: dp(20)
+                
+            Widget:
+                size_hint_y: None
+                height:dp(10)
+                     
+            MDLabel:
+                text: "Invite friends to GWallet and get ₹100 and when your friends make their first payment they get ₹50!"
+                size_hint_y: None
+                height: self.texture_size[1]
+                # halign: ''
+                theme_text_color: "Secondary"
+                font_size: dp(15)
             BoxLayout:
                 orientation: 'horizontal'
                 size_hint_y: None
                 height: dp(100)
-                padding:[0,dp(10)]
+                # padding:dp(10)
                 spacing: dp(20)
-
+    
                 MDTextField:
                     id: textinput1
                     hint_text: "userfullname"
                     font_size: 24
                     color: 0, 0, 0, 1
                     size_hint_x: 0.5
-
+    
                 MDTextField:
                     id: textinput2
                     hint_text: "usercode"
                     font_size: 24
                     color: 0, 0, 0, 1
                     size_hint_x: 0.5
-
+            
             MDRectangleFlatButton:
                 text: 'Copy Code'
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 size_hint: (0.4, None)  # Increase button size
-                on_release: app.copy_code()
+                on_release: root.copy_code()
                 text_color: (67 / 255, 67 / 255, 67 / 255, 1)  # Set text color to rgba(67, 67, 67, 1)
                 line_color: [0, 0, 0, 0]  # Set line color to transparent
-
+    
             MDRoundFlatButton: 
                 id: button2
                 text: 'Search Contacts'
@@ -88,15 +82,13 @@ Builder.load_string('''
                 theme_text_color: "Custom"  # Use custom text color
                 text_color: (67 / 255, 67 / 255, 67 / 255, 1)  # Set text color to rgba(67, 67, 67, 1)
                 md_bg_color: (217 / 255, 217 / 255, 217 / 255, 1)  # Set background color to rgba(217, 217, 217, 1)
-                line_color: [0, 0, 0, 0]  # Set line color to transparent
-
-        CustomLabel:
-            id: label3
-            text: '  Your contacts who are not using Gwallet'
-            font_size: 20
-            color: 0, 0, 0, 1
-            width: self.texture_size[0]  
-            pos_hint: {'x': 0, 'y': 0.2}  # Adjust the position along the y-direction
+                line_color: [0, 0, 0, 0]  # Set line color to transparent    
+            MDList:
+                id: contacts_list
+                OneLineListItem:
+                    text: "Contact number 1"
+                OneLineListItem:
+                    text: "Contact number 2"
 
 ''')
 
@@ -120,7 +112,7 @@ class ReferFriendScreen(Screen):
             self.ids.textinput2.text = user['userreferral']
 
     def copy_code(self):
-        code_to_copy = self.root.ids.textinput2.text
+        code_to_copy = self.ids.textinput2.text
         pyperclip.copy(code_to_copy)
 
     def go_back(self):
