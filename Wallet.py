@@ -127,7 +127,7 @@ Builder.load_string(
     MDBoxLayout:
         orientation: 'vertical'
         size_hint_y: 0.5 
-        pos_hint: {"top":0.8} 
+        pos_hint: {"top":0.82} 
         #md_bg_color: "fe1616"
 
         MDCard:
