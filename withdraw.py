@@ -29,7 +29,7 @@ Builder.load_string(
             padding: dp(10)
             spacing: dp(10)
             size_hint_y:0.9
-            pos_hint: {"top":0.8}
+            pos_hint: {"top":0.95}
             #md_bg_color: "#fe1616"
             MDBoxLayout:
                 orientation: 'vertical'

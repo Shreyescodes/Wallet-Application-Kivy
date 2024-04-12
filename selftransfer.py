@@ -143,6 +143,16 @@ class PayScreen(MDScreen):
     def go_back(self):
         self.manager.current = 'selftransfer'
 
+    def __init__(self, **kwargs):
+        super(PayScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        if key in [27, 9]:
+            self.go_back()
+            return True
+        return False
+
     def pay_amount(self):
         amount_input = self.ids.amount_input
         amount = amount_input.text

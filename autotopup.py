@@ -21,7 +21,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.label import MDLabel
 from kivy.factory import Factory
 from kivy.uix.anchorlayout import AnchorLayout
-
+from kivy.base import EventLoop
 Builder.load_string(
     """
 <AutoTopupScreen>:
@@ -134,11 +134,21 @@ Builder.load_string(
 
 
 class AutoTopupScreen(Screen):
+    def __init__(self, **kwargs):
+        super(AutoTopupScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
 
     def go_back(self):
         existing_screen = self.manager.get_screen('auto_topup')
         self.manager.current = 'dashboard'
         self.manager.remove_widget(existing_screen)
+    
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
 
     def update_amount(self, amount):
         self.ids.balance.text = str(amount)
@@ -943,6 +953,7 @@ class ScheduledTopupCard(MDCard):
 class SetOnOffScreen(Screen):
     def __init__(self, **kwargs):
         super(SetOnOffScreen, self).__init__(**kwargs)
+        EventLoop.window.bind(on_keyboard=self.on_key)
         store = JsonStore('user_data.json')
         phone = store.get('user')['value']["phone"]
         user_table = app_tables.wallet_users.get(phone=phone)
@@ -1003,3 +1014,10 @@ class SetOnOffScreen(Screen):
     def go_back(self):
         self.manager.add_widget(Factory.AutoTopupScreen(name='autotopup'))
         self.manager.current = 'autotopup'
+
+    def on_key(self, window, key, scancode, codepoint, modifier):
+        # 27 is the key code for the back button on Android
+        if key in [27, 9]:
+            self.go_back()
+            return True  # Indicates that the key event has been handled
+        return False
