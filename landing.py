@@ -7,122 +7,137 @@ from signup import SignUpScreen
 Builder.load_string(
     """
 <LandingScreen>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
     BoxLayout:
-        orientation: 'vertical'
-        padding: dp(20)
-        spacing: dp(10)
-
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint_y: None
-            height: dp(50)
-            spacing: dp(10)
-
-            AsyncImage:
-                source: 'images/2.png'  # Change this to your image path
-                size_hint_x: None
-                width: dp(30)
-                pos_hint: {'top': 1}
-
-            MDLabel:
-                text: 'G-Wallet Payment'
-                theme_text_color: 'Primary'
-                font_size: '20sp'
-                bold: True
+        orientation: "vertical"
+        padding: dp(35)
+        spacing: dp(35)  # Adjusted spacing between labels and image
 
         MDLabel:
-            text: 'Fast, simple and secure way to pay'
-            font_size: '26sp'
+            text: ""
+
+            theme_text_color: 'Custom'
+            text_color: 0, 0, 0, 1
             bold: True
-            theme_text_color: 'Primary'
 
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint_y: None
-            height: dp(50)
-            spacing: dp(10)
-            pos_hint: {'center_x': 0.5}
 
-            MDRectangleFlatButton:
-                text: 'Login'
+        Image:
+            source: "images/2.png"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.85}
+            size_hint: None, None
+            size: "80dp", "80dp"
+
+
+
+
+        GridLayout:
+            cols: 2
+            spacing: dp(20)
+            padding: dp(20)
+            pos_hint: {'center_x': 0.52, 'center_y': 0.8} 
+            size_hint: 1, None
+
+            MDRaisedButton:
+                md_bg_color: 1,1,1,1
+                theme_text_color: 'Custom'
+                text_color: 0, 0, 0, 1
+                size_hint: 1, None
+                height: "50dp"
+                line_color: 0, 0, 0, 1  
+                line_width: 1
+
+                BoxLayout:
+                    orientation: 'horizontal'
+                    spacing: dp(10)
+
+                    Image:
+                        source: "images/google-logo-9808.png"
+                        size_hint: None, None
+                        size: "20dp", "25dp"  
+
+                    MDLabel:
+                        text: "  Sign In with Google"
+
+                        theme_text_color: 'Custom'
+                        text_color: 0, 0, 0, 1
+                        pos_hint: {'center_x': 0.8, 'center_y': 0.5}
+                        bold: True
+
+        GridLayout:
+            cols: 2
+            spacing: dp(20)
+            padding: dp(20)
+            pos_hint: {'center_x': 0.52, 'center_y': 0.7} 
+            size_hint: 1, None
+
+            MDRaisedButton:
+                rgba: "#1877F2"
+                theme_text_color: 'Custom'
+                text_color: 1, 1, 1, 1
+                size_hint: 1, None
+                height: "50dp"
+
+                BoxLayout:
+                    orientation: 'horizontal'
+                    spacing: 10  # Adjust the spacing as needed
+
+                    Image:
+                        source: "images/logo-facebookpng-32256.png"
+                        size_hint: None, None
+                        size: "20dp", "25dp"
+                        allow_stretch: True
+                        keep_ratio: True
+
+                    MDLabel:
+                        text: "  Sign In with Facebook"
+                        theme_text_color: 'Custom'
+                        text_color: 1, 1, 1, 1
+                        pos_hint: {'center_x': 0.8, 'center_y': 0.5}
+                        bold: True
+
+        Label:
+            text: ""
+
+        GridLayout:
+            cols: 2
+            spacing: dp(20)
+            padding: dp(20)
+            pos_hint: {'center_x': 0.50, 'center_y': 0.6}  # Adjusted y-value
+            size_hint: 1, None
+            height: "50dp"
+
+            MDRaisedButton:
+                text: "Login"
                 on_release: root.nav_sign_in()
-                size_hint: (0.5, 1)
-                width: dp(50)
-                pos_hint: {'center_x': 0.5, 'y': 0.7}  # Adjust the value as needed
-                theme_text_color: "Custom"
+                rgba: "#1877F2"
+                theme_text_color: 'Custom'
                 text_color: 1, 1, 1, 1
-                md_bg_color: 0, 193/255, 245/255, 1
+                size_hint: 1, None
+                height: "50dp"
+                font_name: "Roboto-Bold"
 
-            MDRectangleFlatButton:
-                text: 'Signup'
+            MDRaisedButton:
+                text: "Sign Up"
                 on_press: root.nav_sign_up()
-                size_hint: (0.5, 1)
-                width: dp(50)
-                pos_hint: {'center_x': 0.5, 'y': 0.7}  # Adjust the value as needed
-                theme_text_color: "Custom"
-                text_color: 1, 1, 1, 1
-                md_bg_color: 0, 193/255, 245/255, 1
+                rgba: "#1877F2"
+                pos_hint: {'right': 1, 'y': 0.5}
+                size_hint: 1, None
+                height: "50dp"
+                font_name: "Roboto-Bold"
+        Label:
+            text: ""
 
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint_y: None
-            height: dp(50)
-            spacing: dp(10)
-            pos_hint: {'center_x': 0.5}
-
-            BoxLayout:
-                orientation: 'vertical'
-                spacing: dp(5)
-                pos_hint: {'center_x': 0.3}
-
-                MDIconButton:
-                    icon: 'shield'
-                    pos_hint:{'center_x': 0.5}
-                    valign:"center"
-
-                MDLabel:
-                    text: 'Safe'
-                    theme_text_color: 'Primary'
-                    font_size: '16sp'
-                    bold: True
-                    pos_hint:{'center_x': 0.5}
-                    halign:"center"
-
-            BoxLayout:
-                orientation: 'vertical'
-                spacing: dp(5)
-                pos_hint: {'center_x': 0.5}
-
-                MDIconButton:
-                    icon: 'lock'
-                    pos_hint:{'center_x': 0.5}
-                    valign:"center"
-
-                MDLabel:
-                    text: 'Secure'
-                    theme_text_color: 'Primary'
-                    font_size: '16sp'
-                    bold: True
-                    pos_hint:{'center_x': 0.5}
-                    halign:"center"
-
-            BoxLayout:
-                orientation: 'vertical'
-                spacing: dp(5)
-                pos_hint: {'center_x': 0.7}
-
-                MDIconButton:
-                    icon: 'credit-card'
-                    pos_hint:{'center_x': 0.55}
-                    valign:"center"
-
-                MDLabel:
-                    text: 'Easy'
-                    theme_text_color: 'Primary'
-                    font_size: '16sp'
-                    bold: True
-                    pos_hint:{'center_x': 0.55}
-                    halign:"center"
+        Label:
+            text: ""
+        Label:
+            text: ""
 """
 )
 
