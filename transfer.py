@@ -1,4 +1,8 @@
 from kivy.metrics import dp
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.dropdown import DropDown
+from kivy.uix.popup import Popup
 from kivymd.uix.menu import MDDropdownMenu
 from datetime import datetime
 from anvil.tables import app_tables
@@ -16,15 +20,15 @@ kv_string = '''
 
         BoxLayout:
             orientation: 'vertical'
-            
+
             MDTopAppBar:
                 title: "Money Transfer"
                 anchor_title:'left'
                 left_action_items: [["arrow-left", lambda x: root.go_back()]]
                 md_bg_color: app.theme_cls.primary_color
                 specific_text_color: 1, 1, 1, 1
-            
-                
+
+
             ScrollView:
                 BoxLayout:
                     orientation: 'vertical'
@@ -51,7 +55,7 @@ kv_string = '''
                         size: "150dp", "50dp"
                         pos_hint: {'center_x': 0.5}
                         on_release: root.show_currency_menu()    
-        
+
                     MDTextField:
                         id: name
                         mode: "rectangle"
@@ -61,10 +65,10 @@ kv_string = '''
                         line_color_normal: [137/255, 137/255, 137/255, 1]  
                         on_focus:
                             root.line_color_normal = app.theme_cls.primary_color if self.focus else [137/255, 137/255, 137/255, 1]
-                    
-                        
-                    
-                            
+
+
+
+
                     MDTextField:
                         id:mobile_no_field
                         input_type: "number"
@@ -75,8 +79,8 @@ kv_string = '''
                         line_color_normal: [137/255, 137/255, 137/255, 1]  
                         on_focus:
                             root.line_color_normal = app.theme_cls.primary_color if self.focus else [137/255, 137/255, 137/255, 1]
-                    
-        
+
+
                     MDLabel:
                         text: "Note:Please note that only the beneficiary account number and IFSC information will be used for Quick transfer. (Please ensure correctness), the beneficiary name provided will not be considered as per RBI guidelines."
                         theme_text_color: "Secondary"
@@ -94,14 +98,14 @@ kv_string = '''
                         spacing:dp(5)
                         padding:dp(-5)
                         pos_hint: {'center_x': 0.5, 'center_y': 0.35}
-                       
+
                         MDCheckbox:
                             id: test_money
                             size_hint: None, None
                             size: "48dp", "48dp"
                             pos_hint: {'center_x': 0.5, 'center_y': 0.35}
                             on_active: root.update_transfer_amount(self.active)
-            
+
                         MDLabel:
                             text: "Send 1$ as test money amount (Optional)"
                             theme_text_color: "Secondary"
@@ -122,8 +126,8 @@ kv_string = '''
                         line_color_normal: [137/255, 137/255, 137/255, 1]  
                         on_focus:
                             root.line_color_normal = app.theme_cls.primary_color if self.focus else [137/255, 137/255, 137/255, 1]
-                    
-        
+
+
                     MDTextField:
                         id:purpose
                         mode: "rectangle"
@@ -133,7 +137,7 @@ kv_string = '''
                         line_color_normal: [137/255, 137/255, 137/255, 1]  
                         on_focus:
                             root.line_color_normal = app.theme_cls.primary_color if self.focus else [137/255, 137/255, 137/255, 1]
-                    
+
                     Widget:
                         size_hint_y: None
                         height: '5dp'
@@ -152,6 +156,30 @@ Builder.load_string(kv_string)
 
 
 class TransferScreen(Screen):
+
+    def show_currency_menu(self):
+        box = BoxLayout(orientation='vertical')
+
+        dropdown = DropDown()
+        currencies = ['INR', 'USD', 'EUROS', 'POUND']
+        for currency in currencies:
+            btn = Button(text=currency, size_hint_y=None, height=44)
+            btn.bind(on_release=lambda btn: dropdown.select(btn.text))
+            dropdown.add_widget(btn)
+
+        mainbutton = Button(text='Currency', size_hint=(1, 1))
+        mainbutton.bind(on_release=dropdown.open)
+        dropdown.bind(on_select=lambda instance, x: setattr(mainbutton, 'text', x))
+
+        box.add_widget(mainbutton)
+        popup = Popup(
+            title='Select Currency',
+            content=dropdown,
+            size_hint=(None, None),
+            size=(200, 200)
+        )
+        popup.open()
+
 
     def go_back(self):
         existing_screen = self.manager.get_screen('transfer')
@@ -175,6 +203,16 @@ class TransferScreen(Screen):
         return False
 
     def transfer_money(self):
+        amount = self.ids.amount_field.text.strip()
+        receiver_phone = self.ids.mobile_no_field.text.strip()
+        currency = self.ids.currency_spinner.text.strip()
+        purpose = self.ids.purpose.text.strip()
+
+        # Check if any field is empty
+        if not all([amount, receiver_phone, currency, purpose]):
+            toast("Please fill in all fields.", duration=4)
+            return
+
         # Get data from the text fields and spinner
         amount = float(self.ids.amount_field.text)
         try:
@@ -232,7 +270,7 @@ class TransferScreen(Screen):
                 )
                 toast("Money added successfully.")
                 self.manager.current = 'dashboard'
-                self.manager.show_balance()
+                # self.manager.show_balance()
                 self.ids.purpose.text = ''
                 self.ids.amount_field.text = ''
                 self.ids.name.text = ''
